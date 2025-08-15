@@ -4,6 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Minus, Plus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useStore } from "@/lib/context/StoreContext";
+import { Product } from "@/types/store";
+import { FloatingCartButton } from "@/components/cartButton";
 
 // Mock product data - in a real app, this would come from the database
 const products = [
@@ -16,6 +19,8 @@ const products = [
     image: "/placeholder-product.jpg",
     category: "uniforms",
     belt_level: "all",
+    name: "Premium Cotton Black Belt",
+    currency: "USD",
     tags: ["premium", "competition"],
     stock: 15,
   },
@@ -28,6 +33,8 @@ const products = [
     image: "/placeholder-product.jpg",
     category: "gear",
     belt_level: "all",
+    name: "Premium Cotton Black Belt",
+    currency: "USD",
     tags: ["competition", "protective"],
     stock: 8,
   },
@@ -98,14 +105,21 @@ export default function ProductDetailPage({
   };
 
   // Add to cart function
-  const addToCart = () => {
-    // In a real app, this would add the product to the cart
-    console.log(`Added ${quantity} of ${product.title} to cart`);
-    // You would typically use a cart context or state management library
+  const { dispatch } = useStore();
+
+  const handleAddToCart = (product: Product) => {
+    dispatch({
+      type: "ADD_TO_CART",
+      payload: {
+        product,
+        quantity: 1,
+      },
+    });
   };
 
   return (
     <div className="container py-8">
+      <FloatingCartButton />
       {/* Breadcrumb */}
       <div className="mb-8">
         <Link
@@ -189,8 +203,12 @@ export default function ProductDetailPage({
             </div>
 
             <Button
-              onClick={addToCart}
               disabled={product.stock === 0}
+              onClick={() =>
+                handleAddToCart({
+                  ...product,
+                })
+              }
               className="flex-1 flex items-center justify-center gap-2"
             >
               <ShoppingCart className="h-4 w-4" />

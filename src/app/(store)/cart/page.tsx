@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useStore } from "@/lib/context/StoreContext";
+import { Product } from "@/types/store";
 
 // Mock cart data - in a real app, this would come from a cart context or state management
 const initialCartItems = [

@@ -12,6 +12,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useStore } from "@/lib/context/StoreContext";
+import { Product } from "@/types/store";
 
 // Mock product data - in a real app, this would come from the database
 const products = [
@@ -21,6 +23,8 @@ const products = [
     price: 89.99,
     image: "/placeholder-product.jpg",
     category: "uniforms",
+    name: "Premium Karate Gi",
+    currency: "USD",
     belt_level: "all",
     tags: ["premium", "competition"],
   },
@@ -30,6 +34,8 @@ const products = [
     price: 129.99,
     image: "/placeholder-product.jpg",
     category: "gear",
+    name: "Sparring Gear Set",
+    currency: "USD",
     belt_level: "all",
     tags: ["competition", "protective"],
   },
@@ -40,6 +46,8 @@ const products = [
     image: "/placeholder-product.jpg",
     category: "belts",
     belt_level: "black",
+    name: "Premium Cotton Black Belt",
+    currency: "USD",
     tags: ["premium"],
   },
   {
@@ -49,6 +57,8 @@ const products = [
     image: "/placeholder-product.jpg",
     category: "gear",
     belt_level: "all",
+    name: "Gloves",
+    currency: "USD",
     tags: ["training", "protective"],
   },
   {
@@ -58,6 +68,8 @@ const products = [
     image: "/placeholder-product.jpg",
     category: "uniforms",
     belt_level: "white",
+    name: "White Belt Uniform",
+    currency: "USD",
     tags: ["beginner"],
   },
   {
@@ -67,6 +79,8 @@ const products = [
     image: "/placeholder-product.jpg",
     category: "uniforms",
     belt_level: "blue",
+    name: "Blue Belt Uniform",
+    currency: "USD",
     tags: ["intermediate"],
   },
   {
@@ -76,6 +90,8 @@ const products = [
     image: "/placeholder-product.jpg",
     category: "gear",
     belt_level: "all",
+    name: "Premium Cotton Black Belt",
+    currency: "USD",
     tags: ["protective", "training"],
   },
   {
@@ -85,6 +101,8 @@ const products = [
     image: "/placeholder-product.jpg",
     category: "gear",
     belt_level: "all",
+    name: "Premium Cotton Black Belt",
+    currency: "USD",
     tags: ["protective", "essential"],
   },
 ];
@@ -128,6 +146,17 @@ export default function ProductsPage() {
   const [selectedBeltLevel, setSelectedBeltLevel] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { dispatch } = useStore();
+
+  const handleAddToCart = (product: Product) => {
+    dispatch({
+      type: "ADD_TO_CART",
+      payload: {
+        product,
+        quantity: 1,
+      },
+    });
+  };
 
   // Filter products based on selected filters
   const filteredProducts = products.filter((product) => {
@@ -382,6 +411,17 @@ export default function ProductsPage() {
                 </p>
               )}
             </div>
+            <button
+              onClick={() =>
+                handleAddToCart({
+                  ...product,
+                })
+              }
+              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm
+             px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
+            >
+              Add to Cart
+            </button>
           </Link>
         ))}
       </div>
