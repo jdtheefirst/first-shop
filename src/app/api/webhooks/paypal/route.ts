@@ -87,13 +87,69 @@ export async function POST(req: Request) {
   try {
     console.log("📩 PayPal Webhook received:", eventType);
 
-    if (
-      eventType === "CHECKOUT.ORDER.APPROVED" ||
-      eventType === "PAYMENT.CAPTURE.COMPLETED"
-    ) {
+    // --- Step 1: Handle APPROVED (auto-capture) ---
+    if (eventType === "CHECKOUT.ORDER.APPROVED") {
+      const paypalOrderId = resource.id;
+      const supabaseOrderId = resource?.purchase_units?.[0]?.custom_id;
+
+      console.log("⚡ Order approved, capturing...", supabaseOrderId);
+
+      const captureRes = await fetch(
+        `${PAYPAL_BASE_URL}/v2/checkout/orders/${paypalOrderId}/capture`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const captureData = await captureRes.json();
+      console.log("🔒 Capture response:", captureData);
+
+      // Don’t update DB yet, wait for PAYMENT.CAPTURE.COMPLETED
     }
 
-    return NextResponse.json({ status: "ignored" });
+    // --- Step 2: Handle COMPLETED payment ---
+    if (eventType === "PAYMENT.CAPTURE.COMPLETED") {
+      const supabaseOrderId = resource?.supplementary_data?.related_ids
+        ?.order_id
+        ? resource.supplementary_data.related_ids.order_id
+        : resource?.custom_id;
+
+      if (!supabaseOrderId) {
+        throw new Error("No Supabase order ID found in PayPal resource");
+      }
+
+      const amount = resource.amount.value;
+      const currency = resource.amount.currency_code;
+
+      // ✅ Update order
+      await supabaseAdmin
+        .from("orders")
+        .update({ status: "paid" })
+        .eq("id", supabaseOrderId);
+
+      // ✅ Insert transaction
+      await supabaseAdmin.from("transactions").insert({
+        order_id: supabaseOrderId,
+        gateway: "paypal",
+        amount,
+        fees: resource.seller_receivable_breakdown?.paypal_fee?.value || 0,
+        receipt_number: resource.id,
+        phone_number:
+          resource.payer?.payer_info?.phone?.phone_number?.national_number ||
+          "N/A",
+        gateway_tx_id: resource.id,
+        status: "completed",
+        payload: resource,
+      });
+
+      console.log(`💰 Order ${supabaseOrderId} marked as paid`);
+    }
+
+    return NextResponse.json({ status: "ok" });
   } catch (error: any) {
     console.error("PayPal webhook error:", error);
     return NextResponse.json({ error: error.message }, { status: 400 });

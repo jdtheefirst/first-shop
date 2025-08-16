@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { secureRatelimit } from "@/lib/limit";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 const PAYPAL_BASE_URL =
   process.env.NODE_ENV === "production"
@@ -11,8 +12,8 @@ const PAYPAL_BASE_URL =
 export async function POST(req: Request) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const body = await req.json();
-
   const { cart } = body;
+  const { total, items, currency, shipping } = cart;
 
   const { success } = await secureRatelimit(req);
   if (!success) {
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    // 1. Get PayPal access token
+    // Get PayPal access token
     const basicAuth = Buffer.from(
       `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
     ).toString("base64");
@@ -50,7 +51,36 @@ export async function POST(req: Request) {
     const tokenData = await tokenRes.json();
     const accessToken = tokenData.access_token;
 
-    // 2. Create order
+    // Create order in Supabase
+    const { data: order, error: orderErr } = await supabaseAdmin
+      .from("orders")
+      .insert({
+        user_id: user.id,
+        total,
+        currency,
+        status: "pending",
+        shipping_info: shipping,
+      })
+      .select()
+      .single();
+
+    if (orderErr) throw orderErr;
+
+    // Insert order items
+    const orderItems = items.map((item: any) => ({
+      order_id: order.id,
+      product_id: item.id,
+      qty: item.quantity,
+      unit_price: item.price,
+    }));
+
+    const { error: itemsErr } = await supabaseAdmin
+      .from("order_items")
+      .insert(orderItems);
+
+    if (itemsErr) throw itemsErr;
+
+    // Create PayPal order
     const orderRes = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
       method: "POST",
       headers: {
@@ -59,13 +89,22 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         intent: "CAPTURE",
-        purchase_units: cart,
+        purchase_units: [
+          {
+            reference_id: order.id, // tie PayPal order to Supabase order
+            custom_id: order.id, // safe place for your internal ID
+            amount: {
+              currency_code: currency,
+              value: total.toFixed(2),
+            },
+          },
+        ],
         application_context: {
           brand_name: "WSF Shop",
           landing_page: "LOGIN",
           user_action: "PAY_NOW",
-          return_url: `${siteUrl}/checkout/success`,
-          cancel_url: `${siteUrl}/checkout/failed`,
+          return_url: `${siteUrl}/checkout/success?orderId=${order.id}`,
+          cancel_url: `${siteUrl}/checkout/failed?orderId=${order.id}`,
         },
       }),
     });

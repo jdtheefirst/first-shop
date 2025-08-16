@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, CheckCircle, AlertCircle } from "lucide-react";
@@ -8,36 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useStore } from "@/lib/context/StoreContext";
 import { toast } from "sonner";
-
-// Mock order data - in a real app, this would come from the database
-const orderData = {
-  id: "ORD-12345",
-  total: 349.97,
-  currency: "USD",
-  items: [
-    {
-      id: "1",
-      title: "Premium Karate Gi",
-      price: 89.99,
-      quantity: 1,
-    },
-    {
-      id: "2",
-      title: "Competition Sparring Gear Set",
-      price: 129.99,
-      quantity: 2,
-    },
-  ],
-  shipping: {
-    firstName: "John",
-    lastName: "Doe",
-    address: "123 Main St",
-    city: "Nairobi",
-    state: "Nairobi",
-    postalCode: "00100",
-    country: "Kenya",
-  },
-};
 
 // Payment status types
 type PaymentStatus = "idle" | "processing" | "success" | "error";
@@ -49,6 +19,7 @@ export default function PaymentPage() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { user } = useAuth(); // Assuming useAuth is defined in your context
   const { state } = useStore(); // Assuming useStore is defined in your context
+  const orderData = state.pendingOrder[0];
 
   // M-Pesa payment
   const handleMPesaPayment = async () => {
@@ -76,7 +47,7 @@ export default function PaymentPage() {
 
       const data = await res.json();
 
-      if (!res.ok) {
+      if (!res.ok || data.error) {
         setPaymentStatus("error");
         setErrorMessage(data.message || "Failed to initiate M-Pesa payment.");
         toast.error(data.message || "Failed to initiate M-Pesa payment.");
@@ -91,6 +62,14 @@ export default function PaymentPage() {
       toast.success(
         "M-Pesa payment initiated successfully! Please complete the payment on your phone."
       );
+
+      const { orderId: confirmedOrderId, data: mpesaResponse } = data;
+
+      if (mpesaResponse?.CustomerMessage) {
+        toast.info(mpesaResponse.CustomerMessage);
+      }
+
+      router.push(`/checkout/success?orderId=${confirmedOrderId}`);
     } catch (error) {
       console.error("Payment error:", error);
       setPaymentStatus("error");
@@ -240,7 +219,7 @@ export default function PaymentPage() {
               </div>
 
               <ul className="divide-y mb-4">
-                {orderData.items.map((item) => (
+                {orderData.items.map((item: any) => (
                   <li key={item.id} className="py-3 flex justify-between">
                     <div>
                       <p className="font-medium">{item.title}</p>

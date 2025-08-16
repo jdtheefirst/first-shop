@@ -107,15 +107,6 @@ export async function POST(req: Request, res: Response) {
       .insert(orderItems);
     if (itemsErr) throw itemsErr;
 
-    // 📦 3. Create transaction record
-    const { error: txErr } = await supabaseAdmin.from("transactions").insert({
-      order_id: orderData.id,
-      gateway: "mpesa",
-      amount: total,
-      status: "initiated",
-    });
-    if (txErr) throw txErr;
-
     const { data } = await axios.post(
       "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
       {
@@ -125,9 +116,11 @@ export async function POST(req: Request, res: Response) {
         TransactionType: "CustomerBuyGoodsOnline",
         Amount: total,
         PartyA: `254${phone}`,
-        PartyB: "8863150",
+        PartyB: process.env.MPESA_TILL!,
         PhoneNumber: `254${phone}`,
-        CallBackURL: `${process.env.BASE_URL}/api/webhooks/mpesa?orderId=${orderData.id}`,
+        CallBackURL: `${process.env.BASE_URL}/api/webhooks/mpesa?orderId=${
+          orderData.id
+        }&callbackSecret=${process.env.MPESA_CALLBACK_SECRET!}`,
         AccountReference: "World Samma Federation",
         TransactionDesc: "Payment for order",
       },
@@ -138,7 +131,16 @@ export async function POST(req: Request, res: Response) {
         },
       }
     );
-    return NextResponse.json({ orderId: orderData.id, mpesa: data });
+    if (data.ResponseCode !== "0") {
+      throw new Error(`M-Pesa error: ${data.ResponseDescription}`);
+    }
+
+    return NextResponse.json(
+      { orderId: orderData.id, mpesa: data },
+      {
+        status: 200,
+      }
+    );
   } catch (error: any) {
     console.error("M-Pesa checkout error:", error);
     return NextResponse.json(

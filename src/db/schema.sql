@@ -54,6 +54,8 @@ CREATE TABLE transactions (
     fees numeric(10, 2),
     gateway_tx_id text,
     status text NOT NULL,
+    receipt_number text,
+    phone_number text,
     payload jsonb,
     created_at timestamptz DEFAULT now()
 );

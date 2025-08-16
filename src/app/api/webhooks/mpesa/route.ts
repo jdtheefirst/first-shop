@@ -1,34 +1,102 @@
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
-// Mpesa callback webhook listener;
-export async function POST(request: Request, res: Response) {
-  const { pathname } = new URL(request.url);
-  const searchParams = new URLSearchParams(pathname.split("?")[1]);
-  const userId = searchParams.get("userId");
-  const body = await request.json();
-  const { Body } = body;
-  if (!Body || !Body.stkCallback) {
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 }
-    );
-  }
-
+// Mpesa callback webhook listener
+export async function POST(request: Request) {
   try {
-    if (!Body.stkCallback.CallbackMetadata) {
+    const url = new URL(request.url);
+    const orderId = url.searchParams.get("orderId");
+    const callbackSecret = url.searchParams.get("callbackSecret");
+
+    if (!orderId || !callbackSecret) {
       return NextResponse.json(
-        { message: "Invalid callback data" },
+        { error: "Missing orderId or callbackSecret" },
         { status: 400 }
       );
     }
 
-    const amount = Body.stkCallback.CallbackMetadata.Item[0].Value;
+    // Validate callback secret
+    if (callbackSecret !== process.env.MPESA_CALLBACK_SECRET) {
+      return NextResponse.json(
+        { error: "Invalid callback secret" },
+        { status: 403 }
+      );
+    }
 
-    // Update transaction status to 'Completed' and update the amount
+    const body = await request.json();
+    const { Body } = body;
 
-    // Update user subscription or other details
+    if (!Body || !Body.stkCallback) {
+      return NextResponse.json(
+        { error: "Invalid request body" },
+        { status: 400 }
+      );
+    }
+
+    const stkCallback = Body.stkCallback;
+
+    // Handle failed/cancelled payments
+    if (stkCallback.ResultCode !== 0) {
+      console.warn("Payment failed or cancelled:", stkCallback);
+      return NextResponse.json(
+        { message: "Payment not successful" },
+        { status: 200 }
+      );
+    }
+
+    // Extract metadata safely
+    const items = stkCallback.CallbackMetadata?.Item || [];
+    const amountItem = items.find((item: any) => item.Name === "Amount");
+    const receiptItem = items.find(
+      (item: any) => item.Name === "MpesaReceiptNumber"
+    );
+    const phoneItem = items.find((item: any) => item.Name === "PhoneNumber");
+
+    const amount = amountItem?.Value || 0;
+    const receipt = receiptItem?.Value || "N/A";
+    const phone = phoneItem?.Value || "N/A";
+
+    // TODO: Save to DB (transactions, subscriptions, etc.)
+    console.log("✅ Payment received:", { orderId, amount, receipt, phone });
+    // Update transaction status and order status in your database here
+
+    const { data: Order } = await supabaseAdmin
+      .from("orders")
+      .update({
+        status: "paid",
+      })
+      .eq("id", orderId)
+      .select()
+      .single();
+
+    if (!Order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+    const { error: txErr } = await supabaseAdmin.from("transactions").insert({
+      order_id: Order.id,
+      gateway: "mpesa",
+      amount,
+      status: "completed",
+      receipt_number: receipt,
+      phone_number: phone,
+      gateway_tx_id: stkCallback.CheckoutRequestID,
+      payload: stkCallback,
+    });
+
+    if (txErr) {
+      console.error("Error saving transaction:", txErr);
+      return NextResponse.json(
+        { error: "Failed to save transaction" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "Payment processed successfully" },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error(error);
+    console.error("❌ Mpesa callback error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
