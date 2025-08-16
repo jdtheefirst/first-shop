@@ -1,58 +1,36 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
+import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useStore } from "@/lib/context/StoreContext";
-import { Product } from "@/types/store";
-
-// Mock cart data - in a real app, this would come from a cart context or state management
-const initialCartItems = [
-  {
-    id: "1",
-    title: "Premium Karate Gi",
-    price: 89.99,
-    image: "/placeholder-product.jpg",
-    quantity: 1,
-  },
-  {
-    id: "2",
-    title: "Competition Sparring Gear Set",
-    price: 129.99,
-    image: "/placeholder-product.jpg",
-    quantity: 2,
-  },
-];
+import { useCart, useStore } from "@/lib/context/StoreContext";
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const { cartItems, clearCart } = useCart();
+  const { total } = useStore().state;
+  const { dispatch } = useStore();
 
   // Calculate subtotal
-  const subtotal = cartItems.reduce((total, item) => {
-    return total + item.price * item.quantity;
-  }, 0);
-
   // Shipping cost - in a real app, this might be calculated based on location, weight, etc.
-  const shipping = subtotal > 100 ? 0 : 10;
+  const shipping = total > 100 ? 0 : 10;
 
   // Total cost
-  const total = subtotal + shipping;
+  const subtotal = total + shipping;
 
   // Update item quantity
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
 
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
-  // Remove item from cart
-  const removeItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  const updateQuantity = (productId: string, quantity: number) => {
+    if (quantity < 1) {
+      dispatch({
+        type: "REMOVE_FROM_CART",
+        payload: { productId },
+      });
+    } else {
+      dispatch({
+        type: "UPDATE_QUANTITY",
+        payload: { productId, quantity },
+      });
+    }
   };
 
   // If cart is empty
@@ -91,7 +69,7 @@ export default function CartPage() {
 
             <ul className="divide-y">
               {cartItems.map((item) => (
-                <li key={item.id} className="p-6">
+                <li key={item.product.id} className="p-6">
                   <div className="flex flex-col sm:flex-row gap-4">
                     {/* Product Image */}
                     <div className="w-full sm:w-24 h-24 bg-muted rounded-md flex items-center justify-center shrink-0">
@@ -107,52 +85,42 @@ export default function CartPage() {
                         <div>
                           <h3 className="font-medium">
                             <Link
-                              href={`/products/${item.id}`}
+                              href={`/products/${item.product.id}`}
                               className="hover:underline"
                             >
-                              {item.title}
+                              {item.product.name}
                             </Link>
                           </h3>
                           <p className="text-sm text-muted-foreground mt-1">
-                            ${item.price.toFixed(2)}
+                            ${item.product.price.toFixed(2)}
                           </p>
                         </div>
 
-                        <div className="flex items-center mt-4 sm:mt-0">
-                          <div className="flex items-center border rounded-md mr-4">
-                            <button
-                              onClick={() =>
-                                updateQuantity(item.id, item.quantity - 1)
-                              }
-                              className="px-2 py-1 text-muted-foreground hover:text-foreground"
-                            >
-                              <Minus className="h-3 w-3" />
-                            </button>
-                            <span className="px-3 py-1 text-center w-8 text-sm">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() =>
-                                updateQuantity(item.id, item.quantity + 1)
-                              }
-                              className="px-2 py-1 text-muted-foreground hover:text-foreground"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
-                          </div>
-
+                        <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => removeItem(item.id)}
-                            className="text-muted-foreground hover:text-red-500"
-                            aria-label="Remove item"
+                            onClick={() =>
+                              updateQuantity(item.product.id, item.quantity - 1)
+                            }
+                            className="text-gray-500 hover:text-gray-700"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="w-8 text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.product.id, item.quantity + 1)
+                            }
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            <Plus className="h-3 w-3" />
                           </button>
                         </div>
                       </div>
 
                       <p className="text-sm font-medium mt-4 sm:text-right">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ${(item.product.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -165,7 +133,7 @@ export default function CartPage() {
                 <Link href="/products">Continue Shopping</Link>
               </Button>
 
-              <Button variant="ghost" onClick={() => setCartItems([])}>
+              <Button variant="ghost" onClick={clearCart}>
                 Clear Cart
               </Button>
             </div>

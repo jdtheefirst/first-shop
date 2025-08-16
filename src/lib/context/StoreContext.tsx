@@ -6,6 +6,7 @@ import { CartItem } from "@/types/store";
 interface StoreState {
   cart: CartItem[];
   total: number;
+  pendingOrder: any;
 }
 
 type StoreAction =
@@ -18,11 +19,12 @@ type StoreAction =
       type: "UPDATE_QUANTITY";
       payload: { productId: string; quantity: number };
     }
-  | { type: "CLEAR_CART" };
-
+  | { type: "CLEAR_CART" }
+  | { type: "SET_PENDING_ORDER"; payload: any };
 const initialState: StoreState = {
   cart: [],
   total: 0,
+  pendingOrder: null,
 };
 
 const StoreContext = createContext<{
@@ -89,6 +91,12 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
         total: 0,
       };
 
+    case "SET_PENDING_ORDER":
+      return {
+        ...state,
+        pendingOrder: action.payload,
+      };
+
     default:
       return state;
   }
@@ -127,4 +135,19 @@ export function useCart() {
   const clearCart = () => dispatch({ type: "CLEAR_CART" });
 
   return { cartItems, clearCart };
+}
+
+export function buildOrderData(state: StoreState, shipping: any) {
+  return {
+    total: state.total,
+    currency: state.cart[0]?.product.currency || "USD",
+    items: state.cart.map((item) => ({
+      name: item.product.name,
+      title: item.product.title,
+      image: item.product.image,
+      price: item.product.price,
+      quantity: item.quantity,
+    })),
+    shipping,
+  };
 }

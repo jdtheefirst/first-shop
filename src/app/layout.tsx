@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { StoreProvider } from "@/lib/context/StoreContext";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +43,10 @@ export default function RootLayout({
             <StoreProvider>
               <div className="flex flex-col min-h-screen">
                 <Header />
-                <main className="flex-grow">{children}</main>
+                <main className="flex-grow">
+                  {children}
+                  <Toaster position="top-right" richColors closeButton />
+                </main>
                 <Footer />
               </div>
             </StoreProvider>

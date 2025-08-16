@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,31 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
-
-// Mock cart data - in a real app, this would come from a cart context or state management
-const cartItems = [
-  {
-    id: "1",
-    title: "Premium Karate Gi",
-    price: 89.99,
-    image: "/placeholder-product.jpg",
-    quantity: 1,
-  },
-  {
-    id: "2",
-    title: "Competition Sparring Gear Set",
-    price: 129.99,
-    image: "/placeholder-product.jpg",
-    quantity: 2,
-  },
-];
-
-// Calculate totals
-const subtotal = cartItems.reduce((total, item) => {
-  return total + item.price * item.quantity;
-}, 0);
-const shipping = subtotal > 100 ? 0 : 10;
-const total = subtotal + shipping;
+import { buildOrderData, useCart, useStore } from "@/lib/context/StoreContext";
 
 // Form schema
 const formSchema = z.object({
@@ -55,15 +31,16 @@ const formSchema = z.object({
   state: z.string().min(2, "State must be at least 2 characters."),
   postalCode: z.string().min(5, "Postal code must be at least 5 characters."),
   country: z.string().min(2, "Country must be at least 2 characters."),
+  paymentMethod: z.enum(["paypal", "mpesa"], {
+    message: "Please select a payment method.",
+  }),
 });
 
 export default function CheckoutPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"paypal" | "mpesa">(
-    "paypal"
-  );
-
+  const { state, dispatch } = useStore();
+  const { cartItems } = useCart();
   // Initialize form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -77,7 +54,9 @@ export default function CheckoutPage() {
       state: "",
       postalCode: "",
       country: "",
+      paymentMethod: "paypal", // Default payment method
     },
+    mode: "onBlur",
   });
 
   // Form submission handler
@@ -85,14 +64,16 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // In a real app, this would create an order in the database
+      // we are not creating an order in the database yet
       console.log("Form values:", values);
-      console.log("Payment method:", paymentMethod);
       console.log("Cart items:", cartItems);
-      console.log("Total:", total);
+      console.log("Total:", state.total);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Simulate order creation
+      const orderData = buildOrderData(state, values);
+
+      // Store in context so payment page can access
+      dispatch({ type: "SET_PENDING_ORDER", payload: orderData });
 
       // Redirect to payment page
       router.push("/checkout/payment");
@@ -299,63 +280,40 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Payment Method */}
-                  <div className="space-y-4">
-                    <Label>Payment Method</Label>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div
-                        className={`border rounded-lg p-4 cursor-pointer ${
-                          paymentMethod === "paypal"
-                            ? "border-primary bg-primary/5"
-                            : ""
-                        }`}
-                        onClick={() => setPaymentMethod("paypal")}
-                      >
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            id="paypal"
-                            name="paymentMethod"
-                            checked={paymentMethod === "paypal"}
-                            onChange={() => setPaymentMethod("paypal")}
-                            className="h-4 w-4"
-                          />
-                          <Label htmlFor="paypal" className="cursor-pointer">
-                            PayPal / Credit Card
-                          </Label>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          Pay securely with PayPal or your credit/debit card.
-                        </p>
-                      </div>
-
-                      <div
-                        className={`border rounded-lg p-4 cursor-pointer ${
-                          paymentMethod === "mpesa"
-                            ? "border-primary bg-primary/5"
-                            : ""
-                        }`}
-                        onClick={() => setPaymentMethod("mpesa")}
-                      >
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            id="mpesa"
-                            name="paymentMethod"
-                            checked={paymentMethod === "mpesa"}
-                            onChange={() => setPaymentMethod("mpesa")}
-                            className="h-4 w-4"
-                          />
-                          <Label htmlFor="mpesa" className="cursor-pointer">
-                            M-Pesa
-                          </Label>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          Pay using M-Pesa mobile money service.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Payment Method</FormLabel>
+                        <FormControl>
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                value="paypal"
+                                checked={field.value === "paypal"}
+                                onChange={field.onChange}
+                                className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                              />
+                              <Label className="text-sm">PayPal</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                value="mpesa"
+                                checked={field.value === "mpesa"}
+                                onChange={field.onChange}
+                                className="h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500"
+                              />
+                              <Label className="text-sm">M-Pesa</Label>
+                            </div>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <Button
                     type="submit"
@@ -380,15 +338,18 @@ export default function CheckoutPage() {
             <div className="p-6">
               <ul className="divide-y mb-4">
                 {cartItems.map((item) => (
-                  <li key={item.id} className="py-3 flex justify-between">
+                  <li
+                    key={item.product.id}
+                    className="py-3 flex justify-between"
+                  >
                     <div>
-                      <p className="font-medium">{item.title}</p>
+                      <p className="font-medium">{item.product.name}</p>
                       <p className="text-sm text-muted-foreground">
                         Qty: {item.quantity}
                       </p>
                     </div>
                     <p className="font-medium">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ${(item.product.price * item.quantity).toFixed(2)}
                     </p>
                   </li>
                 ))}
@@ -397,16 +358,16 @@ export default function CheckoutPage() {
               <div className="space-y-3 pt-4 border-t">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>${state.total.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
                   <span>
-                    {shipping === 0 ? (
+                    {state.total > 100 ? (
                       <span className="text-green-600">Free</span>
                     ) : (
-                      `$${shipping.toFixed(2)}`
+                      `$${state.total.toFixed(2)}`
                     )}
                   </span>
                 </div>
@@ -414,7 +375,7 @@ export default function CheckoutPage() {
                 <div className="border-t pt-3 mt-3">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>${state.total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

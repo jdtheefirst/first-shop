@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/context/AuthContext";
+import { useStore } from "@/lib/context/StoreContext";
+import { toast } from "sonner";
 
 // Mock order data - in a real app, this would come from the database
 const orderData = {
@@ -42,65 +45,59 @@ type PaymentStatus = "idle" | "processing" | "success" | "error";
 export default function PaymentPage() {
   const router = useRouter();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const { user } = useAuth(); // Assuming useAuth is defined in your context
+  const { state } = useStore(); // Assuming useStore is defined in your context
 
-  // Simulate PayPal script loading
-  useEffect(() => {
-    // In a real app, this would load the PayPal SDK
-    const loadPayPalScript = async () => {
-      // Simulate script loading
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // In a real app, this would initialize the PayPal buttons
-      console.log("PayPal SDK loaded");
-    };
-
-    loadPayPalScript();
-  }, []);
-
-  // Simulate PayPal payment
-  const handlePayPalPayment = async () => {
-    setPaymentStatus("processing");
-
-    try {
-      // Simulate API call to create order
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Simulate successful payment
-      setPaymentStatus("success");
-
-      // In a real app, this would redirect to a success page after a short delay
-      setTimeout(() => {
-        router.push("/checkout/success?orderId=" + orderData.id);
-      }, 2000);
-    } catch (error) {
-      console.error("Payment error:", error);
-      setPaymentStatus("error");
-      setErrorMessage(
-        "There was an error processing your payment. Please try again."
-      );
-    }
-  };
-
-  // Simulate M-Pesa payment
+  // M-Pesa payment
   const handleMPesaPayment = async () => {
     setPaymentStatus("processing");
 
     try {
-      // Simulate API call to initiate M-Pesa STK push
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!user) {
+        toast.info("Haven't logged in yet, redirecting to login...");
+        return router.push("/login");
+      }
+
+      if (!state.pendingOrder.length) return router.push("/products");
+      if (!phoneNumber) {
+        setPaymentStatus("error");
+        setErrorMessage("Please enter your phone number.");
+        toast.error("Please enter your phone number.");
+        return;
+      }
+
+      const res = await fetch("/api/checkout/mpesa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart: state.pendingOrder, phoneNumber }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setPaymentStatus("error");
+        setErrorMessage(data.message || "Failed to initiate M-Pesa payment.");
+        toast.error(data.message || "Failed to initiate M-Pesa payment.");
+        console.error("M-Pesa payment error:", data);
+        return;
+      }
 
       // Simulate successful payment
       setPaymentStatus("success");
 
-      // In a real app, this would redirect to a success page after a short delay
-      setTimeout(() => {
-        router.push("/checkout/success?orderId=" + orderData.id);
-      }, 2000);
+      // they have received an STK push notification
+      toast.success(
+        "M-Pesa payment initiated successfully! Please complete the payment on your phone."
+      );
     } catch (error) {
       console.error("Payment error:", error);
       setPaymentStatus("error");
       setErrorMessage(
+        "There was an error processing your M-Pesa payment. Please try again."
+      );
+      toast.error(
         "There was an error processing your M-Pesa payment. Please try again."
       );
     }
@@ -167,7 +164,9 @@ export default function PaymentPage() {
 
                   {/* Simulated PayPal button */}
                   <Button
-                    onClick={handlePayPalPayment}
+                    onClick={() => {
+                      router.push("/checkout/cart");
+                    }}
                     className="w-full bg-[#0070ba] hover:bg-[#003087] text-white"
                     disabled={
                       paymentStatus === "processing" ||
@@ -200,6 +199,9 @@ export default function PaymentPage() {
                     <input
                       type="tel"
                       placeholder="e.g., 254712345678"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      required
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     />
                   </div>
@@ -272,6 +274,15 @@ export default function PaymentPage() {
                     {orderData.shipping.postalCode}
                   </p>
                   <p>{orderData.shipping.country}</p>
+                  {/* {shipping fee} */}
+                  <p className="mt-2">
+                    Shipping Fee:{" "}
+                    {orderData.total > 100 ? (
+                      <span className="text-green-600">Free</span>
+                    ) : (
+                      `$10.00`
+                    )}
+                  </p>
                 </address>
               </div>
             </div>
