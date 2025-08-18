@@ -85,7 +85,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="container py-8">
+    <div className="container mx-auto py-8">
       {/* Breadcrumb */}
       <div className="mb-8">
         <Link

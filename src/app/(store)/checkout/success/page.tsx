@@ -40,7 +40,7 @@ export default function SuccessPage() {
 
   if (isLoading) {
     return (
-      <div className="container py-12 text-center">
+      <div className="container mx-auto py-12 text-center">
         <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
         <p className="text-muted-foreground">Loading order details...</p>
       </div>
@@ -49,7 +49,7 @@ export default function SuccessPage() {
 
   if (!orderDetails) {
     return (
-      <div className="container py-12 text-center">
+      <div className="container mx-auto py-12 text-center">
         <p className="text-red-500 font-medium">Order not found.</p>
         <Button asChild className="mt-4">
           <Link href="/">Return to Home</Link>
@@ -59,7 +59,7 @@ export default function SuccessPage() {
   }
 
   return (
-    <div className="container py-8 max-w-4xl mx-auto">
+    <div className="container mx-auto py-8 max-w-4xl mx-auto">
       {/* ✅ Confirmation Header */}
       <div className="text-center mb-8">
         <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">

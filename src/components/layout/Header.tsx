@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -40,11 +41,11 @@ export default function Header() {
   const navItems = isAdmin ? adminNavigation : navigation;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-colors duration-300 px-2">
+      <div className="container mx-auto flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="font-bold text-xl">
-            WorldSamma
+            Samma
           </Link>
 
           <nav className="hidden md:flex gap-6">
@@ -103,9 +104,12 @@ export default function Header() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
+            <SheetContent side="right" className="px-2">
               <SheetHeader>
                 <SheetTitle>{isAdmin ? "Admin Menu" : "Menu"}</SheetTitle>
+                <SheetDescription>
+                  Navigate through the site using the links below.
+                </SheetDescription>
               </SheetHeader>
               <nav className="flex flex-col gap-4 mt-4">
                 {navItems.map((item) => (

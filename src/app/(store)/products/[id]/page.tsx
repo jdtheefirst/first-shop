@@ -118,7 +118,7 @@ export default function ProductDetailPage({
   };
 
   return (
-    <div className="container py-8">
+    <div className="container mx-auto py-8 px-2">
       <FloatingCartButton />
       {/* Breadcrumb */}
       <div className="mb-8">

@@ -56,13 +56,13 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen px-2">
       {/* Hero Section */}
       <section className="relative h-[500px] flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50 z-10" />
         <div className="relative z-20 text-center text-white px-4">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            WorldSamma Martial Arts Shop
+            World Samma Academy Shop
           </h1>
           <p className="text-xl md:text-2xl mb-8">
             Quality gear for every martial artist
@@ -90,7 +90,7 @@ export default function Home() {
 
       {/* Featured Categories */}
       <section className="py-16 bg-muted/50">
-        <div className="container">
+        <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
             Shop by Category
           </h2>
@@ -117,7 +117,7 @@ export default function Home() {
 
       {/* Featured Products */}
       <section className="py-16">
-        <div className="container">
+        <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
             Featured Products
           </h2>
@@ -156,9 +156,9 @@ export default function Home() {
 
       {/* Testimonials/Features */}
       <section className="py-16 bg-muted/50">
-        <div className="container">
+        <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
-            Why Choose WorldSamma
+            Why Choose Samma Store
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col items-center text-center p-6 rounded-lg bg-background shadow-sm">
@@ -197,7 +197,7 @@ export default function Home() {
 
       {/* Call to Action */}
       <section className="py-16 bg-primary text-primary-foreground">
-        <div className="container text-center">
+        <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">
             Ready to Elevate Your Training?
           </h2>
