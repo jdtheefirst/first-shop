@@ -6,9 +6,7 @@ export default function Footer() {
       <div className="container mx-auto py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">
-              World Samma Academy Shop
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Main Academy Shop</h3>
             <p className="text-sm text-muted-foreground">
               Your one-stop shop for martial arts gear and equipment.
             </p>
@@ -95,7 +93,7 @@ export default function Footer() {
             <address className="not-italic text-sm text-muted-foreground">
               <p>123 Martial Arts Way</p>
               <p>Nairobi, Kenya</p>
-              <p className="mt-2">Email: info@worldsamma.com</p>
+              <p className="mt-2">Email: info@worldsamma.org</p>
               <p>Phone: +254 123 456 789</p>
             </address>
           </div>
@@ -103,7 +101,7 @@ export default function Footer() {
 
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} WorldSamma Shop. All rights reserved.
+            © {new Date().getFullYear()} Samma Shop. All rights reserved.
           </p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link
