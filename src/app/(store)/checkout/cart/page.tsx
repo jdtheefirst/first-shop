@@ -18,7 +18,7 @@ export default function CheckoutPage() {
         return router.push("/login");
       }
 
-      if (!state.pendingOrder.length) return router.push("/");
+      if (!state.pendingOrder.length) return router.push("/products");
 
       const res = await fetch("/api/checkout/paypal", {
         method: "POST",

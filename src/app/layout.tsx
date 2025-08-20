@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WorldSamma Shop",
+  title: "Samma Shop",
   description: "Quality martial arts gear for every practitioner.",
 };
 

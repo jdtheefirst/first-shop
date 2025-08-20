@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Minus, Plus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -68,12 +68,12 @@ const relatedProducts = [
 export default function ProductDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const [quantity, setQuantity] = useState(1);
+  const param = use(params);
 
   // Find the product by ID
-  const product = products.find((p) => p.id === params.id);
+  const product = products.find((p) => p.id === param.id);
 
   // If product not found, show error
   if (!product) {
@@ -89,20 +89,6 @@ export default function ProductDetailPage({
       </div>
     );
   }
-
-  // Increment quantity
-  const incrementQuantity = () => {
-    if (quantity < product.stock) {
-      setQuantity(quantity + 1);
-    }
-  };
-
-  // Decrement quantity
-  const decrementQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  };
 
   // Add to cart function
   const { dispatch } = useStore();
@@ -184,24 +170,6 @@ export default function ProductDetailPage({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex items-center border rounded-md">
-              <button
-                onClick={decrementQuantity}
-                disabled={quantity <= 1}
-                className="px-3 py-2 text-muted-foreground hover:text-foreground disabled:opacity-50"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <span className="px-4 py-2 text-center w-12">{quantity}</span>
-              <button
-                onClick={incrementQuantity}
-                disabled={quantity >= product.stock}
-                className="px-3 py-2 text-muted-foreground hover:text-foreground disabled:opacity-50"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-
             <Button
               disabled={product.stock === 0}
               onClick={() =>

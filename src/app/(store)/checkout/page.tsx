@@ -41,6 +41,12 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { state, dispatch } = useStore();
   const { cartItems } = useCart();
+
+  // If cart is empty, redirect to products
+  if (cartItems.length === 0) {
+    router.push("/products");
+    return null;
+  }
   // Initialize form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -85,7 +91,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-2">
       {/* Breadcrumb */}
       <div className="mb-8">
         <Link

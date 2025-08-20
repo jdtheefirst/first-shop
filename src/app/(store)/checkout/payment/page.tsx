@@ -19,7 +19,13 @@ export default function PaymentPage() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { user } = useAuth(); // Assuming useAuth is defined in your context
   const { state } = useStore(); // Assuming useStore is defined in your context
-  const orderData = state.pendingOrder[0];
+  const orderData = state.pendingOrder;
+
+  // If there's no pending order, redirect to products
+  if (!orderData || !orderData.items.length) {
+    router.push("/products");
+    return null;
+  }
 
   // M-Pesa payment
   const handleMPesaPayment = async () => {
@@ -83,7 +89,7 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-2">
       {/* Breadcrumb */}
       <div className="mb-8">
         <Link
@@ -128,80 +134,94 @@ export default function PaymentPage() {
                 </div>
               )}
 
-              {/* PayPal Payment Option */}
-              <div className="mb-8">
-                <h3 className="text-lg font-medium mb-4">
-                  Pay with PayPal or Credit Card
-                </h3>
+              {/* { orderData.shipping.paymentMethod decides which payment to use } */}
 
-                {/* In a real app, this would be the PayPal button */}
-                <div className="border rounded-lg p-6 bg-gray-50">
-                  <p className="text-center text-muted-foreground mb-4">
-                    In a real implementation, the PayPal button would appear
-                    here.
-                  </p>
+              {orderData.shipping.paymentMethod === "paypal" && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium mb-4">
+                    Paying with PayPal
+                  </h3>
 
-                  {/* Simulated PayPal button */}
-                  <Button
-                    onClick={() => {
-                      router.push("/checkout/cart");
-                    }}
-                    className="w-full bg-[#0070ba] hover:bg-[#003087] text-white"
-                    disabled={
-                      paymentStatus === "processing" ||
-                      paymentStatus === "success"
-                    }
-                  >
-                    Pay with PayPal
-                  </Button>
+                  {/* In a real app, this would be the PayPal button */}
+                  <div className="border rounded-lg p-6 bg-gray-50">
+                    <p className="text-center text-muted-foreground mb-4">
+                      In a real implementation, the PayPal button would appear
+                      here.
+                    </p>
 
-                  <p className="text-xs text-center text-muted-foreground mt-4">
-                    By clicking the button, you agree to the terms of service
-                    and privacy policy.
-                  </p>
+                    {/* Simulated PayPal button */}
+                    <Button
+                      onClick={() => {
+                        router.push("/checkout/cart");
+                      }}
+                      className="w-full bg-[#0070ba] hover:bg-[#003087] text-white"
+                      disabled={
+                        paymentStatus === "processing" ||
+                        paymentStatus === "success"
+                      }
+                    >
+                      Pay with PayPal
+                    </Button>
+
+                    <p className="text-xs text-center text-muted-foreground mt-4">
+                      By clicking the button, you agree to the terms of service
+                      and privacy policy.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* M-Pesa Payment Option */}
-              <div>
-                <h3 className="text-lg font-medium mb-4">Pay with M-Pesa</h3>
+              {orderData.shipping.paymentMethod === "mpesa" && (
+                <div>
+                  <h3 className="text-lg font-medium mb-4">
+                    Paying with M-Pesa
+                  </h3>
 
-                <div className="border rounded-lg p-6 bg-gray-50">
-                  <p className="text-center text-muted-foreground mb-4">
-                    Enter your phone number to receive an M-Pesa payment prompt.
-                  </p>
+                  <div className="border rounded-lg p-6 bg-gray-50">
+                    <p className="text-center text-muted-foreground mb-4">
+                      Enter your phone number to receive an M-Pesa payment
+                      prompt.
+                    </p>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="e.g., 254712345678"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      required
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    />
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-1">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="e.g., 254712345678"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        pattern="^254[0-9]{9}$"
+                        required
+                        minLength={12}
+                        maxLength={12} // Assuming 254 is the country code for Kenya
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                    </div>
+
+                    <Button
+                      onClick={handleMPesaPayment}
+                      className="w-full bg-[#4CAF50] hover:bg-[#388E3C] text-white"
+                      disabled={
+                        paymentStatus === "processing" ||
+                        paymentStatus === "success" ||
+                        phoneNumber.length !== 12
+                      }
+                    >
+                      {paymentStatus === "processing"
+                        ? "Processing..."
+                        : "Pay with M-Pesa"}
+                    </Button>
+
+                    <p className="text-xs text-center text-muted-foreground mt-4">
+                      You will receive an STK push notification on your phone to
+                      complete the payment.
+                    </p>
                   </div>
-
-                  <Button
-                    onClick={handleMPesaPayment}
-                    className="w-full bg-[#4CAF50] hover:bg-[#388E3C] text-white"
-                    disabled={
-                      paymentStatus === "processing" ||
-                      paymentStatus === "success"
-                    }
-                  >
-                    Pay with M-Pesa
-                  </Button>
-
-                  <p className="text-xs text-center text-muted-foreground mt-4">
-                    You will receive an STK push notification on your phone to
-                    complete the payment.
-                  </p>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -215,7 +235,7 @@ export default function PaymentPage() {
 
             <div className="p-6">
               <div className="mb-4">
-                <p className="font-medium">Order #{orderData.id}</p>
+                <p className="font-medium">Order #</p>
               </div>
 
               <ul className="divide-y mb-4">

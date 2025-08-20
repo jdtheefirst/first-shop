@@ -30,6 +30,41 @@ const categories = [
       "From focus mitts to punching bags, get the equipment you need to sharpen your skills and enhance your training.",
     image: "/placeholder-category.jpg",
   },
+  {
+    name: "Merch & Apparel",
+    slug: "merch",
+    description:
+      "Rep Samma Martial Arts outside the dojo with branded t-shirts, hoodies, caps, and streetwear.",
+    image: "/placeholder-category.jpg",
+  },
+  {
+    name: "Accessories",
+    slug: "accessories",
+    description:
+      "From keychains to gym bags and water bottles, carry your Samma pride everywhere.",
+    image: "/placeholder-category.jpg",
+  },
+  {
+    name: "Home & Lifestyle",
+    slug: "home",
+    description:
+      "Bring the spirit of Samma into your home with mugs, posters, utensils, and décor.",
+    image: "/placeholder-category.jpg",
+  },
+  {
+    name: "Books & Media",
+    slug: "media",
+    description:
+      "Dive deeper into the art with training manuals, philosophy books, and exclusive Samma documentaries.",
+    image: "/placeholder-category.jpg",
+  },
+  {
+    name: "Kids & Juniors",
+    slug: "kids",
+    description:
+      "Specially designed uniforms, gear, and fun merch for the next generation of Samma warriors.",
+    image: "/placeholder-category.jpg",
+  },
 ];
 
 export default function CategoriesPage() {

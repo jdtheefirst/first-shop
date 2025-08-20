@@ -15,6 +15,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useStore } from "@/lib/context/StoreContext";
+import { Badge } from "../ui/badge";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -36,6 +38,8 @@ export default function Header() {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { state } = useStore();
+  const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const isAdmin = pathname.startsWith("/admin");
   const navItems = isAdmin ? adminNavigation : navigation;
@@ -68,7 +72,20 @@ export default function Header() {
         <div className="flex items-center gap-2">
           {!isAdmin && (
             <Link href="/cart">
-              <Button variant="ghost" size="icon" aria-label="Shopping Cart">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Shopping Cart"
+                className="relative"
+              >
+                {totalItems > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-2 -right-2 h-5 min-w-5 rounded-full px-1 font-mono tabular-nums"
+                  >
+                    {totalItems}
+                  </Badge>
+                )}
                 <ShoppingCart className="h-5 w-5" />
               </Button>
             </Link>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { Filter, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { useStore } from "@/lib/context/StoreContext";
 import { Product } from "@/types/store";
+import { FloatingCartButton } from "@/components/cartButton";
 
 // Mock product data - in a real app, this would come from the database
 const products = [
@@ -141,6 +142,12 @@ const tags = [
 export default function ProductsPage() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "";
+  const { state } = useStore();
+  const orderData = state.pendingOrder;
+
+  if (orderData && orderData.items.length > 0) {
+    redirect("/checkout/payment");
+  }
 
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedBeltLevel, setSelectedBeltLevel] = useState("");
@@ -201,6 +208,7 @@ export default function ProductsPage() {
 
   return (
     <div className="container mx-auto py-8 px-2">
+      <FloatingCartButton />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold">Products</h1>

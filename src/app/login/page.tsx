@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useStore } from "@/lib/context/StoreContext";
 
 export default function AuthPanel({
   searchParams,
@@ -19,13 +20,20 @@ export default function AuthPanel({
   const { tab } = searchParam;
   const [panel, setPanel] = useState<"signin" | "signup">("signin");
   const fanSectionRef = useRef<HTMLDivElement>(null);
+  const { state } = useStore();
+  const orderData = state.pendingOrder;
 
   useEffect(() => {
     if (user) {
-      const redirectPath = user.role === "admin" ? `/admin` : "/products";
+      const redirectPath =
+        user.role === "admin"
+          ? `/admin`
+          : orderData
+          ? "/checkout/payment"
+          : "/products";
       router.push(redirectPath);
     }
-  }, [user, router]);
+  }, [user, router, orderData]);
 
   const handleTabChange = (value: string) => {
     if (value === "signin" || value === "signup") {
@@ -46,8 +54,7 @@ export default function AuthPanel({
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Welcome to World Samma Academy Store
-            <span className="text-blue-600 dark:text-blue-400">Base</span>
+            Main Academy Store
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Join our community of martial arts and self-defense enthusiasts
