@@ -11,6 +11,8 @@ import {
   Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/context/AuthContext";
+import { Order } from "./orders/page";
 
 export default function AdminDashboard() {
   // In a real app, this data would come from the database
@@ -21,59 +23,22 @@ export default function AdminDashboard() {
     totalProducts: 0,
     pageViews: 0,
   });
+  const { supabase } = useAuth();
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
 
-  // Simulate loading data
+  // loading data
   useEffect(() => {
-    // This would be a real API call in a production app
-    setTimeout(() => {
-      setStats({
-        totalSales: 12459.99,
-        totalOrders: 156,
-        totalCustomers: 89,
-        totalProducts: 42,
-        pageViews: 2345,
-      });
-    }, 1000);
-  }, []);
+    const fecthData = async () => {
+      const { data, error } = await supabase.rpc("get_dashboard_data");
 
-  // Mock recent orders
-  const recentOrders = [
-    {
-      id: "ORD-001",
-      customer: "John Doe",
-      date: "2023-05-15",
-      total: 129.99,
-      status: "delivered",
-    },
-    {
-      id: "ORD-002",
-      customer: "Jane Smith",
-      date: "2023-05-14",
-      total: 89.99,
-      status: "shipped",
-    },
-    {
-      id: "ORD-003",
-      customer: "Bob Johnson",
-      date: "2023-05-13",
-      total: 199.99,
-      status: "paid",
-    },
-    {
-      id: "ORD-004",
-      customer: "Alice Brown",
-      date: "2023-05-12",
-      total: 59.99,
-      status: "pending",
-    },
-    {
-      id: "ORD-005",
-      customer: "Charlie Wilson",
-      date: "2023-05-11",
-      total: 149.99,
-      status: "cancelled",
-    },
-  ];
+      if (error) console.error(error);
+      else {
+        setStats(data.stats);
+        setRecentOrders(data.recentOrders);
+      }
+    };
+    fecthData();
+  }, [supabase]);
 
   return (
     <div className="p-6">

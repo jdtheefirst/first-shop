@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search, Eye, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,100 +19,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useAuth } from "@/lib/context/AuthContext";
 
-// Mock order data - in a real app, this would come from the database
-const orders = [
-  {
-    id: "ORD-001",
-    customer: "John Doe",
-    email: "john.doe@example.com",
-    date: "2023-05-15",
-    total: 129.99,
-    status: "delivered",
-    items: 2,
-  },
-  {
-    id: "ORD-002",
-    customer: "Jane Smith",
-    email: "jane.smith@example.com",
-    date: "2023-05-14",
-    total: 89.99,
-    status: "shipped",
-    items: 1,
-  },
-  {
-    id: "ORD-003",
-    customer: "Bob Johnson",
-    email: "bob.johnson@example.com",
-    date: "2023-05-13",
-    total: 199.99,
-    status: "paid",
-    items: 3,
-  },
-  {
-    id: "ORD-004",
-    customer: "Alice Brown",
-    email: "alice.brown@example.com",
-    date: "2023-05-12",
-    total: 59.99,
-    status: "pending",
-    items: 1,
-  },
-  {
-    id: "ORD-005",
-    customer: "Charlie Wilson",
-    email: "charlie.wilson@example.com",
-    date: "2023-05-11",
-    total: 149.99,
-    status: "cancelled",
-    items: 2,
-  },
-  {
-    id: "ORD-006",
-    customer: "Diana Miller",
-    email: "diana.miller@example.com",
-    date: "2023-05-10",
-    total: 79.99,
-    status: "delivered",
-    items: 1,
-  },
-  {
-    id: "ORD-007",
-    customer: "Edward Davis",
-    email: "edward.davis@example.com",
-    date: "2023-05-09",
-    total: 109.99,
-    status: "shipped",
-    items: 2,
-  },
-  {
-    id: "ORD-008",
-    customer: "Fiona Clark",
-    email: "fiona.clark@example.com",
-    date: "2023-05-08",
-    total: 69.99,
-    status: "paid",
-    items: 1,
-  },
-  {
-    id: "ORD-009",
-    customer: "George White",
-    email: "george.white@example.com",
-    date: "2023-05-07",
-    total: 159.99,
-    status: "pending",
-    items: 3,
-  },
-  {
-    id: "ORD-010",
-    customer: "Hannah Green",
-    email: "hannah.green@example.com",
-    date: "2023-05-06",
-    total: 99.99,
-    status: "delivered",
-    items: 2,
-  },
-];
+// Order interface;
+export interface Order {
+  id: string;
+  customer: string;
+  email: string;
+  date: string;
+  total: number;
+  status: string;
+  items: number;
+}
 
 // Status options
 const statuses = [
@@ -129,6 +47,21 @@ export default function AdminOrdersPage() {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { supabase } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const { data, error } = await supabase.rpc("get_all_orders");
+      if (error) {
+        console.error("Error fetching orders:", error);
+      } else {
+        setOrders(data);
+      }
+    };
+
+    fetchOrders();
+  }, [supabase]);
 
   const itemsPerPage = 5;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -19,97 +19,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/lib/context/AuthContext";
+import { toast } from "sonner";
 
-// Mock order data - in a real app, this would come from the database
-const orders = [
-  {
-    id: "ORD-001",
-    customer: {
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "+254 712 345 678",
-    },
-    date: "2023-05-15",
-    total: 129.99,
-    status: "delivered",
-    tracking: "TRK123456789",
-    shipping_address: {
-      street: "123 Main St",
-      city: "Nairobi",
-      state: "Nairobi",
-      postal_code: "00100",
-      country: "Kenya",
-    },
-    items: [
-      {
-        id: "1",
-        title: "Premium Karate Gi",
-        sku: "KG-001",
-        price: 89.99,
-        quantity: 1,
-      },
-      {
-        id: "2",
-        title: "Training Gloves",
-        sku: "TG-001",
-        price: 39.99,
-        quantity: 1,
-      },
-    ],
-    payment: {
-      method: "PayPal",
-      transaction_id: "PAY-12345678",
-      status: "completed",
-    },
-  },
-  {
-    id: "ORD-002",
-    customer: {
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      phone: "+254 723 456 789",
-    },
-    date: "2023-05-14",
-    total: 89.99,
-    status: "shipped",
-    tracking: "TRK987654321",
-    shipping_address: {
-      street: "456 Oak Ave",
-      city: "Mombasa",
-      state: "Mombasa",
-      postal_code: "80100",
-      country: "Kenya",
-    },
-    items: [
-      {
-        id: "3",
-        title: "Black Belt - Premium Cotton",
-        sku: "BB-001",
-        price: 34.99,
-        quantity: 1,
-      },
-      {
-        id: "4",
-        title: "Mouth Guard",
-        sku: "MG-001",
-        price: 12.99,
-        quantity: 1,
-      },
-      {
-        id: "5",
-        title: "Focus Pads",
-        sku: "FP-001",
-        price: 42.99,
-        quantity: 1,
-      },
-    ],
-    payment: {
-      method: "M-Pesa",
-      transaction_id: "MPESA-87654321",
-      status: "completed",
-    },
-  },
-];
+export interface Order {
+  id: string;
+  customer: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  date: string; // ISO date
+  total: number;
+  status: "pending" | "paid" | "shipped" | "delivered" | "cancelled";
+  tracking: string;
+  shipping_address: {
+    street: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+  };
+  items: OrderItem[];
+  payment: Payment;
+}
+
+export interface OrderItem {
+  id: string;
+  title: string;
+  sku: string;
+  price: number;
+  quantity: number;
+}
+
+export interface Payment {
+  method: string;
+  transaction_id: string;
+  status: "pending" | "completed" | "failed";
+}
 
 // Status options
 const statusOptions = [
@@ -141,38 +88,39 @@ const getStatusBadgeClass = (status: string) => {
 export default function OrderDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const param = use(params);
   const router = useRouter();
   const [order, setOrder] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [status, setStatus] = useState("");
   const [tracking, setTracking] = useState("");
+  const { supabase } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
-    // In a real app, this would fetch the order from the database
     const fetchOrder = async () => {
       setIsLoading(true);
-
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const { data, error } = await supabase
+          .rpc("get_order_details", { order_uuid: param.id })
+          .single();
 
-        // Find order by ID
-        const foundOrder = orders.find((o) => o.id === params.id);
+        if (error) throw error;
 
-        if (foundOrder) {
-          setOrder(foundOrder);
-          setStatus(foundOrder.status);
-          setTracking(foundOrder.tracking || "");
-        } else {
-          // Order not found, redirect to orders page
+        if (!data) {
+          toast.error("Order not found");
           router.push("/admin/orders");
+          return;
         }
-      } catch (error) {
-        console.error("Error fetching order:", error);
-        // Handle error, maybe redirect to orders page
+
+        setOrder(data);
+        setStatus(data.status);
+        setTracking(data.tracking || "");
+      } catch (err: any) {
+        console.error("Error fetching order:", err);
+        toast.error(err.message || "Failed to fetch order");
         router.push("/admin/orders");
       } finally {
         setIsLoading(false);
@@ -180,28 +128,27 @@ export default function OrderDetailPage({
     };
 
     fetchOrder();
-  }, [params.id, router]);
+  }, [param.id, router, supabase]);
 
-  // Update order status
   const updateOrder = async () => {
+    if (!order) return;
     setIsUpdating(true);
 
     try {
-      // In a real app, this would update the order in the database
-      console.log("Updating order:", { id: order.id, status, tracking });
+      const { data, error } = await supabase
+        .from("orders")
+        .update({ status, tracking_number: tracking })
+        .eq("id", order.id)
+        .select()
+        .single();
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (error) throw error;
 
-      // Update local state
-      setOrder({ ...order, status, tracking });
-
-      // Show success message (in a real app, this would be a toast notification)
-      alert("Order updated successfully");
-    } catch (error) {
-      console.error("Error updating order:", error);
-      // Show error message
-      alert("Error updating order");
+      setOrder(data);
+      toast.success("Order updated successfully ✅");
+    } catch (err: any) {
+      console.error("Error updating order:", err);
+      toast.error(err.message || "Failed to update order ❌");
     } finally {
       setIsUpdating(false);
     }

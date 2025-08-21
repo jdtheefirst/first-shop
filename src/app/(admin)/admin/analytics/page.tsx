@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -25,56 +25,10 @@ import {
   Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// Mock data for charts
-const salesData = [
-  { name: "Jan", sales: 4000 },
-  { name: "Feb", sales: 3000 },
-  { name: "Mar", sales: 5000 },
-  { name: "Apr", sales: 2780 },
-  { name: "May", sales: 1890 },
-  { name: "Jun", sales: 2390 },
-  { name: "Jul", sales: 3490 },
-  { name: "Aug", sales: 4000 },
-  { name: "Sep", sales: 3000 },
-  { name: "Oct", sales: 5000 },
-  { name: "Nov", sales: 2780 },
-  { name: "Dec", sales: 1890 },
-];
-
-const visitsData = [
-  { name: "Jan", visits: 1400 },
-  { name: "Feb", visits: 1600 },
-  { name: "Mar", visits: 1800 },
-  { name: "Apr", visits: 2200 },
-  { name: "May", visits: 2600 },
-  { name: "Jun", visits: 3000 },
-  { name: "Jul", visits: 3400 },
-  { name: "Aug", visits: 3800 },
-  { name: "Sep", visits: 4200 },
-  { name: "Oct", visits: 4600 },
-  { name: "Nov", visits: 5000 },
-  { name: "Dec", visits: 5400 },
-];
-
-const categoryData = [
-  { name: "Uniforms", value: 40 },
-  { name: "Protective Gear", value: 30 },
-  { name: "Belts", value: 15 },
-  { name: "Training Equipment", value: 15 },
-];
+import { useAuth } from "@/lib/context/AuthContext";
+import { toast } from "sonner";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
-// Mock stats data
-const stats = {
-  totalSales: 38459.99,
-  totalOrders: 156,
-  totalCustomers: 89,
-  totalProducts: 42,
-  pageViews: 12345,
-  conversionRate: 6.7,
-};
 
 // Time period options
 const timePeriods = [
@@ -86,7 +40,40 @@ const timePeriods = [
 ];
 
 export default function AnalyticsPage() {
+  const { supabase } = useAuth();
   const [timePeriod, setTimePeriod] = useState("30d");
+
+  const [salesData, setSalesData] = useState<any[]>([]);
+  const [visitsData, setVisitsData] = useState<any[]>([]);
+  const [categoryData, setCategoryData] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    totalSales: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalProducts: 0,
+    pageViews: 0,
+    conversionRate: 0,
+  });
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      const { data, error } = await supabase.rpc("get_analytics", {
+        time_period: "30d",
+      });
+
+      if (error) {
+        toast.error(error.message);
+      } else {
+        console.log(data);
+        setSalesData(data.salesData);
+        setVisitsData(data.visitsData);
+        setCategoryData(data.categoryData);
+        setStats(data.stats);
+      }
+    };
+
+    fetchAnalytics();
+  }, [supabase]);
 
   return (
     <div className="p-6">
@@ -289,7 +276,7 @@ export default function AnalyticsPage() {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {categoryData.map((entry, index) => (
+                  {categoryData.map((entry: any, index: number) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
