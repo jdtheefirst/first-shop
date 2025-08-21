@@ -52,8 +52,8 @@ export default async function AuthErrorPage({
 
         <div className="flex justify-center mt-4">
           <Link
-            href={isExpired ? "/login" : "/explore"}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium bg-primary rounded hover:bg-primary/90 transition"
+            href={isExpired ? "/login" : "/products"}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium rounded hover:bg-primary/90 transition"
           >
             {isExpired ? "Try Again" : "Explore Site"}
           </Link>

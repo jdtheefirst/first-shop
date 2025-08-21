@@ -1,6 +1,6 @@
 -- Create users table
 CREATE TABLE users (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid primary key,
     email text NOT NULL UNIQUE,
     role text DEFAULT 'customer' NOT NULL,
     metadata jsonb,
@@ -69,6 +69,29 @@ CREATE TABLE page_views (
     created_at timestamptz DEFAULT now()
 );
 
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  -- Only insert if email is not null
+  if new.email is not null then
+    insert into public.users (id, email, metadata)
+    values (new.id, new.email, new.raw_user_meta_data)
+    on conflict (id) do nothing; -- prevents duplicate insert errors
+  end if;
+
+  return new;
+end;
+$$;
+
+-- Trigger on auth.users
+create trigger on_auth_user_created
+after insert on auth.users
+for each row
+execute function public.handle_new_user();
+
 -- Add indexes for performance
 CREATE INDEX ON orders (user_id);
 CREATE INDEX ON order_items (order_id);
@@ -88,8 +111,9 @@ ALTER TABLE page_views ENABLE ROW LEVEL SECURITY;
 -- Create RLS policies
 -- Example: Allow users to see their own orders
 CREATE POLICY "Allow individual read access" ON orders FOR SELECT USING (auth.uid() = user_id);
--- Example: Allow users to insert their own orders
-CREATE POLICY "Allow individual insert access" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Allow users to read their own user data
+CREATE POLICY "Allow individual user read access" ON users FOR SELECT USING (auth.uid() = id);
 
 -- Note: You will need to create more specific RLS policies based on your application's needs.
 -- For example, admins should have broader access, while customers should only be able to see and manage their own data.
