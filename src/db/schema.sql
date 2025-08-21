@@ -21,6 +21,7 @@ CREATE TABLE products (
     currency text NOT NULL,
     belt_level text,
     tags text[],
+    featured boolean DEFAULT false,
     metadata jsonb,
     created_at timestamptz DEFAULT now()
 );

@@ -41,24 +41,29 @@ export default function Home() {
 
   // Mock categories
   const categories = [
-    { name: "Uniforms", slug: "uniforms", image: "/placeholder-category.jpg" },
+    { name: "Uniforms", slug: "uniforms", image: "/categories/uniforms.jpg" },
     {
       name: "Protective Gear",
       slug: "gear",
-      image: "/placeholder-category.jpg",
+      image: "/categories/gear.jpg",
     },
-    { name: "Belts", slug: "belts", image: "/placeholder-category.jpg" },
+    { name: "Belts", slug: "belts", image: "/categories/belts.jpg" },
     {
       name: "Training Equipment",
       slug: "equipment",
-      image: "/placeholder-category.jpg",
+      image: "/categories/equipment.jpg",
     },
   ];
 
   return (
     <div className="flex flex-col min-h-screen px-2">
       {/* Hero Section */}
-      <section className="relative h-[500px] flex items-center justify-center">
+      <section
+        className="relative h-[500px] w-full bg-cover bg-center flex items-center justify-center text-white"
+        style={{
+          backgroundImage: "url('/covers/cover-1.jpg')",
+        }}
+      >
         <div className="absolute inset-0 bg-black/50 z-10" />
         <div className="relative z-20 text-center text-white px-4">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
@@ -99,15 +104,22 @@ export default function Home() {
               <Link
                 key={category.slug}
                 href={`/products?category=${category.slug}`}
-                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex flex-col"
               >
-                <div className="aspect-square relative bg-muted">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-                    <h3 className="text-xl font-semibold text-white">
-                      {category.name}
-                    </h3>
-                  </div>
+                <div className="aspect-video relative bg-muted">
+                  <Image
+                    src={category.image} // Replace with the actual image path or URL
+                    alt={category.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    placeholder="blur"
+                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" // Optional: Provide a base64 placeholder
+                    className="object-cover"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
+                  <h2 className="absolute bottom-4 left-4 text-2xl font-semibold text-white z-20">
+                    {category.name}
+                  </h2>
                 </div>
               </Link>
             ))}
