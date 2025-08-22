@@ -25,19 +25,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "./ImageUpload";
+import { useAuth } from "@/lib/context/AuthContext";
+import { toast } from "sonner";
 
 // Product schema
 const productSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters."),
   title: z.string().min(3, "Title must be at least 3 characters."),
   sku: z.string().min(2, "SKU must be at least 2 characters."),
   description: z
     .string()
     .min(10, "Description must be at least 10 characters."),
-  price: z.coerce.number().positive("Price must be a positive number."),
-  stock: z.coerce
-    .number()
-    .int()
-    .nonnegative("Stock must be a non-negative integer."),
+  images: z.array(z.string()).optional(),
+  price: z.number().positive("Price must be a positive number."),
+  stock: z.number().int().nonnegative("Stock must be a non-negative integer."),
   category: z.string().min(1, "Please select a category."),
   belt_level: z.string(),
   tags: z.string().optional(),
@@ -76,15 +78,18 @@ export default function ProductForm({
   isEditing = false,
 }: ProductFormProps) {
   const router = useRouter();
+  const { supabase } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize form with default values or initial data
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: initialData || {
+      name: "",
       title: "",
       sku: "",
       description: "",
+      images: [],
       price: 0,
       stock: 0,
       category: "",
@@ -98,17 +103,52 @@ export default function ProductForm({
     setIsSubmitting(true);
 
     try {
-      // In a real app, this would save the product to the database
-      console.log("Form values:", values);
+      const productData = {
+        ...values,
+        price: Number(values.price),
+        stock: Number(values.stock),
+        tags: values.tags
+          ? values.tags.split(",").map((tag) => tag.trim())
+          : [],
+        images: values.images || [],
+      };
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      let result;
+      if (isEditing && initialData?.id) {
+        result = await supabase
+          .from("products")
+          .update(productData)
+          .eq("id", initialData.id)
+          .select();
+      } else {
+        result = await supabase.from("products").insert([productData]).select();
+      }
 
-      // Redirect to products page
+      if (result.error) throw result.error;
+
       router.push("/admin/products");
       router.refresh();
-    } catch (error) {
+      toast.success(isEditing ? "Product updated" : "Product created");
+    } catch (error: any) {
       console.error("Error saving product:", error);
+
+      // Clean up any uploaded images if the product creation failed
+      if (values.images && values.images.length > 0) {
+        try {
+          const imagePaths = values.images.map((url) => {
+            const urlParts = url.split("/");
+            return urlParts
+              .slice(urlParts.indexOf("product-images") + 1)
+              .join("/");
+          });
+
+          await supabase.storage.from("product-images").remove(imagePaths);
+        } catch (cleanupError) {
+          console.error("Error cleaning up images:", cleanupError);
+        }
+      }
+
+      toast.error(error.message || "Error saving product");
     } finally {
       setIsSubmitting(false);
     }
@@ -118,6 +158,25 @@ export default function ProductForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Name */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Product Title</FormLabel>
+                <FormControl>
+                  <input
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="Premium Karate Gi"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           {/* Title */}
           <FormField
             control={form.control}
@@ -301,21 +360,23 @@ export default function ProductForm({
           )}
         />
 
-        {/* Image Upload - In a real app, this would be a file upload component */}
-        <div className="border rounded-md p-4">
-          <h3 className="font-medium mb-2">Product Images</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Upload images of your product. You can upload up to 5 images.
-          </p>
-          <div className="bg-muted/50 border border-dashed rounded-md p-8 text-center">
-            <p className="text-muted-foreground">
-              Drag and drop images here or click to browse
-            </p>
-            <Button type="button" variant="outline" className="mt-4">
-              Upload Images
-            </Button>
-          </div>
-        </div>
+        <FormField
+          control={form.control}
+          name="images"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product Images</FormLabel>
+              <FormControl>
+                <ImageUpload
+                  value={field.value || []}
+                  onChange={field.onChange}
+                  disabled={isSubmitting}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Submit Button */}
         <div className="flex justify-end">

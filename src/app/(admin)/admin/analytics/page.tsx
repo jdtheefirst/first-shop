@@ -64,7 +64,6 @@ export default function AnalyticsPage() {
       if (error) {
         toast.error(error.message);
       } else {
-        console.log(data);
         setSalesData(data.salesData);
         setVisitsData(data.visitsData);
         setCategoryData(data.categoryData);
@@ -76,17 +75,18 @@ export default function AnalyticsPage() {
   }, [supabase]);
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Analytics</h1>
+    <div className="px-2 pt-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {timePeriods.map((period) => (
             <Button
               key={period.value}
               variant={timePeriod === period.value ? "default" : "outline"}
               size="sm"
               onClick={() => setTimePeriod(period.value)}
+              className="flex-1 min-w-[80px] sm:flex-none" // Responsive sizing
             >
               {period.label}
             </Button>

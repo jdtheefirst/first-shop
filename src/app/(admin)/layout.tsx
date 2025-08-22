@@ -2,10 +2,10 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    default: "Admin Dashboard | WorldSamma Shop",
-    template: "%s | Admin | WorldSamma Shop",
+    default: "Admin Dashboard | Samma Shop",
+    template: "%s | Admin | Samma Shop",
   },
-  description: "Admin dashboard for WorldSamma Shop.",
+  description: "Admin dashboard for Samma Shop.",
 };
 
 export default function AdminLayout({

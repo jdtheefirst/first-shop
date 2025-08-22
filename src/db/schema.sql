@@ -12,7 +12,7 @@ CREATE TABLE products (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name text NOT NULL,
     title text NOT NULL,
-    image text,
+    images text[] DEFAULT '{}',
     sku text UNIQUE,
     description text,
     price numeric(10, 2) NOT NULL,
@@ -93,21 +93,79 @@ after insert on auth.users
 for each row
 execute function public.handle_new_user();
 
+-- 1. First create the admin verification function
+CREATE OR REPLACE FUNCTION public.verify_admin_access()
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM users 
+        WHERE id = auth.uid() AND role = 'admin'
+    );
+END;
+$$;
+
 create or replace function public.get_dashboard_data()
 returns json
 language plpgsql
 set search_path = public
+security definer
 as $$
 declare
   result json;
-begin
+  total_paid_orders bigint;
+  total_pending_orders bigint;
+  total_orders bigint;
+  total_sales numeric;
+  conversion_rate numeric;
+BEGIN
+   -- Check if user is admin
+    IF NOT public.verify_admin_access() THEN
+        RAISE EXCEPTION 'Access denied. Admin privileges required.';
+    END IF;
+
+  -- Get total paid orders (all successful statuses)
+  SELECT COUNT(*) INTO total_paid_orders
+  FROM orders 
+  WHERE status IN ('paid', 'completed', 'delivered', 'shipped');
+  
+  -- Get total pending orders
+  SELECT COUNT(*) INTO total_pending_orders
+  FROM orders 
+  WHERE status = 'pending';
+  
+  -- Get total orders count
+  SELECT COUNT(*) INTO total_orders FROM orders;
+  
+  -- Get total sales amount (only from paid orders)
+  SELECT COALESCE(SUM(total), 0) INTO total_sales
+  FROM orders 
+  WHERE status IN ('paid', 'completed', 'delivered', 'shipped');
+  
+  -- Calculate conversion rate: paid / (paid + pending)
+  -- This measures what percentage of "active" orders converted
+  IF (total_paid_orders + total_pending_orders) > 0 THEN
+    conversion_rate := ROUND(
+      (total_paid_orders::numeric / (total_paid_orders + total_pending_orders)::numeric) * 100, 
+      2
+    );
+  ELSE
+    conversion_rate := 0;
+  END IF;
+
+  -- Build the result JSON
   select json_build_object(
     'stats', json_build_object(
-      'totalSales', coalesce(sum(total),0),
-      'totalOrders', count(*),
+      'totalSales', total_sales,
+      'totalOrders', total_orders,
       'totalCustomers', (select count(*) from users),
       'totalProducts', (select count(*) from products),
-      'pageViews', (select count(*) from page_views)
+      'pageViews', (select count(*) from page_views),
+      'conversionRate', conversion_rate,
+      'paidOrders', total_paid_orders,
+      'pendingOrders', total_pending_orders
     ),
     'recentOrders', (
       select json_agg(
@@ -124,21 +182,27 @@ begin
       limit 5
     )
   )
-  into result
-  from orders; -- aggregate over all orders for totals
+  into result;
 
   return result;
-end;
+END;
 $$;
 
 create or replace function public.get_all_orders()
 returns json
 language plpgsql
 set search_path = public
+security definer
 as $$
 declare
   result json;
-begin
+  is_admin boolean;
+BEGIN
+    -- Check if user is admin
+    IF NOT public.verify_admin_access() THEN
+        RAISE EXCEPTION 'Access denied. Admin privileges required.';
+    END IF;
+
   select json_agg(
     json_build_object(
       'id', o.id,
@@ -162,8 +226,16 @@ $$;
 
 create or replace function public.get_order_details(order_uuid uuid)
 returns json
-language sql
+language plpgsql
+set search_path = public
+security definer
 as $$
+BEGIN
+    -- Check if user is admin
+    IF NOT public.verify_admin_access() THEN
+        RAISE EXCEPTION 'Access denied. Admin privileges required.';
+    END IF;
+
   select json_build_object(
     'id', o.id,
     'customer', json_build_object(
@@ -212,12 +284,14 @@ as $$
   )
   from orders o
   where o.id = order_uuid;
+END;
 $$;
 
 -- Function: get_analytics(time_period text)
 create or replace function public.get_analytics(time_period text)
 returns jsonb
 language plpgsql
+set search_path = public
 security definer
 as $$
 declare
@@ -226,7 +300,15 @@ declare
     visits jsonb;
     category jsonb;
     stats jsonb;
+    total_orders bigint;
+    total_page_views bigint;
+    total_sales numeric;
 begin
+   -- Check if user is admin
+    if not public.verify_admin_access() then
+        raise exception 'Access denied. Admin privileges required.';
+    end if;
+
     -- Determine the start date based on the time period
     start_date := case time_period
         when '7d' then now() - interval '7 days'
@@ -236,47 +318,70 @@ begin
         else '1970-01-01'::timestamptz
     end;
 
+    -- Get totals
+    select count(*), coalesce(sum(total), 0) into total_orders, total_sales
+    from orders
+    where created_at >= start_date;
+
+    select count(*) into total_page_views
+    from page_views
+    where created_at >= start_date;
+
     -- Sales by month
-select coalesce(jsonb_agg(jsonb_build_object(
-    'name', to_char(created_at, 'Mon'),
-    'sales', coalesce(sum(total), 0)
-)), '[]'::jsonb)
-into sales
-from orders
-where created_at >= start_date;
+    select coalesce(jsonb_agg(jsonb_build_object(
+        'name', month,
+        'sales', sales_value
+    )), '[]'::jsonb)
+    into sales
+    from (
+        select to_char(created_at, 'Mon') as month,
+               sum(total) as sales_value
+        from orders
+        where created_at >= start_date
+        group by to_char(created_at, 'Mon')
+    ) t;
 
--- Page views by month
-select coalesce(jsonb_agg(jsonb_build_object(
-    'name', to_char(created_at, 'Mon'),
-    'visits', count(*)
-)), '[]'::jsonb)
-into visits
-from page_views
-where created_at >= start_date;
+    -- Page views by month
+    select coalesce(jsonb_agg(jsonb_build_object(
+        'name', month,
+        'visits', visits_count
+    )), '[]'::jsonb)
+    into visits
+    from (
+        select to_char(created_at, 'Mon') as month,
+               count(*) as visits_count
+        from page_views
+        where created_at >= start_date
+        group by to_char(created_at, 'Mon')
+    ) t;
 
--- Product category distribution
+    -- Product category distribution
 select coalesce(jsonb_agg(jsonb_build_object(
-    'name', p.category,
-    'value', coalesce(sum(oi.qty), 0)
+    'name', category_name,
+    'value', qty_sum
 )), '[]'::jsonb)
 into category
-from order_items oi
-join products p on p.id = oi.product_id
-join orders o on o.id = oi.order_id
-where o.created_at >= start_date
-group by p.category;
+from (
+    select p.category as category_name,
+           sum(oi.qty) as qty_sum
+    from order_items oi
+    join products p on p.id = oi.product_id
+    join orders o on o.id = oi.order_id
+    where o.created_at >= start_date
+    group by p.category
+) t;
 
     -- Summary stats
     select jsonb_build_object(
-        'totalSales', coalesce(sum(total), 0),
-        'totalOrders', coalesce(count(*), 0),
+        'totalSales', total_sales,
+        'totalOrders', total_orders,
         'totalCustomers', coalesce(count(distinct user_id), 0),
         'totalProducts', (select count(*) from products),
-        'pageViews', (select count(*) from page_views where created_at >= start_date),
+        'pageViews', total_page_views,
         'conversionRate', 
             case 
-                when (select count(*) from page_views where created_at >= start_date) > 0 
-                then round((count(*)::numeric / (select count(*) from page_views where created_at >= start_date)) * 100, 1)
+                when total_page_views > 0 
+                then round((total_orders::numeric / total_page_views::numeric) * 100, 1)
                 else 0
             end
     )
@@ -292,6 +397,35 @@ group by p.category;
     );
 end;
 $$;
+
+-- Function to delete actual image files when product is deleted
+CREATE OR REPLACE FUNCTION delete_product_images()
+RETURNS TRIGGER AS $$
+DECLARE
+  image_url text;
+  image_path text;
+BEGIN
+  -- Loop through each image URL in the deleted product
+  FOREACH image_url IN ARRAY OLD.images
+  LOOP
+    -- Extract the file path from the URL (assuming format: https://supabase.co/storage/v1/object/public/product-images/products/filename.jpg)
+    image_path := substring(image_url from 'product-images/(.*)');
+    
+    -- Delete the actual file from storage
+    IF image_path IS NOT NULL THEN
+      PERFORM supabase.storage.delete_object('product-images', image_path);
+    END IF;
+  END LOOP;
+  
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to cleanup images on product deletion
+CREATE TRIGGER cleanup_product_images
+  AFTER DELETE ON products
+  FOR EACH ROW
+  EXECUTE FUNCTION delete_product_images();
 
 -- Add indexes for performance
 CREATE INDEX ON orders (user_id);
@@ -324,31 +458,63 @@ CREATE POLICY "Allow individual order items read access" ON order_items FOR SELE
   )
 );
 
--- only user role admin can read, write, delete on users, products, orders, order_items, page_views and transactions;
-CREATE POLICY "Allow admin access" ON users FOR ALL using (exists (
-  select 1 from users u
-  where u.id = auth.uid() and u.role = 'admin'
-));
-CREATE POLICY "Allow admin access" ON products FOR ALL using (exists (
-  select 1 from users u
-  where u.id = auth.uid() and u.role = 'admin'
-));
-CREATE POLICY "Allow admin access" ON orders FOR ALL using (exists (
-  select 1 from users u
-  where u.id = auth.uid() and u.role = 'admin'
-));
-CREATE POLICY "Allow admin access" ON order_items FOR ALL using (exists (
-  select 1 from users u
-  where u.id = auth.uid() and u.role = 'admin'
-));
-CREATE POLICY "Allow admin access" ON transactions FOR ALL using (exists (
-  select 1 from users u
-  where u.id = auth.uid() and u.role = 'admin'
-));
-CREATE POLICY "Allow admin access" ON page_views FOR ALL using (exists (
-  select 1 from users u
-  where u.id = auth.uid() and u.role = 'admin'
-));
+-- 1. Create the admin check sql function
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM users 
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+$$;
 
+-- 2. Update all your admin policies
+CREATE POLICY "Allow admin access" ON users FOR ALL 
+USING (public.is_admin());
+
+CREATE POLICY "Allow admin access" ON products FOR ALL 
+USING (public.is_admin());
+
+CREATE POLICY "Allow admin access" ON orders FOR ALL 
+USING (public.is_admin());
+
+CREATE POLICY "Allow admin access" ON order_items FOR ALL 
+USING (public.is_admin());
+
+CREATE POLICY "Allow admin access" ON transactions FOR ALL 
+USING (public.is_admin());
+
+CREATE POLICY "Allow admin access" ON page_views FOR ALL 
+USING (public.is_admin());
+
+
+-- Storage bucket RLS using your users.role approach
+CREATE POLICY "Allow admin access to product-images"
+  ON storage.objects FOR ALL
+  USING (
+    bucket_id = 'product-images'
+    AND EXISTS (
+      SELECT 1 FROM users 
+      WHERE users.id = auth.uid() 
+      AND users.role = 'admin'
+    )
+  )
+  WITH CHECK (
+    bucket_id = 'product-images'
+    AND EXISTS (
+      SELECT 1 FROM users 
+      WHERE users.id = auth.uid() 
+      AND users.role = 'admin'
+    )
+  );
+
+-- Allow public to read product images
+CREATE POLICY "Public can view product-images"
+  ON storage.objects FOR SELECT
+  TO anon, authenticated
+  USING (bucket_id = 'product-images');
 -- Note: You will need to create more specific RLS policies based on your application's needs.
 -- For example, admins should have broader access, while customers should only be able to see and manage their own data.

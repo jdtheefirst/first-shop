@@ -22,6 +22,9 @@ export default function AdminDashboard() {
     totalCustomers: 0,
     totalProducts: 0,
     pageViews: 0,
+    conversionRate: 0,
+    paidOrders: 0,
+    pendingOrders: 0,
   });
   const { supabase } = useAuth();
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -133,7 +136,9 @@ export default function AdminDashboard() {
               <p className="text-sm font-medium text-muted-foreground">
                 Conversion Rate
               </p>
-              <h3 className="text-2xl font-bold mt-1">6.7%</h3>
+              <h3 className="text-2xl font-bold mt-1">
+                {stats.conversionRate}
+              </h3>
             </div>
             <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
               <TrendingUp className="h-6 w-6 text-primary" />
