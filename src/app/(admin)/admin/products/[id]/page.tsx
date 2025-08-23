@@ -1,61 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import ProductForm from "@/components/admin/ProductForm";
-
-// Mock product data - in a real app, this would come from the database
-const products = [
-  {
-    id: "1",
-    title: "Premium Karate Gi",
-    sku: "KG-001",
-    description:
-      "High-quality karate uniform made from premium cotton. Durable and comfortable for training and competitions. Available in various sizes.",
-    price: 89.99,
-    stock: 15,
-    category: "uniforms",
-    belt_level: "all",
-    tags: "premium, competition",
-  },
-  {
-    id: "2",
-    title: "Competition Sparring Gear Set",
-    sku: "SG-001",
-    description:
-      "Complete set of protective gear for martial arts competitions. Includes headgear, gloves, foot protectors, and mouthguard. Approved for tournament use.",
-    price: 129.99,
-    stock: 8,
-    category: "gear",
-    belt_level: "all",
-    tags: "competition, protective",
-  },
-];
+import { useAuth } from "@/lib/context/AuthContext";
 
 export default function EditProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const router = useRouter();
+  const param = use(params);
   const [product, setProduct] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { supabase } = useAuth();
 
   useEffect(() => {
-    // In a real app, this would fetch the product from the database
     const fetchProduct = async () => {
+      if (!param.id) return;
       setIsLoading(true);
 
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id", param.id)
+          .single();
 
-        // Find product by ID
-        const foundProduct = products.find((p) => p.id === params.id);
-
-        if (foundProduct) {
-          setProduct(foundProduct);
+        if (data) {
+          setProduct(data);
         } else {
           // Product not found, redirect to products page
           router.push("/admin/products");
@@ -70,7 +45,7 @@ export default function EditProductPage({
     };
 
     fetchProduct();
-  }, [params.id, router]);
+  }, [param.id, router]);
 
   if (isLoading) {
     return (
@@ -95,9 +70,9 @@ export default function EditProductPage({
   }
 
   return (
-    <div className="p-6">
+    <div className="py-6 px-2">
       <h1 className="text-3xl font-bold mb-8">Edit Product</h1>
-      <div className="bg-background rounded-lg border p-6">
+      <div>
         <ProductForm initialData={product} isEditing={true} />
       </div>
     </div>

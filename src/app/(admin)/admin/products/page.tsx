@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Plus,
@@ -28,6 +28,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { categories } from "@/lib/utils";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { Product } from "@/types/store";
 
 // Mock product data - in a real app, this would come from the database
 const products = [
@@ -133,15 +138,6 @@ const products = [
   },
 ];
 
-// Filter options
-const categories = [
-  { id: "all", name: "All Categories" },
-  { id: "uniforms", name: "Uniforms" },
-  { id: "gear", name: "Protective Gear" },
-  { id: "belts", name: "Belts" },
-  { id: "equipment", name: "Training Equipment" },
-];
-
 const beltLevels = [
   { id: "all", name: "All Levels" },
   { id: "white", name: "White Belt" },
@@ -155,16 +151,58 @@ const beltLevels = [
 ];
 
 export default function AdminProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedBeltLevel, setSelectedBeltLevel] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { supabase } = useAuth();
 
   const itemsPerPage = 5;
 
+  const fetchProducts = useCallback(async () => {
+    const { data, error } = await supabase.from("products").select("*"); // Add select to explicitly get all columns
+
+    if (error) {
+      toast.error(`Error occurred fetching products`);
+      console.error(error);
+      return;
+    }
+
+    setProducts(data || []); // Fallback to empty array if data is null
+  }, [supabase]); // Add supabase as dependency
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]); // Add fetchProducts as dependency
+
+  // Delete product
+  const deleteProduct = async (id: string, name: string) => {
+    if (!id) return;
+
+    const toastId = toast.loading(`Deleting ${name}...`);
+
+    try {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+
+      if (error) {
+        toast.error(`Failed to delete ${name}`, { id: toastId });
+        throw error;
+      }
+
+      toast.success(`Successfully deleted ${name}`, { id: toastId });
+
+      // Refetch products after successful deletion
+      fetchProducts();
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("Failed to delete product", { id: toastId });
+    }
+  };
+
   // Filter products based on search query and filters
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = products?.filter((product) => {
     // Search filter
     const matchesSearch =
       product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -195,15 +233,8 @@ export default function AdminProductsPage() {
     setSearchQuery("");
   };
 
-  // Delete product (mock function)
-  const deleteProduct = (id: string) => {
-    // In a real app, this would delete the product from the database
-    console.log(`Delete product with ID: ${id}`);
-    // Then refetch the products
-  };
-
   return (
-    <div className="p-6">
+    <div className="py-6 px-2">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Products</h1>
         <Button asChild>
@@ -404,7 +435,7 @@ export default function AdminProductsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => deleteProduct(product.id)}
+                        onClick={() => deleteProduct(product.id, product.name)}
                         className="text-red-500 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />

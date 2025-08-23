@@ -29,7 +29,7 @@ export interface Order {
   date: string;
   total: number;
   status: string;
-  items: number;
+  items: number | null;
 }
 
 // Status options
@@ -112,7 +112,7 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="py-6 px-2">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Orders</h1>
       </div>

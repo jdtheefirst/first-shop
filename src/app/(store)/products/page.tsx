@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { redirect, useSearchParams } from "next/navigation";
 import { Filter, ChevronDown } from "lucide-react";
@@ -15,98 +15,10 @@ import {
 import { useStore } from "@/lib/context/StoreContext";
 import { Product } from "@/types/store";
 import { FloatingCartButton } from "@/components/cartButton";
-
-// Mock product data - in a real app, this would come from the database
-const products = [
-  {
-    id: "1",
-    title: "Premium Karate Gi",
-    price: 89.99,
-    image: "/placeholder-product.jpg",
-    category: "uniforms",
-    name: "Premium Karate Gi",
-    currency: "USD",
-    belt_level: "all",
-    tags: ["premium", "competition"],
-  },
-  {
-    id: "2",
-    title: "Competition Sparring Gear Set",
-    price: 129.99,
-    image: "/placeholder-product.jpg",
-    category: "gear",
-    name: "Sparring Gear Set",
-    currency: "USD",
-    belt_level: "all",
-    tags: ["competition", "protective"],
-  },
-  {
-    id: "3",
-    title: "Black Belt - Premium Cotton",
-    price: 34.99,
-    image: "/placeholder-product.jpg",
-    category: "belts",
-    belt_level: "black",
-    name: "Premium Cotton Black Belt",
-    currency: "USD",
-    tags: ["premium"],
-  },
-  {
-    id: "4",
-    title: "Training Gloves",
-    price: 49.99,
-    image: "/placeholder-product.jpg",
-    category: "gear",
-    belt_level: "all",
-    name: "Gloves",
-    currency: "USD",
-    tags: ["training", "protective"],
-  },
-  {
-    id: "5",
-    title: "White Belt Uniform",
-    price: 59.99,
-    image: "/placeholder-product.jpg",
-    category: "uniforms",
-    belt_level: "white",
-    name: "White Belt Uniform",
-    currency: "USD",
-    tags: ["beginner"],
-  },
-  {
-    id: "6",
-    title: "Blue Belt Uniform",
-    price: 64.99,
-    image: "/placeholder-product.jpg",
-    category: "uniforms",
-    belt_level: "blue",
-    name: "Blue Belt Uniform",
-    currency: "USD",
-    tags: ["intermediate"],
-  },
-  {
-    id: "7",
-    title: "Headgear",
-    price: 39.99,
-    image: "/placeholder-product.jpg",
-    category: "gear",
-    belt_level: "all",
-    name: "Premium Cotton Black Belt",
-    currency: "USD",
-    tags: ["protective", "training"],
-  },
-  {
-    id: "8",
-    title: "Mouth Guard",
-    price: 12.99,
-    image: "/placeholder-product.jpg",
-    category: "gear",
-    belt_level: "all",
-    name: "Premium Cotton Black Belt",
-    currency: "USD",
-    tags: ["protective", "essential"],
-  },
-];
+import { useAuth } from "@/lib/context/AuthContext";
+import { toast } from "sonner";
+import axios from "axios";
+import { beltLevels } from "@/lib/utils";
 
 // Filter options
 const categories = [
@@ -114,18 +26,6 @@ const categories = [
   { id: "gear", name: "Protective Gear" },
   { id: "belts", name: "Belts" },
   { id: "equipment", name: "Training Equipment" },
-];
-
-const beltLevels = [
-  { id: "all", name: "All Levels" },
-  { id: "white", name: "White Belt" },
-  { id: "yellow", name: "Yellow Belt" },
-  { id: "orange", name: "Orange Belt" },
-  { id: "green", name: "Green Belt" },
-  { id: "blue", name: "Blue Belt" },
-  { id: "purple", name: "Purple Belt" },
-  { id: "brown", name: "Brown Belt" },
-  { id: "black", name: "Black Belt" },
 ];
 
 const tags = [
@@ -154,6 +54,20 @@ export default function ProductsPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { dispatch } = useStore();
+  const { supabase } = useAuth();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const fetchProducts = useCallback(async () => {
+    const res = await axios.get("/api/products"); // Add select to explicitly get all columns
+
+    const data = res.data;
+
+    setProducts(data || []); // Fallback to empty array if data is null
+  }, [supabase]); // Add supabase as dependency
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]); // Add fetchProducts as dependency
 
   const handleAddToCart = (product: Product) => {
     dispatch({

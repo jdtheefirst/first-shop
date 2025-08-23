@@ -6,12 +6,17 @@ export interface Product {
   id: string;
   name: string;
   title: string;
+  description: string;
   price: number;
   image: string;
+  sku: string;
+  stock: number;
   category: string;
   currency: string;
   belt_level: string;
   tags: string[];
+  featured: boolean;
+  metadata: {};
 }
 
 export interface ProductFormData {

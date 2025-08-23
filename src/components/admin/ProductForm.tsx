@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 "use client";
 
 import { useState } from "react";
@@ -28,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "./ImageUpload";
 import { useAuth } from "@/lib/context/AuthContext";
 import { toast } from "sonner";
+import { categories, getCurrencyOptions } from "@/lib/utils";
 
 // Product schema
 const productSchema = z.object({
@@ -38,20 +41,20 @@ const productSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters."),
   images: z.array(z.string()).optional(),
-  price: z.number().positive("Price must be a positive number."),
-  stock: z.number().int().nonnegative("Stock must be a non-negative integer."),
+  price: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : Number(val)),
+    z.number().min(0, "Price must be a positive number.")
+  ),
+
+  stock: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : Number(val)),
+    z.number().int().min(0, "Stock must be a non-negative integer.")
+  ),
   category: z.string().min(1, "Please select a category."),
   belt_level: z.string(),
+  currency: z.string(),
   tags: z.string().optional(),
 });
-
-// Category options
-const categories = [
-  { id: "uniforms", name: "Uniforms" },
-  { id: "gear", name: "Protective Gear" },
-  { id: "belts", name: "Belts" },
-  { id: "equipment", name: "Training Equipment" },
-];
 
 // Belt level options
 const beltLevels = [
@@ -94,6 +97,7 @@ export default function ProductForm({
       stock: 0,
       category: "",
       belt_level: "all",
+      currency: "USD",
       tags: "",
     },
   });
@@ -164,11 +168,11 @@ export default function ProductForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Product Title</FormLabel>
+                <FormLabel>Product Name</FormLabel>
                 <FormControl>
                   <input
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Premium Karate Gi"
+                    placeholder="Elite Samma Gi"
                     {...field}
                   />
                 </FormControl>
@@ -187,7 +191,7 @@ export default function ProductForm({
                 <FormControl>
                   <input
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Premium Karate Gi"
+                    placeholder="Premium Samma Gi"
                     {...field}
                   />
                 </FormControl>
@@ -225,15 +229,15 @@ export default function ProductForm({
                 <FormLabel>Price</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <span className="absolute left-3 top-5 -translate-y-1/2 text-muted-foreground">
                       $
                     </span>
                     <input
-                      type="number"
                       step="0.01"
                       className="flex h-10 w-full rounded-md border border-input bg-background pl-7 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       placeholder="99.99"
                       {...field}
+                      type="number"
                     />
                   </div>
                 </FormControl>
@@ -251,9 +255,9 @@ export default function ProductForm({
                 <FormLabel>Stock</FormLabel>
                 <FormControl>
                   <input
-                    type="number"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="10"
+                    type="number"
                     {...field}
                   />
                 </FormControl>
@@ -311,6 +315,34 @@ export default function ProductForm({
                     {beltLevels.map((level) => (
                       <SelectItem key={level.id} value={level.id}>
                         {level.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="currency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Currency</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a currency" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {getCurrencyOptions().map((currency) => (
+                      <SelectItem key={currency.value} value={currency.value}>
+                        {currency.label}
                       </SelectItem>
                     ))}
                   </SelectContent>

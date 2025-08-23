@@ -167,7 +167,7 @@ BEGIN
       'paidOrders', total_paid_orders,
       'pendingOrders', total_pending_orders
     ),
-    'recentOrders', (
+    'recentOrders', COALESCE((
       select json_agg(
         json_build_object(
           'id', o.id,
@@ -180,7 +180,7 @@ BEGIN
       )
       from orders o
       limit 5
-    )
+    ), '[]'::json) -- This ensures empty array instead of null
   )
   into result;
 

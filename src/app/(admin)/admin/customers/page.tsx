@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -126,7 +127,7 @@ export default function CustomersPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto px-2 space-y-6 py-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -176,8 +177,8 @@ export default function CustomersPage() {
       </Card>
 
       {/* Customers Table */}
-      <Card>
-        <CardHeader>
+      <Card className="border-none shadow-none">
+        <CardHeader className="p-0">
           <CardTitle>Customer List</CardTitle>
           <CardDescription>{totalCount} customers found</CardDescription>
         </CardHeader>
