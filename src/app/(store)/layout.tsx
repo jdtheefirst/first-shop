@@ -2,8 +2,8 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    default: "WorldSamma Shop",
-    template: "%s | WorldSamma Shop",
+    default: "Samma Shop",
+    template: "%s | Samma Shop",
   },
   description: "Quality martial arts gear for every practitioner.",
 };

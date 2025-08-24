@@ -15,10 +15,10 @@ import {
 import { useStore } from "@/lib/context/StoreContext";
 import { Product } from "@/types/store";
 import { FloatingCartButton } from "@/components/cartButton";
-import { useAuth } from "@/lib/context/AuthContext";
-import { toast } from "sonner";
 import axios from "axios";
 import { beltLevels } from "@/lib/utils";
+import { ProductCardSkeleton } from "@/components/ProductSkeleton";
+import Image from "next/image";
 
 // Filter options
 const categories = [
@@ -54,16 +54,21 @@ export default function ProductsPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { dispatch } = useStore();
-  const { supabase } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchProducts = useCallback(async () => {
-    const res = await axios.get("/api/products"); // Add select to explicitly get all columns
-
-    const data = res.data;
-
-    setProducts(data || []); // Fallback to empty array if data is null
-  }, [supabase]); // Add supabase as dependency
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/products");
+      setProducts(res.data || []);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -119,6 +124,25 @@ export default function ProductsPage() {
     setSelectedBeltLevel("");
     setSelectedTags([]);
   };
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">
+            Error Loading Products
+          </h2>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <button
+            onClick={fetchProducts}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8 px-2">
@@ -307,45 +331,75 @@ export default function ProductsPage() {
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => (
-          <Link
-            key={product.id}
-            href={`/products/${product.id}`}
-            className="group overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
-          >
-            <div className="aspect-square relative bg-muted">
-              {/* In a real app, this would be a real product image */}
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                Product Image
-              </div>
-            </div>
-            <div className="p-4">
-              <h3 className="font-medium line-clamp-1">{product.title}</h3>
-              <div className="mt-1 flex items-center justify-between">
-                <p className="font-semibold">${product.price.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground capitalize">
-                  {product.category}
-                </p>
-              </div>
-              {product.belt_level !== "all" && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {beltLevels.find((b) => b.id === product.belt_level)?.name}
-                </p>
-              )}
-            </div>
-            <button
-              onClick={() =>
-                handleAddToCart({
-                  ...product,
-                })
-              }
-              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm
-             px-3 py-1.5 text-sm sm:px-4 sm:py-2 sm:text-base"
-            >
-              Add to Cart
-            </button>
-          </Link>
-        ))}
+        {loading
+          ? // Show skeleton loaders while loading
+            Array.from({ length: 8 }).map((_, index) => (
+              <ProductCardSkeleton key={index} />
+            ))
+          : filteredProducts.map((product) => (
+              <Link
+                key={product.id}
+                href={`/products/${product.id}`}
+                className="group relative overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
+              >
+                <div className="aspect-square relative">
+                  {product.images?.[0] ? (
+                    <>
+                      <Image
+                        src={product.images[0]}
+                        alt={product.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 
+                   (max-width: 1200px) 50vw, 
+                   33vw"
+                      />
+                      {/* Overlay gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+                      {/* Text overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-blue-300 transition-colors">
+                          {product.title}
+                        </h3>
+                        <div className="mt-1 flex items-center justify-between text-sm">
+                          <p className="font-medium">
+                            ${product.price.toFixed(2)}
+                          </p>
+                          <p className="capitalize opacity-80">
+                            {product.category}
+                          </p>
+                        </div>
+                        {product.belt_level !== "all" && (
+                          <p className="mt-1 text-xs opacity-70">
+                            {
+                              beltLevels.find(
+                                (b) => b.id === product.belt_level
+                              )?.name
+                            }
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                      No Image
+                    </div>
+                  )}
+                </div>
+
+                {/* Floating Add to Cart Button */}
+                <button
+                  onClick={() => handleAddToCart({ ...product })}
+                  className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md 
+        hover:from-blue-700 hover:to-blue-800 transition-all shadow-md
+        px-3 py-1.5 text-xs sm:text-sm opacity-0 group-hover:opacity-100 
+        translate-y-[-8px] group-hover:translate-y-0 duration-300"
+                >
+                  Add to Cart
+                </button>
+              </Link>
+            ))}
       </div>
 
       {/* Empty State */}

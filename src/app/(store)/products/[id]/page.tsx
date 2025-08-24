@@ -1,69 +1,30 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Minus, Plus, ShoppingCart } from "lucide-react";
+import {
+  AlertCircle,
+  ChevronLeft,
+  Minus,
+  Plus,
+  RefreshCw,
+  ShoppingCart,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/context/StoreContext";
 import { Product } from "@/types/store";
 import { FloatingCartButton } from "@/components/cartButton";
-
-// Mock product data - in a real app, this would come from the database
-const products = [
-  {
-    id: "1",
-    title: "Premium Karate Gi",
-    price: 89.99,
-    description:
-      "High-quality karate uniform made from premium cotton. Durable and comfortable for training and competitions. Available in various sizes.",
-    image: "/placeholder-product.jpg",
-    category: "uniforms",
-    belt_level: "all",
-    name: "Premium Cotton Black Belt",
-    currency: "USD",
-    tags: ["premium", "competition"],
-    stock: 15,
-  },
-  {
-    id: "2",
-    title: "Competition Sparring Gear Set",
-    price: 129.99,
-    description:
-      "Complete set of protective gear for martial arts competitions. Includes headgear, gloves, foot protectors, and mouthguard. Approved for tournament use.",
-    image: "/placeholder-product.jpg",
-    category: "gear",
-    belt_level: "all",
-    name: "Premium Cotton Black Belt",
-    currency: "USD",
-    tags: ["competition", "protective"],
-    stock: 8,
-  },
-];
-
-// Related products - in a real app, this would be dynamically generated
-const relatedProducts = [
-  {
-    id: "3",
-    title: "Black Belt - Premium Cotton",
-    price: 34.99,
-    image: "/placeholder-product.jpg",
-    category: "belts",
-  },
-  {
-    id: "4",
-    title: "Training Gloves",
-    price: 49.99,
-    image: "/placeholder-product.jpg",
-    category: "gear",
-  },
-  {
-    id: "5",
-    title: "White Belt Uniform",
-    price: 59.99,
-    image: "/placeholder-product.jpg",
-    category: "uniforms",
-  },
-];
+import axios from "axios";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Image from "next/image";
+import { ProductDetailSkeleton } from "@/components/ProductDetailsSkeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function ProductDetailPage({
   params,
@@ -73,7 +34,65 @@ export default function ProductDetailPage({
   const param = use(params);
 
   // Find the product by ID
-  const product = products.find((p) => p.id === param.id);
+  const [product, setProduct] = useState<Product>();
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProduct = useCallback(async () => {
+    if (!param.id) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await axios.get(`/api/products/${param.id}`);
+      setProduct(res.data.product);
+      setRelatedProducts(res.data.relatedProducts || []);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.error || err.message || "Failed to fetch product"
+      );
+      console.error("Product fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [param.id]);
+
+  useEffect(() => {
+    fetchProduct();
+  }, [fetchProduct]);
+
+  // Add to cart function
+  const { dispatch } = useStore();
+
+  const handleAddToCart = (product: Product) => {
+    dispatch({
+      type: "ADD_TO_CART",
+      payload: {
+        product,
+        quantity: 1,
+      },
+    });
+  };
+
+  if (loading) {
+    return <ProductDetailSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+        <Button onClick={fetchProduct} className="mt-4">
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   // If product not found, show error
   if (!product) {
@@ -89,19 +108,6 @@ export default function ProductDetailPage({
       </div>
     );
   }
-
-  // Add to cart function
-  const { dispatch } = useStore();
-
-  const handleAddToCart = (product: Product) => {
-    dispatch({
-      type: "ADD_TO_CART",
-      payload: {
-        product,
-        quantity: 1,
-      },
-    });
-  };
 
   return (
     <div className="container mx-auto py-8 px-2">
@@ -119,9 +125,32 @@ export default function ProductDetailPage({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {/* Product Image */}
-        <div className="bg-muted rounded-lg overflow-hidden aspect-square flex items-center justify-center">
-          {/* In a real app, this would be a real product image */}
-          <div className="text-muted-foreground">Product Image</div>
+        <div className="rounded-lg overflow-hidden">
+          {product.images && product.images.length > 0 ? (
+            <Carousel className="w-full max-w-md mx-auto">
+              <CarouselContent>
+                {product.images.map((img, idx) => (
+                  <CarouselItem key={idx}>
+                    <div className="aspect-square relative">
+                      <Image
+                        src={img}
+                        alt={product.title}
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          ) : (
+            <div className="aspect-square flex items-center justify-center text-muted-foreground">
+              No image available
+            </div>
+          )}
         </div>
 
         {/* Product Details */}
@@ -196,11 +225,32 @@ export default function ProductDetailPage({
               href={`/products/${relatedProduct.id}`}
               className="group overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
             >
-              <div className="aspect-square relative bg-muted">
-                {/* In a real app, this would be a real product image */}
-                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                  Product Image
-                </div>
+              <div className="rounded-lg overflow-hidden">
+                {product.images && product.images.length > 0 ? (
+                  <Carousel className="w-full max-w-md mx-auto">
+                    <CarouselContent>
+                      {product.images.map((img, idx) => (
+                        <CarouselItem key={idx}>
+                          <div className="aspect-square relative">
+                            <Image
+                              src={img}
+                              alt={product.title}
+                              fill
+                              className="object-contain"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </Carousel>
+                ) : (
+                  <div className="aspect-square flex items-center justify-center text-muted-foreground">
+                    No image available
+                  </div>
+                )}
               </div>
               <div className="p-4">
                 <h3 className="font-medium line-clamp-1">
