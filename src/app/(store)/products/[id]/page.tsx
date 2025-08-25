@@ -5,8 +5,6 @@ import Link from "next/link";
 import {
   AlertCircle,
   ChevronLeft,
-  Minus,
-  Plus,
   RefreshCw,
   ShoppingCart,
 } from "lucide-react";
@@ -25,6 +23,7 @@ import {
 import Image from "next/image";
 import { ProductDetailSkeleton } from "@/components/ProductDetailsSkeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import ReactMarkdown from "react-markdown";
 
 export default function ProductDetailPage({
   params,
@@ -171,8 +170,12 @@ export default function ProductDetailPage({
             )}
           </div>
 
-          <p className="text-muted-foreground mb-6">{product.description}</p>
+          {/* Render Markdown */}
+          <div className="prose prose-sm dark:prose-invert text-muted-foreground mb-6">
+            <ReactMarkdown>{product.description}</ReactMarkdown>
+          </div>
 
+          {/* Tags */}
           <div className="mb-6">
             <p className="text-sm font-medium mb-2">Tags:</p>
             <div className="flex flex-wrap gap-2">
@@ -187,6 +190,7 @@ export default function ProductDetailPage({
             </div>
           </div>
 
+          {/* Availability */}
           <div className="mb-6">
             <p className="text-sm font-medium mb-2">Availability:</p>
             <p
@@ -198,14 +202,11 @@ export default function ProductDetailPage({
             </p>
           </div>
 
+          {/* CTA */}
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
               disabled={product.stock === 0}
-              onClick={() =>
-                handleAddToCart({
-                  ...product,
-                })
-              }
+              onClick={() => handleAddToCart({ ...product })}
               className="flex-1 flex items-center justify-center gap-2"
             >
               <ShoppingCart className="h-4 w-4" />

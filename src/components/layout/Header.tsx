@@ -32,6 +32,7 @@ const adminNavigation = [
   { name: "Orders", href: "/admin/orders" },
   { name: "Customers", href: "/admin/customers" },
   { name: "Analytics", href: "/admin/analytics" },
+  { name: "Home", href: "/" },
 ];
 
 export default function Header() {

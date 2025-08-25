@@ -1,43 +1,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Product } from "@/types/store";
+import { beltLevels } from "@/lib/utils";
 
-export default function Home() {
-  // Mock featured products - in a real app, these would come from the database
-  const featuredProducts = [
-    {
-      id: "1",
-      title: "Premium Karate Gi",
-      price: 89.99,
-      image: "/placeholder-product.jpg",
-      category: "uniforms",
-      belt_level: "all",
-    },
-    {
-      id: "2",
-      title: "Competition Sparring Gear Set",
-      price: 129.99,
-      image: "/placeholder-product.jpg",
-      category: "gear",
-      belt_level: "all",
-    },
-    {
-      id: "3",
-      title: "Black Belt - Premium Cotton",
-      price: 34.99,
-      image: "/placeholder-product.jpg",
-      category: "belts",
-      belt_level: "black",
-    },
-    {
-      id: "4",
-      title: "Training Gloves",
-      price: 49.99,
-      image: "/placeholder-product.jpg",
-      category: "gear",
-      belt_level: "all",
-    },
-  ];
+export default async function Home() {
+  let featuredProducts: Product[] = [];
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/featured`,
+      {
+        method: "GET",
+        next: { revalidate: 3600 }, // Revalidate every hour
+      }
+    );
+
+    if (response.ok) {
+      featuredProducts = await response.json();
+    } else {
+      console.error("Failed to fetch featured products:", response.status);
+    }
+  } catch (error) {
+    console.error("Error fetching featured products:", error);
+  }
 
   // Mock categories
   const categories = [
@@ -67,7 +53,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/50 z-10" />
         <div className="relative z-20 text-center text-white px-4">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            World Samma Academy Shop
+            Main Academy Shop
           </h1>
           <p className="text-xl md:text-2xl mb-8">
             Quality gear for every martial artist
@@ -106,20 +92,25 @@ export default function Home() {
                 href={`/products?category=${category.slug}`}
                 className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex flex-col"
               >
-                <div className="aspect-video relative bg-muted">
+                <div className="aspect-square relative">
                   <Image
-                    src={category.image} // Replace with the actual image path or URL
+                    src={category.image}
                     alt={category.name}
                     fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    placeholder="blur"
-                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" // Optional: Provide a base64 placeholder
-                    className="object-cover"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 
+                   (max-width: 1200px) 50vw, 
+                   33vw"
                   />
-                  <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
-                  <h2 className="absolute bottom-4 left-4 text-2xl font-semibold text-white z-20">
-                    {category.name}
-                  </h2>
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+                  {/* Text overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-blue-300 transition-colors">
+                      {category.name}
+                    </h3>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -138,22 +129,52 @@ export default function Home() {
               <Link
                 key={product.id}
                 href={`/products/${product.id}`}
-                className="group overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
+                className="group relative overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
               >
-                <div className="aspect-square relative bg-muted">
-                  {/* In a real app, this would be a real product image */}
-                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                    Product Image
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-medium line-clamp-1">{product.title}</h3>
-                  <div className="mt-1 flex items-center justify-between">
-                    <p className="font-semibold">${product.price.toFixed(2)}</p>
-                    <p className="text-sm text-muted-foreground capitalize">
-                      {product.category}
-                    </p>
-                  </div>
+                <div className="aspect-square relative">
+                  {product.images?.[0] ? (
+                    <>
+                      <Image
+                        src={product.images[0]}
+                        alt={product.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 
+                   (max-width: 1200px) 50vw, 
+                   33vw"
+                      />
+                      {/* Overlay gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+                      {/* Text overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-blue-300 transition-colors">
+                          {product.title}
+                        </h3>
+                        <div className="mt-1 flex items-center justify-between text-sm">
+                          <p className="font-medium">
+                            ${product.price.toFixed(2)}
+                          </p>
+                          <p className="capitalize opacity-80">
+                            {product.category}
+                          </p>
+                        </div>
+                        {product.belt_level !== "all" && (
+                          <p className="mt-1 text-xs opacity-70">
+                            {
+                              beltLevels.find(
+                                (b) => b.id === product.belt_level
+                              )?.name
+                            }
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                      No Image
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}
