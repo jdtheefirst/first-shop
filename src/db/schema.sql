@@ -20,6 +20,7 @@ CREATE TABLE products (
     category text,
     currency text NOT NULL,
     belt_level text,
+    weight numeric(10,2) DEFAULT 0,
     tags text[],
     featured boolean DEFAULT false,
     metadata jsonb,

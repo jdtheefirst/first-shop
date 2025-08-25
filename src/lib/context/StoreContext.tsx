@@ -20,7 +20,8 @@ type StoreAction =
       payload: { productId: string; quantity: number };
     }
   | { type: "CLEAR_CART" }
-  | { type: "SET_PENDING_ORDER"; payload: any };
+  | { type: "SET_PENDING_ORDER"; payload: any }
+  | { type: "SET_TOTAL"; payload: number };
 const initialState: StoreState = {
   cart: [],
   total: 0,
@@ -96,6 +97,11 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
         ...state,
         pendingOrder: action.payload,
       };
+    case "SET_TOTAL":
+      return {
+        ...state,
+        total: action.payload,
+      };
 
     default:
       return state;
@@ -142,9 +148,10 @@ export function buildOrderData(state: StoreState, shipping: any) {
     total: state.total,
     currency: state.cart[0]?.product.currency || "USD",
     items: state.cart.map((item) => ({
+      id: item.product.id,
       name: item.product.name,
       title: item.product.title,
-      image: item.product.image,
+      image: item.product.images,
       price: item.product.price,
       quantity: item.quantity,
     })),

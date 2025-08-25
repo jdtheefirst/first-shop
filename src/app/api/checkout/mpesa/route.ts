@@ -5,8 +5,8 @@ import axios from "axios";
 import { NextResponse } from "next/server";
 
 const generateToken = async () => {
-  const secret = process.env.CUSTOMER_SECRET;
-  const key = process.env.CUSTOMER_KEY;
+  const secret = process.env.MPESA_CONSUMER_SECRET;
+  const key = process.env.MPESA_CONSUMER_KEY;
   const auth = Buffer.from(key + ":" + secret).toString("base64");
   try {
     const response = await axios.get(
@@ -42,6 +42,18 @@ export async function POST(req: Request, res: Response) {
     shipping
   );
 
+  // IF NO PHONE NUMBER
+  if (
+    !phoneNumber ||
+    phoneNumber.length !== 12 ||
+    !phoneNumber.startsWith("254")
+  ) {
+    return NextResponse.json(
+      { error: "Invalid phone number" },
+      { status: 400 }
+    );
+  }
+
   const { success } = await secureRatelimit(req);
   if (!success) {
     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
@@ -60,7 +72,30 @@ export async function POST(req: Request, res: Response) {
     );
   }
 
-  const phone = parseInt(phoneNumber.slice(1));
+  // Convert USD → KES with 24h caching
+  let amountKES = total;
+  if (currency !== "KSH") {
+    try {
+      const res = await fetch(
+        "https://api.exchangerate.host/convert?from=USD&to=KES",
+        { next: { revalidate: 3600 * 24 } } // 24h cache
+      );
+      const json = await res.json();
+
+      console.log("Exchange rate data:", json);
+
+      const rate = json?.info?.rate;
+
+      if (!rate) throw new Error("Rate missing");
+      amountKES = Math.round(total * rate);
+    } catch (err) {
+      console.error(
+        "Exchange rate fetch failed, defaulting to hardcoded rate",
+        err
+      );
+      amountKES = Math.round(total * 131); // fallback
+    }
+  }
 
   const current_time = new Date();
   const year = current_time.getFullYear();
@@ -114,10 +149,10 @@ export async function POST(req: Request, res: Response) {
         Password: `${password}`,
         Timestamp: `${timestamp}`,
         TransactionType: "CustomerBuyGoodsOnline",
-        Amount: total,
-        PartyA: `254${phone}`,
+        Amount: amountKES, // Use converted amount in KES
+        PartyA: phoneNumber,
         PartyB: process.env.MPESA_TILL!,
-        PhoneNumber: `254${phone}`,
+        PhoneNumber: phoneNumber,
         CallBackURL: `${process.env.BASE_URL}/api/webhooks/mpesa?orderId=${
           orderData.id
         }&callbackSecret=${process.env.MPESA_CALLBACK_SECRET!}`,
@@ -143,6 +178,14 @@ export async function POST(req: Request, res: Response) {
     );
   } catch (error: any) {
     console.error("M-Pesa checkout error:", error);
+    if (error.response) {
+      // This logs the full M-Pesa response when the request fails
+      console.error("M-Pesa API response error:", error.response.data);
+      console.error("Status code:", error.response.status);
+      console.error("Headers:", error.response.headers);
+    } else {
+      console.error("Unknown M-Pesa error:", error.message);
+    }
     return NextResponse.json(
       { error: "Failed to initiate payment" },
       { status: 500 }

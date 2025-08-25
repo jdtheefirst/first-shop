@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { ChevronLeft, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/context/AuthContext";
@@ -22,9 +22,8 @@ export default function PaymentPage() {
   const orderData = state.pendingOrder;
 
   // If there's no pending order, redirect to products
-  if (!orderData || !orderData.items.length) {
-    router.push("/products");
-    return null;
+  if (!orderData) {
+    redirect("/products");
   }
 
   // M-Pesa payment
@@ -37,7 +36,6 @@ export default function PaymentPage() {
         return router.push("/login");
       }
 
-      if (!state.pendingOrder.length) return router.push("/products");
       if (!phoneNumber) {
         setPaymentStatus("error");
         setErrorMessage("Please enter your phone number.");
@@ -52,6 +50,7 @@ export default function PaymentPage() {
       });
 
       const data = await res.json();
+      console.log("Data:", data);
 
       if (!res.ok || data.error) {
         setPaymentStatus("error");
@@ -151,6 +150,7 @@ export default function PaymentPage() {
 
                     {/* Simulated PayPal button */}
                     <Button
+                      type="button"
                       onClick={() => {
                         router.push("/checkout/cart");
                       }}
@@ -202,6 +202,7 @@ export default function PaymentPage() {
                     </div>
 
                     <Button
+                      type="button"
                       onClick={handleMPesaPayment}
                       className="w-full bg-[#4CAF50] hover:bg-[#388E3C] text-white"
                       disabled={
@@ -240,7 +241,7 @@ export default function PaymentPage() {
 
               <ul className="divide-y mb-4">
                 {orderData.items.map((item: any) => (
-                  <li key={item.id} className="py-3 flex justify-between">
+                  <li key={item.name} className="py-3 flex justify-between">
                     <div>
                       <p className="font-medium">{item.title}</p>
                       <p className="text-sm text-muted-foreground">
@@ -273,15 +274,6 @@ export default function PaymentPage() {
                     {orderData.shipping.postalCode}
                   </p>
                   <p>{orderData.shipping.country}</p>
-                  {/* {shipping fee} */}
-                  <p className="mt-2">
-                    Shipping Fee:{" "}
-                    {orderData.total > 100 ? (
-                      <span className="text-green-600">Free</span>
-                    ) : (
-                      `$10.00`
-                    )}
-                  </p>
                 </address>
               </div>
             </div>

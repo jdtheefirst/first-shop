@@ -1,5 +1,11 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import {
+  ShippingZone,
+  ShippingOptions,
+  CartItem,
+  ShippingCalculationResult,
+} from "@/types/store";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,6 +22,87 @@ export function formatCurrency(
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+export function calculateShipping({
+  zone,
+  weightKg = 0.5,
+}: ShippingOptions): number {
+  // base rates in USD
+  const baseRates: Record<ShippingZone, number> = {
+    NAIROBI: 3, // $3 flat
+    KENYA: 5, // $5 flat
+    INTERNATIONAL: 15, // $15 flat
+  };
+
+  let cost = baseRates[zone];
+
+  // Optional: scaling by weight (simple rule, e.g. every extra kg adds a fee)
+  if (weightKg > 1) {
+    const extraKg = weightKg - 1;
+    if (zone === "INTERNATIONAL") {
+      cost += extraKg * 5; // $5 per extra kg international
+    } else {
+      cost += extraKg * 1; // $1 per extra kg domestic
+    }
+  }
+
+  return cost;
+}
+
+export function calculateOrderTotals(
+  cartItems: CartItem[],
+  country: string,
+  city: string
+): ShippingCalculationResult {
+  // Calculate total weight
+  const totalWeight = cartItems.reduce(
+    (acc, item) => acc + item.product.weight * item.quantity,
+    0
+  );
+
+  // Calculate subtotal
+  const subtotal = cartItems.reduce(
+    (acc, item) => acc + (item.product.price ?? 0) * item.quantity,
+    0
+  );
+
+  // Determine shipping zone based on location
+  const zone = determineShippingZone(country, city);
+
+  // Calculate shipping cost
+  const shippingCost = calculateShipping({
+    zone,
+    weightKg: totalWeight,
+  });
+
+  // Calculate order total
+  const orderTotal = subtotal + shippingCost;
+
+  return {
+    shippingCost,
+    orderTotal,
+    totalWeight,
+  };
+}
+
+export function determineShippingZone(
+  country: string,
+  city: string
+): ShippingZone {
+  // Normalize inputs
+  const normalizedCountry = country.trim().toUpperCase();
+  const normalizedCity = city.trim().toUpperCase();
+
+  if (normalizedCountry !== "KENYA") {
+    return "INTERNATIONAL";
+  }
+
+  if (normalizedCity === "NAIROBI") {
+    return "NAIROBI";
+  }
+
+  return "KENYA";
 }
 
 export const categories = [

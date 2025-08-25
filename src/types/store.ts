@@ -11,6 +11,7 @@ export interface Product {
   images: string[];
   sku: string;
   stock: number;
+  weight: number;
   category: string;
   currency: string;
   belt_level: string;
@@ -94,4 +95,17 @@ export interface CartItem {
   product: Product;
   variant?: ProductVariant;
   quantity: number;
+}
+
+export type ShippingZone = "NAIROBI" | "KENYA" | "INTERNATIONAL";
+
+export interface ShippingOptions {
+  zone: ShippingZone;
+  weightKg?: number;
+}
+
+export interface ShippingCalculationResult {
+  shippingCost: number;
+  orderTotal: number;
+  totalWeight: number;
 }

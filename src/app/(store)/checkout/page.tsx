@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { buildOrderData, useCart, useStore } from "@/lib/context/StoreContext";
+import { calculateOrderTotals, calculateShipping } from "@/lib/utils";
 
 // Form schema
 const formSchema = z.object({
@@ -70,11 +71,6 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // we are not creating an order in the database yet
-      console.log("Form values:", values);
-      console.log("Cart items:", cartItems);
-      console.log("Total:", state.total);
-
       // Simulate order creation
       const orderData = buildOrderData(state, values);
 
@@ -89,6 +85,22 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
+
+  // Watch form values for country and city
+  const country = form.watch("country");
+  const city = form.watch("city");
+
+  // Calculate order totals
+  const { shippingCost, orderTotal, totalWeight } = calculateOrderTotals(
+    cartItems,
+    country,
+    city
+  );
+
+  // Sync order total into store when it changes
+  useEffect(() => {
+    dispatch({ type: "SET_TOTAL", payload: orderTotal });
+  }, [orderTotal, state.total, dispatch]);
 
   return (
     <div className="container mx-auto py-8 px-2">
@@ -363,25 +375,26 @@ export default function CheckoutPage() {
 
               <div className="space-y-3 pt-4 border-t">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>Subtotal</span>
                   <span>${state.total.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span>
-                    {state.total > 100 ? (
-                      <span className="text-green-600">Free</span>
-                    ) : (
-                      `$${state.total.toFixed(2)}`
-                    )}
-                  </span>
+                  <span>Shipping</span>
+                  <span>${shippingCost.toFixed(2)}</span>
                 </div>
 
-                <div className="border-t pt-3 mt-3">
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>
+                    Shipping to: {city}, {country}
+                  </span>
+                  <span>Weight: {totalWeight.toFixed(2)} kg</span>
+                </div>
+
+                <div className="border-t pt-2 mt-2">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>${state.total.toFixed(2)}</span>
+                    <span>${orderTotal.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
