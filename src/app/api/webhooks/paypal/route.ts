@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
 const PAYPAL_BASE_URL =
-  process.env.NODE_ENV === "production"
+  process.env.VERCEL_ENV === "production"
     ? "https://api-m.paypal.com"
     : "https://api-m.sandbox.paypal.com";
 

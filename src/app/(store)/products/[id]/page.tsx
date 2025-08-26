@@ -24,6 +24,7 @@ import Image from "next/image";
 import { ProductDetailSkeleton } from "@/components/ProductDetailsSkeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function ProductDetailPage({
   params,
@@ -171,8 +172,10 @@ export default function ProductDetailPage({
           </div>
 
           {/* Render Markdown */}
-          <div className="prose prose-sm dark:prose-invert text-muted-foreground mb-6">
-            <ReactMarkdown>{product.description}</ReactMarkdown>
+          <div className="prose prose-sm dark:prose-invert text-muted-foreground mb-6 break-words max-w-full">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {product.description}
+            </ReactMarkdown>
           </div>
 
           {/* Tags */}

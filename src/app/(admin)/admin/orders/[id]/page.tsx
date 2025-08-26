@@ -225,11 +225,11 @@ export default function OrderDetailPage({
                   </p>
                   <p className="mb-1">
                     <span className="font-medium">Payment Method:</span>{" "}
-                    {order.payment.method}
+                    {order.payment?.method}
                   </p>
                   <p className="mb-1">
                     <span className="font-medium">Transaction ID:</span>{" "}
-                    {order.payment.transaction_id}
+                    {order.payment?.transaction_id}
                   </p>
                 </div>
 

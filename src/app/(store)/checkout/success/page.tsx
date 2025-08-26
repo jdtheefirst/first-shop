@@ -135,8 +135,6 @@ export default function SuccessPage() {
     );
   }
 
-  console.log("Order Details:", orderDetails);
-
   return (
     <div className="container mx-auto py-8 px-2 max-w-4xl mx-auto">
       {/* ✅ Confirmation Header */}

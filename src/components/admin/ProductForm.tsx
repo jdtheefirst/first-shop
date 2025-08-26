@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Weight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -54,6 +54,15 @@ const productSchema = z.object({
   belt_level: z.string(),
   currency: z.string(),
   tags: z.string().optional(),
+  featured: z.boolean().optional().default(false),
+  weight: z
+    .preprocess((val) => {
+      if (val === "" || val === null) return undefined;
+      const num = Number(val);
+      return isNaN(num) ? undefined : Number(num.toFixed(2)); // force 2 decimals
+    }, z.number().min(0, "Weight must be a non-negative number."))
+    .optional()
+    .default(0),
 });
 
 // Belt level options
@@ -99,6 +108,8 @@ export default function ProductForm({
       belt_level: "all",
       currency: "USD",
       tags: "",
+      featured: false,
+      Weight: 0,
     },
   });
 
@@ -348,6 +359,55 @@ export default function ProductForm({
                   </SelectContent>
                 </Select>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Weight */}
+          <FormField
+            control={form.control}
+            name="weight"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Weight (kg)</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <span className="absolute left-3 top-5 -translate-y-1/2 text-muted-foreground">
+                      <Weight size={16} />
+                    </span>
+                    <input
+                      step="0.01"
+                      className="flex h-10 w-full rounded-md border border-input bg-background pl-7 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="0.5"
+                      {...field}
+                      type="number"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Featured */}
+          <FormField
+            control={form.control}
+            name="featured"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div>
+                  <FormLabel>Featured</FormLabel>
+                  <FormDescription>
+                    Mark product as featured on the homepage
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <input
+                    type="checkbox"
+                    className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />

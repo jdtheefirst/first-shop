@@ -5,7 +5,7 @@ import { secureRatelimit } from "@/lib/limit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 const PAYPAL_BASE_URL =
-  process.env.NODE_ENV === "production"
+  process.env.VERCEL_ENV === "production"
     ? "https://api-m.paypal.com"
     : "https://api-m.sandbox.paypal.com";
 
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
           landing_page: "LOGIN",
           user_action: "PAY_NOW",
           return_url: `${siteUrl}/checkout/success?orderId=${order.id}`,
-          cancel_url: `${siteUrl}/checkout/failed?orderId=${order.id}`,
+          cancel_url: `${siteUrl}/checkout/success?orderId=${order.id}`,
         },
       }),
     });

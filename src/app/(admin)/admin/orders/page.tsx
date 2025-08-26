@@ -20,6 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/context/AuthContext";
+import { format } from "date-fns";
 
 // Order interface;
 export interface Order {
@@ -242,7 +243,9 @@ export default function AdminOrdersPage() {
                       </p>
                     </div>
                   </TableCell>
-                  <TableCell>{order.date}</TableCell>
+                  <TableCell>
+                    {format(new Date(order.date), "yyyy-MM-dd")}
+                  </TableCell>
                   <TableCell>${order.total.toFixed(2)}</TableCell>
                   <TableCell>{order.items}</TableCell>
                   <TableCell>

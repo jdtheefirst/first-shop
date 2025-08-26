@@ -197,31 +197,30 @@ security definer
 as $$
 declare
   result json;
-  is_admin boolean;
 BEGIN
     -- Check if user is admin
     IF NOT public.verify_admin_access() THEN
         RAISE EXCEPTION 'Access denied. Admin privileges required.';
     END IF;
 
-  select json_agg(
-    json_build_object(
-      'id', o.id,
-      'customer', o.shipping_info->>'firstName' || ' ' || coalesce(o.shipping_info->>'lastName',''),
-      'email', o.shipping_info->>'email',
-      'date', o.created_at,
-      'total', o.total,
-      'status', o.status,
-      'items', coalesce(count(oi.id),0)
-    )
-    order by o.created_at desc
-  )
-  into result
-  from orders o
-  left join order_items oi on o.id = oi.order_id
-  group by o.id;
+    select json_agg(order_data order by order_data->>'date' desc)
+    into result
+    from (
+      select json_build_object(
+        'id', o.id,
+        'customer', o.shipping_info->>'firstName' || ' ' || coalesce(o.shipping_info->>'lastName',''),
+        'email', o.shipping_info->>'email',
+        'date', o.created_at,
+        'total', o.total,
+        'status', o.status,
+        'items', count(oi.id)
+      ) as order_data
+      from orders o
+      left join order_items oi on o.id = oi.order_id
+      group by o.id, o.shipping_info, o.created_at, o.total, o.status
+    ) sub;
 
-  return result;
+    return result;
 end;
 $$;
 
@@ -231,11 +230,13 @@ language plpgsql
 set search_path = public
 security definer
 as $$
-BEGIN
-    -- Check if user is admin
-    IF NOT public.verify_admin_access() THEN
-        RAISE EXCEPTION 'Access denied. Admin privileges required.';
-    END IF;
+declare
+  result json;
+begin
+  -- Check if user is admin
+  if not public.verify_admin_access() then
+    raise exception 'Access denied. Admin privileges required.';
+  end if;
 
   select json_build_object(
     'id', o.id,
@@ -283,9 +284,12 @@ BEGIN
       limit 1
     )
   )
+  into result
   from orders o
   where o.id = order_uuid;
-END;
+
+  return result;
+end;
 $$;
 
 -- Function: get_analytics(time_period text)

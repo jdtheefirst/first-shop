@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/context/AuthContext";
 import { Order } from "./orders/page";
+import { format } from "date-fns";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -214,7 +215,7 @@ export default function AdminDashboard() {
                         {order.customer}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {order.date}
+                        {format(new Date(order.date), "yyyy-MM-dd")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         ${order.total}
