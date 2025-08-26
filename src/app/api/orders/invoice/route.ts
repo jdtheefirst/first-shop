@@ -1,11 +1,15 @@
+import { secureRatelimit } from "@/lib/limit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params;
+export async function GET(req: Request, context: any) {
+  const { id } = (await context.params) as { id: string };
+
+  // Rate limiting
+  const { success } = await secureRatelimit(req);
+  if (!success) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+  }
 
   const { data: order, error } = await supabaseAdmin
     .from("orders")
@@ -17,18 +21,16 @@ export async function GET(
       total,
       currency,
       order_items (
-        id,
-        quantity,
-        price,
-        products (
-          id,
-          name
-        )
-      ),
-      users (
-        id,
-        email
+      id,
+      qty,
+      unit_price,
+      products (
+      id,
+      name,
+      description
       )
+      ),
+      shipping_info
     `
     )
     .eq("id", id)
@@ -45,15 +47,13 @@ export async function GET(
   // 🔥 build a simple invoice payload
   const invoice = {
     invoiceId: `INV-${order.id}`,
-    customer: {
-      email: order.users?.[0]?.email ?? "Unknown",
-    },
+    customer: order.shipping_info,
     date: order.created_at,
     items: order.order_items.map((item: any) => ({
       product: item.products?.name ?? "Unknown product",
-      quantity: item.quantity,
-      price: item.price,
-      subtotal: item.quantity * item.price,
+      quantity: item.qty,
+      price: item.unit_price,
+      subtotal: item.qty * item.unit_price,
     })),
     total: order.total,
     currency: order.currency,

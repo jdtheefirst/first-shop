@@ -10,7 +10,7 @@ import { useStore } from "@/lib/context/StoreContext";
 import { toast } from "sonner";
 
 // Payment status types
-type PaymentStatus = "idle" | "processing" | "success" | "error";
+export type PaymentStatus = "idle" | "processing" | "success" | "error";
 
 export default function PaymentPage() {
   const router = useRouter();
@@ -110,7 +110,7 @@ export default function PaymentPage() {
               <h2 className="text-xl font-semibold">Complete Your Payment</h2>
             </div>
 
-            <div className="p-6">
+            <div className="py-6 px-2">
               {/* Payment Status Messages */}
               {paymentStatus === "processing" && (
                 <div className="mb-6 p-4 bg-blue-50 text-blue-700 rounded-lg flex items-center">
@@ -134,7 +134,6 @@ export default function PaymentPage() {
               )}
 
               {/* { orderData.shipping.paymentMethod decides which payment to use } */}
-
               {orderData.shipping.paymentMethod === "paypal" && (
                 <div className="mb-8">
                   <h3 className="text-lg font-medium mb-4">
@@ -152,7 +151,7 @@ export default function PaymentPage() {
                     <Button
                       type="button"
                       onClick={() => {
-                        router.push("/checkout/cart");
+                        router.push("/checkout/processing/initial");
                       }}
                       className="w-full bg-[#0070ba] hover:bg-[#003087] text-white"
                       disabled={

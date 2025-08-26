@@ -8,6 +8,9 @@ export async function POST(request: Request) {
     const orderId = url.searchParams.get("orderId");
     const callbackSecret = url.searchParams.get("callbackSecret");
 
+    console.log("Mpesa callback received for order:", orderId);
+    console.log("Full callback URL:", request.url);
+
     if (!orderId || !callbackSecret) {
       return NextResponse.json(
         { error: "Missing orderId or callbackSecret" },

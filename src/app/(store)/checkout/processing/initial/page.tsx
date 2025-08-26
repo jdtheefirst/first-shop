@@ -18,9 +18,9 @@ export default function CheckoutPage() {
         return router.push("/login");
       }
 
-      if (!state.pendingOrder.length) return router.push("/products");
+      if (!state.pendingOrder) return router.push("/products");
 
-      const res = await fetch("/api/checkout/paypal", {
+      const res = await fetch("/api/checkout/paypal/initial", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cart: state.pendingOrder }),

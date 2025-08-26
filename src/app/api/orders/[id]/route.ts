@@ -1,25 +1,24 @@
+import { secureRatelimit } from "@/lib/limit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params;
+export async function GET(req: Request, context: any) {
+  const { id } = (await context.params) as { id: string };
+
+  // Rate limiting
+  const { success } = await secureRatelimit(req);
+  if (!success) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+  }
 
   const { data: order, error } = await supabaseAdmin
     .from("orders")
     .select(
-      `
-      id,
-      created_at,
-      status,
-      total,
-      currency,
+      `*,
       order_items (
         id,
-        quantity,
-        price,
+        qty,
+        unit_price,
         products (
           id,
           name,

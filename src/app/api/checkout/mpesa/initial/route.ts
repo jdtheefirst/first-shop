@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import axios from "axios";
 import { NextResponse } from "next/server";
 
-const generateToken = async () => {
+export const generateToken = async () => {
   const secret = process.env.MPESA_CONSUMER_SECRET;
   const key = process.env.MPESA_CONSUMER_KEY;
   const auth = Buffer.from(key + ":" + secret).toString("base64");
@@ -31,16 +31,8 @@ export async function POST(req: Request, res: Response) {
 
   const { cart, phoneNumber } = body;
   const { total, items, currency, shipping } = cart;
-  console.log(
-    "items",
-    items,
-    "total",
-    total,
-    "currency",
-    currency,
-    "shipping",
-    shipping
-  );
+  const access_key = process.env.EXCHANGE_API_KEY;
+  const endpoint = process.env.ENDPOINT;
 
   // IF NO PHONE NUMBER
   if (
@@ -72,22 +64,22 @@ export async function POST(req: Request, res: Response) {
     );
   }
 
-  // Convert USD → KES with 24h caching
+  // Convert CURRENCY → KES with 12h caching
   let amountKES = total;
   if (currency !== "KSH") {
     try {
       const res = await fetch(
-        "https://api.exchangerate.host/convert?from=USD&to=KES",
-        { next: { revalidate: 3600 * 24 } } // 24h cache
+        `https://api.exchangerate.host/${endpoint}?access_key=${access_key}&from=${currency}&to=KES&amount=${total}`,
+        { next: { revalidate: 3600 * 12 } } // 24h cache
       );
       const json = await res.json();
 
       console.log("Exchange rate data:", json);
 
-      const rate = json?.info?.rate;
+      const rate = json.result;
 
       if (!rate) throw new Error("Rate missing");
-      amountKES = Math.round(total * rate);
+      amountKES = Math.round(rate);
     } catch (err) {
       console.error(
         "Exchange rate fetch failed, defaulting to hardcoded rate",
@@ -153,7 +145,7 @@ export async function POST(req: Request, res: Response) {
         PartyA: phoneNumber,
         PartyB: process.env.MPESA_TILL!,
         PhoneNumber: phoneNumber,
-        CallBackURL: `${process.env.BASE_URL}/api/webhooks/mpesa?orderId=${
+        CallBackURL: `https://wd9xkc6n-3000.inc1.devtunnels.ms/api/webhooks/mpesa?orderId=${
           orderData.id
         }&callbackSecret=${process.env.MPESA_CALLBACK_SECRET!}`,
         AccountReference: "World Samma Federation",

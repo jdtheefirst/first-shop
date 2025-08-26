@@ -4,20 +4,12 @@ import Link from "next/link";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart, useStore } from "@/lib/context/StoreContext";
+import Image from "next/image";
 
 export default function CartPage() {
   const { cartItems, clearCart } = useCart();
   const { total } = useStore().state;
   const { dispatch } = useStore();
-
-  // Calculate subtotal
-  // Shipping cost - in a real app, this might be calculated based on location, weight, etc.
-  const shipping = total > 100 ? 0 : 10;
-
-  // Total cost
-  const subtotal = total + shipping;
-
-  // Update item quantity
 
   const updateQuantity = (productId: string, quantity: number) => {
     if (quantity < 1) {
@@ -36,7 +28,7 @@ export default function CartPage() {
   // If cart is empty
   if (cartItems.length === 0) {
     return (
-      <div className="container py-12 text-center">
+      <div className="container mx-auto px-2 py-12 text-center">
         <div className="max-w-md mx-auto">
           <div className="h-24 w-24 mx-auto mb-6 bg-muted rounded-full flex items-center justify-center">
             <ShoppingBag className="h-12 w-12 text-muted-foreground" />
@@ -72,11 +64,20 @@ export default function CartPage() {
                 <li key={item.product.id} className="p-6">
                   <div className="flex flex-col sm:flex-row gap-4">
                     {/* Product Image */}
-                    <div className="w-full sm:w-24 h-24 bg-muted rounded-md flex items-center justify-center shrink-0">
-                      {/* In a real app, this would be a real product image */}
-                      <div className="text-xs text-muted-foreground">
-                        Product Image
-                      </div>
+                    <div className="w-full sm:w-24 h-24 bg-muted rounded-md flex items-center justify-center shrink-0 overflow-hidden">
+                      {item.product.images?.[0] ? (
+                        <Image
+                          src={item.product.images[0]}
+                          alt={item.product.name}
+                          width={96} // sm:w-24 = 96px
+                          height={96} // h-24 = 96px
+                          className="object-cover rounded-md"
+                        />
+                      ) : (
+                        <div className="text-xs text-muted-foreground">
+                          No Image
+                        </div>
+                      )}
                     </div>
 
                     {/* Product Details */}
@@ -150,25 +151,8 @@ export default function CartPage() {
             <div className="p-6 space-y-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>${total.toFixed(2)}</span>
               </div>
-
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Shipping</span>
-                <span>
-                  {shipping === 0 ? (
-                    <span className="text-green-600">Free</span>
-                  ) : (
-                    `$${shipping.toFixed(2)}`
-                  )}
-                </span>
-              </div>
-
-              {shipping > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  Free shipping on orders over $100
-                </div>
-              )}
 
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between font-semibold">
@@ -176,6 +160,10 @@ export default function CartPage() {
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
+
+              <p className="text-xs text-muted-foreground mt-2">
+                Shipping & taxes calculated at checkout
+              </p>
 
               <Button asChild className="w-full mt-6">
                 <Link href="/checkout">Proceed to Checkout</Link>

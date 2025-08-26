@@ -113,10 +113,10 @@ export async function POST(req: Request) {
 
     // --- Step 2: Handle COMPLETED payment ---
     if (eventType === "PAYMENT.CAPTURE.COMPLETED") {
-      const supabaseOrderId = resource?.supplementary_data?.related_ids
-        ?.order_id
-        ? resource.supplementary_data.related_ids.order_id
-        : resource?.custom_id;
+      const supabaseOrderId =
+        resource?.custom_id ||
+        resource?.supplementary_data?.related_ids?.order_id ||
+        resource?.purchase_units?.[0]?.reference_id;
 
       if (!supabaseOrderId) {
         throw new Error("No Supabase order ID found in PayPal resource");

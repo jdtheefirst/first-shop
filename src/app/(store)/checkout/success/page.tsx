@@ -2,16 +2,32 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { CheckCircle, Package, ArrowRight, FileDown } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  CheckCircle,
+  Package,
+  ArrowRight,
+  FileDown,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
+import { PaymentStatus } from "../payment/page";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/context/AuthContext";
+import { useStore } from "@/lib/context/StoreContext";
 
 export default function SuccessPage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") || "ORD-12345";
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const { user } = useAuth();
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -38,6 +54,67 @@ export default function SuccessPage() {
     fetchOrderDetails();
   }, [orderId]);
 
+  // M-Pesa payment
+  const handleMPesaPayment = async () => {
+    setPaymentStatus("processing");
+
+    try {
+      if (!user) {
+        toast.info("Haven't logged in yet, redirecting to login...");
+        return router.push("/login");
+      }
+
+      if (!phoneNumber) {
+        setPaymentStatus("error");
+        setErrorMessage("Please enter your phone number.");
+        toast.error("Please enter your phone number.");
+        return;
+      }
+
+      const res = await fetch("/api/checkout/mpesa/retrial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: orderDetails.id, phoneNumber }),
+      });
+
+      const data = await res.json();
+      console.log("Data:", data);
+
+      if (!res.ok || data.error) {
+        setPaymentStatus("error");
+        setErrorMessage(data.error || "Failed to initiate M-Pesa payment.");
+        toast.error(data.error || "Failed to initiate M-Pesa payment.");
+        console.error("M-Pesa payment error:", data);
+        return;
+      }
+
+      // Simulate successful payment
+      setPaymentStatus("success");
+
+      // they have received an STK push notification
+      toast.success(
+        "M-Pesa payment initiated successfully! Please complete the payment on your phone."
+      );
+
+      const { orderId: confirmedOrderId, data: mpesaResponse } = data;
+
+      if (mpesaResponse?.CustomerMessage) {
+        toast.info(mpesaResponse.CustomerMessage);
+      }
+
+      router.push(`/checkout/success?orderId=${confirmedOrderId}`);
+    } catch (error) {
+      console.error("Payment error:", error);
+      setPaymentStatus("error");
+      setErrorMessage(
+        "There was an error processing your M-Pesa payment. Please try again."
+      );
+      toast.error(
+        "There was an error processing your M-Pesa payment. Please try again."
+      );
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto py-12 text-center">
@@ -58,8 +135,10 @@ export default function SuccessPage() {
     );
   }
 
+  console.log("Order Details:", orderDetails);
+
   return (
-    <div className="container mx-auto py-8 max-w-4xl mx-auto">
+    <div className="container mx-auto py-8 px-2 max-w-4xl mx-auto">
       {/* ✅ Confirmation Header */}
       <div className="text-center mb-8">
         <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -83,9 +162,14 @@ export default function SuccessPage() {
               <Info label="Order Number" value={orderDetails.id} />
               <Info
                 label="Date"
-                value={new Date(orderDetails.date).toLocaleDateString()}
+                value={new Date(orderDetails.created_at).toLocaleDateString()}
               />
-              <Info label="Email" value={orderDetails.shipping.email} />
+              <Info label="Email" value={orderDetails.shipping_info?.email} />
+              <Info label="phone" value={orderDetails.shipping_info?.phone} />
+              <Info
+                label="Payment_method"
+                value={orderDetails.shipping_info?.paymentMethod}
+              />
               <Info
                 label="Status"
                 value={
@@ -100,7 +184,7 @@ export default function SuccessPage() {
             <div className="border-t pt-6">
               <h3 className="font-medium mb-4">Items</h3>
               <ul className="divide-y mb-6">
-                {orderDetails.items.map((item: any) => (
+                {orderDetails.items?.map((item: any) => (
                   <li key={item.id} className="py-3 flex justify-between">
                     <div>
                       <p className="font-medium">{item.title}</p>
@@ -125,41 +209,120 @@ export default function SuccessPage() {
               <h3 className="font-medium mb-4">Shipping Address</h3>
               <address className="not-italic text-muted-foreground">
                 <p>
-                  {orderDetails.shipping.firstName}{" "}
-                  {orderDetails.shipping.lastName}
+                  {orderDetails.shipping_info.firstName}{" "}
+                  {orderDetails.shipping_info.lastName}
                 </p>
-                <p>{orderDetails.shipping.address}</p>
+                <p>{orderDetails.shipping_info.address}</p>
                 <p>
-                  {orderDetails.shipping.city}, {orderDetails.shipping.state}{" "}
-                  {orderDetails.shipping.postalCode}
+                  {orderDetails.shipping_info.city},{" "}
+                  {orderDetails.shipping_info.state}{" "}
+                  {orderDetails.shipping_info.postalCode}
                 </p>
-                <p>{orderDetails.shipping.country}</p>
+                <p>{orderDetails.shipping_info.country}</p>
               </address>
             </div>
           </div>
         </div>
 
         {/* 🚚 Sidebar Next Steps */}
-        <div className="bg-background rounded-lg border p-6 space-y-4 h-fit md:sticky md:top-20">
-          <div className="flex items-start gap-4">
-            <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-              <Package className="h-5 w-5 text-blue-600" />
+        <div className="bg-background rounded-lg border p-6 space-y-6 h-fit md:sticky md:top-20">
+          {/* Payment Status Messages */}
+          {paymentStatus === "processing" && (
+            <div className="mb-6 p-4 bg-blue-50 text-blue-700 rounded-lg flex items-center">
+              <div className="animate-spin mr-2 h-5 w-5 border-2 border-blue-700 border-t-transparent rounded-full"></div>
+              <p>Processing your payment...</p>
             </div>
-            <div>
-              <h3 className="font-medium mb-1">What’s next?</h3>
-              <p className="text-muted-foreground text-sm">
-                We’re packing your items. You’ll get an email once your order
-                ships, with tracking info included.
-              </p>
-            </div>
-          </div>
+          )}
 
-          <Button asChild className="w-full" variant="outline">
-            <Link href={`/orders/${orderDetails.id}/invoice`}>
-              <FileDown className="h-4 w-4 mr-2" />
-              Download Invoice
-            </Link>
-          </Button>
+          {paymentStatus === "success" && (
+            <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg flex items-center">
+              <CheckCircle className="mr-2 h-5 w-5" />
+              <p>Payment successful! Redirecting to confirmation page...</p>
+            </div>
+          )}
+
+          {paymentStatus === "error" && (
+            <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg flex items-center">
+              <AlertCircle className="mr-2 h-5 w-5" />
+              <p>{errorMessage}</p>
+            </div>
+          )}
+          {orderDetails.status === "pending" ? (
+            <>
+              <div className="flex items-start gap-4">
+                <div className="h-10 w-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+                  <XCircle className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Payment Pending</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Your order was placed, but payment hasn’t been completed.
+                    Please finish your payment below.
+                  </p>
+                </div>
+              </div>
+
+              {/* Payment retry component */}
+              {orderDetails.shipping_info?.paymentMethod === "paypal" && (
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      // 🚀 redirect back to PayPal checkout flow
+                      router.push(
+                        `/checkout/processing/retrial?orderId=${orderDetails.id}`
+                      );
+                    }}
+                    className="w-full bg-[#0070ba] hover:bg-[#003087] text-white"
+                  >
+                    Retry with PayPal
+                  </Button>
+                </div>
+              )}
+
+              {orderDetails.shipping_info?.paymentMethod === "mpesa" && (
+                <div className="border rounded-lg p-4 bg-gray-50 space-y-3">
+                  <input
+                    type="tel"
+                    placeholder="e.g., 254712345678"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleMPesaPayment}
+                    className="w-full bg-[#4CAF50] hover:bg-[#388E3C] text-white"
+                    disabled={phoneNumber.length !== 12}
+                  >
+                    Retry with M-Pesa
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="flex items-start gap-4">
+                <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                  <Package className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">What’s next?</h3>
+                  <p className="text-muted-foreground text-sm">
+                    We’re packing your items. You’ll get an email once your
+                    order ships, with tracking info included.
+                  </p>
+                </div>
+              </div>
+
+              <Button asChild className="w-full" variant="outline">
+                <Link href={`/orders/${orderDetails.id}/invoice`}>
+                  <FileDown className="h-4 w-4 mr-2" />
+                  Download Invoice
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
