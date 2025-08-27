@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { redirect, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { Filter, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,11 +44,7 @@ export default function ProductsPage() {
   const initialCategory = searchParams.get("category") || "";
   const { state } = useStore();
   const orderData = state.pendingOrder;
-
-  if (orderData && orderData.items.length > 0) {
-    redirect("/checkout/payment");
-  }
-
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedBeltLevel, setSelectedBeltLevel] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -58,6 +54,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch products
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
@@ -71,8 +68,12 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]); // Add fetchProducts as dependency
+    if (!orderData) {
+      fetchProducts();
+    } else {
+      router.push("/checkout/payment");
+    }
+  }, [orderData, fetchProducts, router]);
 
   const handleAddToCart = (product: Product) => {
     dispatch({
@@ -168,7 +169,7 @@ export default function ProductsPage() {
                 <SheetTitle>Filters</SheetTitle>
               </SheetHeader>
 
-              <div className="py-6 space-y-6">
+              <div className="py-6 space-y-6 px-2">
                 {/* Categories */}
                 <div>
                   <h3 className="font-medium mb-3">Categories</h3>

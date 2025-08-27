@@ -42,9 +42,9 @@ export function Cart() {
                 className="flex items-center justify-between border-b pb-4"
               >
                 <div className="flex items-center space-x-4">
-                  {item.product.image && (
+                  {item.product.images.length > 0 && (
                     <img
-                      src={item.product.image}
+                      src={item.product.images[0]}
                       alt={item.product.name}
                       className="w-16 h-16 object-cover rounded"
                     />

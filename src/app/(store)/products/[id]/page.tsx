@@ -230,15 +230,15 @@ export default function ProductDetailPage({
               className="group overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
             >
               <div className="rounded-lg overflow-hidden">
-                {product.images && product.images.length > 0 ? (
+                {relatedProduct.images && relatedProduct.images.length > 0 ? (
                   <Carousel className="w-full max-w-md mx-auto">
                     <CarouselContent>
-                      {product.images.map((img, idx) => (
+                      {relatedProduct.images.map((img, idx) => (
                         <CarouselItem key={idx}>
                           <div className="aspect-square relative">
                             <Image
                               src={img}
-                              alt={product.title}
+                              alt={relatedProduct.title}
                               fill
                               className="object-contain"
                               sizes="(max-width: 768px) 100vw, 50vw"

@@ -65,16 +65,14 @@ export async function POST(req: Request, res: Response) {
   }
 
   // Convert CURRENCY → KES with 12h caching
-  let amountKES = total;
+  let amountKES = total - 5.6; // shipping fee
   if (currency !== "KSH") {
     try {
       const res = await fetch(
-        `https://api.exchangerate.host/${endpoint}?access_key=${access_key}&from=${currency}&to=KES&amount=${total}`,
-        { next: { revalidate: 3600 * 12 } } // 24h cache
+        `https://api.exchangerate.host/${endpoint}?access_key=${access_key}&from=${currency}&to=KES&amount=${amountKES}`,
+        { next: { revalidate: 3600 * 12 } } // 12h cache
       );
       const json = await res.json();
-
-      console.log("Exchange rate data:", json);
 
       const rate = json.result;
 
@@ -137,9 +135,9 @@ export async function POST(req: Request, res: Response) {
     const { data } = await axios.post(
       "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
       {
-        BusinessShortCode: "6549717",
-        Password: `${password}`,
-        Timestamp: `${timestamp}`,
+        BusinessShortCode: shortCode,
+        Password: password,
+        Timestamp: timestamp,
         TransactionType: "CustomerBuyGoodsOnline",
         Amount: amountKES, // Use converted amount in KES
         PartyA: phoneNumber,

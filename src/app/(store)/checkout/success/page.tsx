@@ -10,6 +10,7 @@ import {
   FileDown,
   XCircle,
   AlertCircle,
+  InfoIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import confetti from "canvas-confetti";
@@ -261,12 +262,16 @@ export default function SuccessPage() {
                     Your order was placed, but payment hasn’t been completed.
                     Please finish your payment below.
                   </p>
+                  <span className="text-xs text-muted-foreground mt-2">
+                    📝 If you’ve already completed payment, reload this page to
+                    refresh the status.
+                  </span>
                 </div>
               </div>
 
               {/* Payment retry component */}
               {orderDetails.shipping_info?.paymentMethod === "paypal" && (
-                <div className="border rounded-lg p-4 bg-gray-50">
+                <div className="border rounded-lg p-4">
                   <Button
                     type="button"
                     onClick={() => {
@@ -283,7 +288,7 @@ export default function SuccessPage() {
               )}
 
               {orderDetails.shipping_info?.paymentMethod === "mpesa" && (
-                <div className="border rounded-lg p-4 bg-gray-50 space-y-3">
+                <div className="border rounded-lg p-4 space-y-3">
                   <input
                     type="tel"
                     placeholder="e.g., 254712345678"

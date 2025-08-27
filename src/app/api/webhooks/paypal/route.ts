@@ -85,8 +85,6 @@ export async function POST(req: Request) {
   const resource = body.resource;
 
   try {
-    console.log("📩 PayPal Webhook received:", eventType);
-
     // --- Step 1: Handle APPROVED (auto-capture) ---
     if (eventType === "CHECKOUT.ORDER.APPROVED") {
       const paypalOrderId = resource.id;
@@ -106,7 +104,6 @@ export async function POST(req: Request) {
       );
 
       const captureData = await captureRes.json();
-      console.log("🔒 Capture response:", captureData);
 
       // Don’t update DB yet, wait for PAYMENT.CAPTURE.COMPLETED
     }
@@ -129,7 +126,8 @@ export async function POST(req: Request) {
       await supabaseAdmin
         .from("orders")
         .update({ status: "paid" })
-        .eq("id", supabaseOrderId);
+        .eq("id", supabaseOrderId)
+        .neq("status", "paid"); // idempotency
 
       // ✅ Insert transaction
       await supabaseAdmin.from("transactions").insert({

@@ -62,12 +62,10 @@ export async function POST(req: Request, res: Response) {
   if (orderData.currency !== "KSH") {
     try {
       const res = await fetch(
-        `https://api.exchangerate.host/${endpoint}?access_key=${access_key}&from=${orderData.currency}&to=KES&amount=${orderData.total}`,
-        { next: { revalidate: 3600 * 12 } } // 24h cache
+        `https://api.exchangerate.host/${endpoint}?access_key=${access_key}&from=${orderData.currency}&to=KES&amount=${amountKES}`,
+        { next: { revalidate: 3600 * 12 } } // 12h cache
       );
       const json = await res.json();
-
-      console.log("Exchange rate data:", json);
 
       const rate = json.result;
 
@@ -103,18 +101,18 @@ export async function POST(req: Request, res: Response) {
     const { data } = await axios.post(
       "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
       {
-        BusinessShortCode: "6549717",
-        Password: `${password}`,
-        Timestamp: `${timestamp}`,
+        BusinessShortCode: shortCode,
+        Password: password,
+        Timestamp: timestamp,
         TransactionType: "CustomerBuyGoodsOnline",
         Amount: amountKES, // Use converted amount in KES
         PartyA: phoneNumber,
         PartyB: process.env.MPESA_TILL!,
         PhoneNumber: phoneNumber,
-        CallBackURL: `https://wd9xkc6n-3000.inc1.devtunnels.ms/api/webhooks/mpesa?orderId=${
+        CallBackURL: `https://shop.worldsamma.org/api/webhooks/mpesa?orderId=${
           orderData.id
         }&callbackSecret=${process.env.MPESA_CALLBACK_SECRET!}`,
-        AccountReference: "World Samma Federation",
+        AccountReference: "World Samma Academy Shop",
         TransactionDesc: "Payment for order",
       },
       {

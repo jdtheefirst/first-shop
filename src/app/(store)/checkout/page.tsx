@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -44,10 +44,13 @@ export default function CheckoutPage() {
   const { cartItems } = useCart();
 
   // If cart is empty, redirect to products
-  if (cartItems.length === 0) {
-    router.push("/products");
-    return null;
-  }
+  // Redirect safely inside useEffect
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      router.push("/products");
+    }
+  }, [cartItems, router]);
+
   // Initialize form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -314,7 +317,12 @@ export default function CheckoutPage() {
                                 onChange={field.onChange}
                                 className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                               />
-                              <Label className="text-sm">PayPal</Label>
+                              <Label className="text-sm">
+                                PayPal{" "}
+                                <span className="text-muted-foreground">
+                                  (credit/debit card or PayPal account)
+                                </span>
+                              </Label>
                             </div>
                             <div className="flex items-center space-x-2">
                               <input

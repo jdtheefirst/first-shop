@@ -8,9 +8,6 @@ export async function POST(request: Request) {
     const orderId = url.searchParams.get("orderId");
     const callbackSecret = url.searchParams.get("callbackSecret");
 
-    console.log("Mpesa callback received for order:", orderId);
-    console.log("Full callback URL:", request.url);
-
     if (!orderId || !callbackSecret) {
       return NextResponse.json(
         { error: "Missing orderId or callbackSecret" },
@@ -40,7 +37,6 @@ export async function POST(request: Request) {
 
     // Handle failed/cancelled payments
     if (stkCallback.ResultCode !== 0) {
-      console.warn("Payment failed or cancelled:", stkCallback);
       return NextResponse.json(
         { message: "Payment not successful" },
         { status: 200 }
@@ -58,10 +54,6 @@ export async function POST(request: Request) {
     const amount = amountItem?.Value || 0;
     const receipt = receiptItem?.Value || "N/A";
     const phone = phoneItem?.Value || "N/A";
-
-    // TODO: Save to DB (transactions, subscriptions, etc.)
-    console.log("✅ Payment received:", { orderId, amount, receipt, phone });
-    // Update transaction status and order status in your database here
 
     const { data: Order } = await supabaseAdmin
       .from("orders")

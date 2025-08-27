@@ -10,7 +10,7 @@ const PAYPAL_BASE_URL =
     : "https://api-m.sandbox.paypal.com";
 
 export async function POST(req: Request) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   const body = await req.json();
   const { cart } = body;
   const { total, items, currency, shipping } = cart;
@@ -94,22 +94,28 @@ export async function POST(req: Request) {
             reference_id: order.id, // tie PayPal order to Supabase order
             custom_id: order.id, // safe place for your internal ID
             amount: {
-              currency_code: currency,
+              currency_code: order.currency,
               value: total.toFixed(2),
             },
           },
         ],
         application_context: {
-          brand_name: "WSF Shop",
-          landing_page: "LOGIN",
+          brand_name: "World Samma Academy Shop",
+          landing_page: "BILLING", // 👈 opens card form directly
+          shipping_preference: "NO_SHIPPING", // optional, if no shipping
           user_action: "PAY_NOW",
           return_url: `${siteUrl}/checkout/success?orderId=${order.id}`,
-          cancel_url: `${siteUrl}/checkout/success?orderId=${order.id}`,
+          cancel_url: `${siteUrl}/checkout/cancel?orderId=${order.id}`,
         },
       }),
     });
 
     const orderData = await orderRes.json();
+
+    if (orderRes.status !== 201) {
+      console.error("PayPal order creation error:", orderData);
+      throw new Error("Failed to create PayPal order");
+    }
 
     const approveUrl = orderData.links?.find(
       (link: any) => link.rel === "approve"

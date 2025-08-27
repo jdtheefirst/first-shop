@@ -89,11 +89,12 @@ export async function POST(req: Request) {
           },
         ],
         application_context: {
-          brand_name: "WSF Shop",
-          landing_page: "LOGIN",
+          brand_name: "World Samma Academy Shop",
+          landing_page: "BILLING", // 👈 opens card form directly
+          shipping_preference: "NO_SHIPPING", // optional, if no shipping
           user_action: "PAY_NOW",
           return_url: `${siteUrl}/checkout/success?orderId=${order.id}`,
-          cancel_url: `${siteUrl}/checkout/failed?orderId=${order.id}`,
+          cancel_url: `${siteUrl}/checkout/cancel?orderId=${order.id}`,
         },
       }),
     });

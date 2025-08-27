@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
 import { ChevronLeft, CheckCircle, AlertCircle } from "lucide-react";
@@ -18,13 +18,16 @@ export default function PaymentPage() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { user } = useAuth(); // Assuming useAuth is defined in your context
-  const { state, dispatch } = useStore(); // Assuming useStore is defined in your context
+  const { state } = useStore(); // Assuming useStore is defined in your context
   const orderData = state.pendingOrder;
 
   // If there's no pending order, redirect to products
-  if (!orderData) {
-    redirect("/products");
-  }
+  // Redirect safely inside useEffect
+  useEffect(() => {
+    if (!orderData) {
+      router.replace("/products");
+    }
+  }, [orderData, router]);
 
   // M-Pesa payment
   const handleMPesaPayment = async () => {
@@ -73,9 +76,6 @@ export default function PaymentPage() {
       if (mpesaResponse?.CustomerMessage) {
         toast.info(mpesaResponse.CustomerMessage);
       }
-
-      // Clear pendingOrder from state
-      dispatch({ type: "CLEAR_PENDING_ORDER" });
 
       router.push(`/checkout/success?orderId=${confirmedOrderId}`);
     } catch (error) {
@@ -137,18 +137,36 @@ export default function PaymentPage() {
               )}
 
               {/* { orderData.shipping.paymentMethod decides which payment to use } */}
-              {orderData.shipping.paymentMethod === "paypal" && (
+              {orderData.shipping?.paymentMethod === "paypal" && (
                 <div className="mb-8">
                   <h3 className="text-lg font-medium mb-4">
                     Paying with PayPal
                   </h3>
 
-                  {/* In a real app, this would be the PayPal button */}
-                  <div className="border rounded-lg p-6 bg-gray-50">
+                  <div className="border rounded-lg p-6">
                     <p className="text-center text-muted-foreground mb-4">
-                      In a real implementation, the PayPal button would appear
-                      here.
+                      When you choose Pay with PayPal, you’ll be securely
+                      redirected to PayPal’s checkout page. Once payment is
+                      complete, you’ll be brought back automatically.
                     </p>
+
+                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 mb-4">
+                      <li>
+                        You can pay using your <strong>PayPal account</strong>
+                      </li>
+                      <li>
+                        Or pay directly with a{" "}
+                        <strong>credit or debit card</strong>
+                      </li>
+                      <li>
+                        Or use a <strong>bank account</strong> (where supported)
+                      </li>
+                      <li>No PayPal account is required</li>
+                      <li>
+                        Your payment is{" "}
+                        <strong>securely processed by PayPal</strong>
+                      </li>
+                    </ul>
 
                     {/* Simulated PayPal button */}
                     <Button
@@ -166,8 +184,8 @@ export default function PaymentPage() {
                     </Button>
 
                     <p className="text-xs text-center text-muted-foreground mt-4">
-                      By clicking the button, you agree to the terms of service
-                      and privacy policy.
+                      By clicking this button, you agree to our Terms of Service
+                      and Privacy Policy.
                     </p>
                   </div>
                 </div>
@@ -180,7 +198,7 @@ export default function PaymentPage() {
                     Paying with M-Pesa
                   </h3>
 
-                  <div className="border rounded-lg p-6 bg-gray-50">
+                  <div className="border rounded-lg p-6">
                     <p className="text-center text-muted-foreground mb-4">
                       Enter your phone number to receive an M-Pesa payment
                       prompt.
