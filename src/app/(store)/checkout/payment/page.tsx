@@ -29,6 +29,8 @@ export default function PaymentPage() {
     }
   }, [orderData, router]);
 
+  if (!orderData) return null;
+
   // M-Pesa payment
   const handleMPesaPayment = async () => {
     setPaymentStatus("processing");

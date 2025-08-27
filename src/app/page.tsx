@@ -9,7 +9,7 @@ export default async function Home() {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/featured`,
+      `${process.env.VERCEL_URL}/api/products/featured`,
       {
         method: "GET",
         next: { revalidate: 3600 }, // Revalidate every hour
