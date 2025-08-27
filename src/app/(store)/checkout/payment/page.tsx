@@ -18,7 +18,7 @@ export default function PaymentPage() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { user } = useAuth(); // Assuming useAuth is defined in your context
-  const { state } = useStore(); // Assuming useStore is defined in your context
+  const { state, dispatch } = useStore(); // Assuming useStore is defined in your context
   const orderData = state.pendingOrder;
 
   // If there's no pending order, redirect to products
@@ -43,7 +43,7 @@ export default function PaymentPage() {
         return;
       }
 
-      const res = await fetch("/api/checkout/mpesa", {
+      const res = await fetch("/api/checkout/mpesa/initial", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cart: state.pendingOrder, phoneNumber }),
@@ -73,6 +73,9 @@ export default function PaymentPage() {
       if (mpesaResponse?.CustomerMessage) {
         toast.info(mpesaResponse.CustomerMessage);
       }
+
+      // Clear pendingOrder from state
+      dispatch({ type: "CLEAR_PENDING_ORDER" });
 
       router.push(`/checkout/success?orderId=${confirmedOrderId}`);
     } catch (error) {

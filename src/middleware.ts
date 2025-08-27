@@ -84,7 +84,7 @@ export async function middleware(request: NextRequest) {
       const userRole = userData?.role;
 
       if (userRole !== "admin") {
-        return NextResponse.redirect(new URL("/store", request.url));
+        return NextResponse.redirect(new URL("/products", request.url));
       }
     }
 

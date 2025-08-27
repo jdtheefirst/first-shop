@@ -25,6 +25,7 @@ export default function SuccessPage() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { user } = useAuth();
+  const { dispatch } = useStore();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -44,6 +45,9 @@ export default function SuccessPage() {
           spread: 70,
           origin: { y: 0.6 },
         });
+        // Clear pending order and cart from state
+        dispatch({ type: "CLEAR_PENDING_ORDER" });
+        dispatch({ type: "CLEAR_CART" });
       } catch (error) {
         console.error("Error fetching order details:", error);
       } finally {
@@ -52,7 +56,7 @@ export default function SuccessPage() {
     };
 
     fetchOrderDetails();
-  }, [orderId]);
+  }, [orderId, dispatch]);
 
   // M-Pesa payment
   const handleMPesaPayment = async () => {
@@ -182,22 +186,22 @@ export default function SuccessPage() {
             <div className="border-t pt-6">
               <h3 className="font-medium mb-4">Items</h3>
               <ul className="divide-y mb-6">
-                {orderDetails.items?.map((item: any) => (
+                {orderDetails.order_items?.map((item: any) => (
                   <li key={item.id} className="py-3 flex justify-between">
                     <div>
-                      <p className="font-medium">{item.title}</p>
+                      <p className="font-medium">{item.products.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        Qty: {item.quantity}
+                        Qty: {item.qty}
                       </p>
                     </div>
                     <p className="font-medium">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ${(item.unit_price * item.qty).toFixed(2)}
                     </p>
                   </li>
                 ))}
               </ul>
               <div className="border-t pt-4 flex justify-between font-semibold">
-                <span>Total</span>
+                <span>Total (shipping included)</span>
                 <span>${orderDetails.total.toFixed(2)}</span>
               </div>
             </div>

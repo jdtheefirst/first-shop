@@ -10,6 +10,7 @@ import {
   Package,
   Mail,
   Phone,
+  ClipboardX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/lib/context/AuthContext";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 export interface Order {
   id: string;
@@ -139,12 +141,13 @@ export default function OrderDetailPage({
         .from("orders")
         .update({ status, tracking_number: tracking })
         .eq("id", order.id)
-        .select()
+        .select("tracking_number, status")
         .single();
 
       if (error) throw error;
 
-      setOrder(data);
+      setStatus(data.status);
+      setTracking(data.tracking_number || "");
       toast.success("Order updated successfully ✅");
     } catch (err: any) {
       console.error("Error updating order:", err);
@@ -179,8 +182,20 @@ export default function OrderDetailPage({
     );
   }
 
+  // Calculate order.items.price total;
+  const itemsTotal = order.items.reduce(
+    (sum: number, item: any) => sum + item.price * item.quantity,
+    0
+  );
+
+  // Calculate shipping as order.total - itemsTotal
+  const shipping = order.total - itemsTotal;
+
+  // Calculate subtotals as order.total - shipping
+  const subtotal = order.total - shipping;
+
   return (
-    <div className="p-6">
+    <div className="py-6 px-2 container mx-auto max-w-6xl">
       {/* Breadcrumb */}
       <div className="mb-8">
         <Link
@@ -193,7 +208,7 @@ export default function OrderDetailPage({
       </div>
 
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Order {order.id}</h1>
+        <h1 className="text-3xl font-bold line-clamp-1">Order #{order.id}</h1>
         <span
           className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeClass(
             order.status
@@ -217,22 +232,45 @@ export default function OrderDetailPage({
                   <h3 className="text-sm font-medium text-muted-foreground mb-2">
                     Order Details
                   </h3>
+
                   <p className="mb-1">
                     <span className="font-medium">Order ID:</span> {order.id}
                   </p>
                   <p className="mb-1">
-                    <span className="font-medium">Date:</span> {order.date}
+                    <span className="font-medium">Date:</span>{" "}
+                    {format(new Date(order.date), "yyyy-MM-dd HH:mm")}
                   </p>
-                  <p className="mb-1">
-                    <span className="font-medium">Payment Method:</span>{" "}
-                    {order.payment?.method}
-                  </p>
-                  <p className="mb-1">
-                    <span className="font-medium">Transaction ID:</span>{" "}
-                    {order.payment?.transaction_id}
-                  </p>
-                </div>
 
+                  {order.payment ? (
+                    <>
+                      <p className="mb-1">
+                        <span className="font-medium">Payment Method:</span>{" "}
+                        {order.payment.method}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-medium">Transaction ID:</span>{" "}
+                        {order.payment.transaction_id}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-medium">Amount:</span>{" "}
+                        {order.payment.amount}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-medium">Phone:</span>{" "}
+                        {order.payment.phone}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-medium">Status:</span>{" "}
+                        {order.payment.status}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-red-500 italic items-center flex">
+                      <ClipboardX className="h-4 w-4 ml-1" /> &nbsp; No
+                      transaction found for this order
+                    </p>
+                  )}
+                </div>
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground mb-2">
                     Customer Information
@@ -335,11 +373,11 @@ export default function OrderDetailPage({
               <div className="mt-6 pt-6 border-t">
                 <div className="flex justify-between mb-2">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>Free</span>
+                  <span>${shipping.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-medium text-lg pt-2 border-t mt-2">
                   <span>Total</span>
@@ -415,13 +453,21 @@ export default function OrderDetailPage({
                   >
                     Print Order
                   </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      const subject = `Order ${order.id} Update`;
+                      const body = `Hi ${order.customer.name},\n\nThank you for your order! You can view your order details, track your shipment, or complete payment (if still pending) using the link below:\n\n${process.env.NEXT_PUBLIC_SITE_URL}/checkout/success?orderId=${order.id}\n\nIf you have any questions, just reply to this email and we'll be happy to help.\n\nBest regards,\nThe Support Team`;
 
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link
-                      href={`mailto:${order.customer.email}?subject=Your Order ${order.id}`}
-                    >
-                      Email Customer
-                    </Link>
+                      window.location.href = `mailto:${
+                        order.customer.email
+                      }?subject=${encodeURIComponent(
+                        subject
+                      )}&body=${encodeURIComponent(body)}`;
+                    }}
+                  >
+                    Email Customer
                   </Button>
                 </div>
               </div>

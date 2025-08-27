@@ -21,6 +21,7 @@ type StoreAction =
     }
   | { type: "CLEAR_CART" }
   | { type: "SET_PENDING_ORDER"; payload: any }
+  | { type: "CLEAR_PENDING_ORDER" }
   | { type: "SET_TOTAL"; payload: number };
 const initialState: StoreState = {
   cart: [],
@@ -97,6 +98,13 @@ function storeReducer(state: StoreState, action: StoreAction): StoreState {
         ...state,
         pendingOrder: action.payload,
       };
+
+    case "CLEAR_PENDING_ORDER":
+      return {
+        ...state,
+        pendingOrder: null,
+      };
+
     case "SET_TOTAL":
       return {
         ...state,
