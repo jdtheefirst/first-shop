@@ -5,7 +5,7 @@ import { generateToken } from "@/lib/utils";
 import axios from "axios";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   const body = await req.json();
 
   const { cart, phoneNumber } = body;
