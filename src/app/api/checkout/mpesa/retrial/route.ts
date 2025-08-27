@@ -1,9 +1,9 @@
 import { secureRatelimit } from "@/lib/limit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { generateToken } from "@/lib/utils";
 import axios from "axios";
 import { NextResponse } from "next/server";
-import { generateToken } from "../initial/route";
 
 export async function POST(req: Request, res: Response) {
   const body = await req.json();

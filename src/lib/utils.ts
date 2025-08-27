@@ -6,6 +6,7 @@ import {
   CartItem,
   ShippingCalculationResult,
 } from "@/types/store";
+import axios from "axios";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -157,4 +158,26 @@ export const getCurrencyOptions = () => {
     value: code,
     label: `${code} - ${formatter.of(code)}`,
   }));
+};
+
+export const generateToken = async () => {
+  const secret = process.env.MPESA_CONSUMER_SECRET;
+  const key = process.env.MPESA_CONSUMER_KEY;
+  const auth = Buffer.from(key + ":" + secret).toString("base64");
+  try {
+    const response = await axios.get(
+      "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
+      {
+        headers: {
+          Authorization: `Basic ${auth}`,
+        },
+      }
+    );
+    const token = response.data.access_token; // No need for await here
+
+    return token;
+  } catch (error) {
+    console.log("Token Error generated", error);
+    throw error; // Re-throw the error to handle it in the calling function
+  }
 };

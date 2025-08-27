@@ -1,30 +1,9 @@
 import { secureRatelimit } from "@/lib/limit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { generateToken } from "@/lib/utils";
 import axios from "axios";
 import { NextResponse } from "next/server";
-
-export const generateToken = async () => {
-  const secret = process.env.MPESA_CONSUMER_SECRET;
-  const key = process.env.MPESA_CONSUMER_KEY;
-  const auth = Buffer.from(key + ":" + secret).toString("base64");
-  try {
-    const response = await axios.get(
-      "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
-      {
-        headers: {
-          Authorization: `Basic ${auth}`,
-        },
-      }
-    );
-    const token = response.data.access_token; // No need for await here
-
-    return token;
-  } catch (error) {
-    console.log("Token Error generated", error);
-    throw error; // Re-throw the error to handle it in the calling function
-  }
-};
 
 export async function POST(req: Request, res: Response) {
   const body = await req.json();
