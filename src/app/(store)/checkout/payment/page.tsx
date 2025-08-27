@@ -192,7 +192,7 @@ export default function PaymentPage() {
               )}
 
               {/* M-Pesa Payment Option */}
-              {orderData.shipping.paymentMethod === "mpesa" && (
+              {orderData.shipping?.paymentMethod === "mpesa" && (
                 <div>
                   <h3 className="text-lg font-medium mb-4">
                     Paying with M-Pesa
@@ -282,20 +282,23 @@ export default function PaymentPage() {
                 </div>
               </div>
 
-              <div className="mt-6 pt-6 border-t">
-                <h3 className="font-medium mb-2">Shipping Address</h3>
-                <address className="not-italic text-sm text-muted-foreground">
-                  <p>
-                    {orderData.shipping.firstName} {orderData.shipping.lastName}
-                  </p>
-                  <p>{orderData.shipping.address}</p>
-                  <p>
-                    {orderData.shipping.city}, {orderData.shipping.state}{" "}
-                    {orderData.shipping.postalCode}
-                  </p>
-                  <p>{orderData.shipping.country}</p>
-                </address>
-              </div>
+              {orderData.shipping && (
+                <div className="mt-6 pt-6 border-t">
+                  <h3 className="font-medium mb-2">Shipping Address</h3>
+                  <address className="not-italic text-sm text-muted-foreground">
+                    <p>
+                      {orderData.shipping.firstName}{" "}
+                      {orderData.shipping.lastName}
+                    </p>
+                    <p>{orderData.shipping.address}</p>
+                    <p>
+                      {orderData.shipping.city}, {orderData.shipping.state}{" "}
+                      {orderData.shipping.postalCode}
+                    </p>
+                    <p>{orderData.shipping.country}</p>
+                  </address>
+                </div>
+              )}
             </div>
           </div>
         </div>
