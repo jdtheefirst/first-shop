@@ -12,6 +12,7 @@ export async function POST(req: Request) {
   const { total, items, currency, shipping } = cart;
   const access_key = process.env.EXCHANGE_API_KEY;
   const endpoint = process.env.ENDPOINT;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   // IF NO PHONE NUMBER
   if (
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
   }
 
   // Convert CURRENCY → KES with 12h caching
-  let amountKES = total - 5.6; // shipping fee
+  let amountKES = total;
   if (currency !== "KSH") {
     try {
       const res = await fetch(
@@ -122,7 +123,7 @@ export async function POST(req: Request) {
         PartyA: phoneNumber,
         PartyB: process.env.MPESA_TILL!,
         PhoneNumber: phoneNumber,
-        CallBackURL: `https://wd9xkc6n-3000.inc1.devtunnels.ms/api/webhooks/mpesa?orderId=${
+        CallBackURL: `${siteUrl}/api/webhooks/mpesa?orderId=${
           orderData.id
         }&callbackSecret=${process.env.MPESA_CALLBACK_SECRET!}`,
         AccountReference: "World Samma Federation",

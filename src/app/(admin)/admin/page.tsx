@@ -137,7 +137,7 @@ export default function AdminDashboard() {
                 Conversion Rate
               </p>
               <h3 className="text-2xl font-bold mt-1">
-                {stats.conversionRate}
+                {stats.conversionRate}%
               </h3>
             </div>
             <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">

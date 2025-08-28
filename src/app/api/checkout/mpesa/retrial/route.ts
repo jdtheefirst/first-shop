@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   const { orderId, phoneNumber } = body;
   const access_key = process.env.EXCHANGE_API_KEY;
   const endpoint = process.env.ENDPOINT;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   // IF NO PHONE NUMBER
   if (
@@ -109,7 +110,7 @@ export async function POST(req: Request) {
         PartyA: phoneNumber,
         PartyB: process.env.MPESA_TILL!,
         PhoneNumber: phoneNumber,
-        CallBackURL: `https://shop.worldsamma.org/api/webhooks/mpesa?orderId=${
+        CallBackURL: `${siteUrl}/api/webhooks/mpesa?orderId=${
           orderData.id
         }&callbackSecret=${process.env.MPESA_CALLBACK_SECRET!}`,
         AccountReference: "World Samma Academy Shop",

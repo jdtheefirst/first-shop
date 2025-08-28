@@ -120,21 +120,23 @@ export default function PaymentPage() {
               {paymentStatus === "processing" && (
                 <div className="mb-6 p-4 bg-blue-50 text-blue-700 rounded-lg flex items-center">
                   <div className="animate-spin mr-2 h-5 w-5 border-2 border-blue-700 border-t-transparent rounded-full"></div>
-                  <p>Processing your payment...</p>
+                  <p className="text-sm">Processing your payment...</p>
                 </div>
               )}
 
               {paymentStatus === "success" && (
                 <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg flex items-center">
                   <CheckCircle className="mr-2 h-5 w-5" />
-                  <p>Payment successful! Redirecting to confirmation page...</p>
+                  <p className="text-sm">
+                    Payment successful! Redirecting to confirmation page...
+                  </p>
                 </div>
               )}
 
               {paymentStatus === "error" && (
                 <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg flex items-center">
                   <AlertCircle className="mr-2 h-5 w-5" />
-                  <p>{errorMessage}</p>
+                  <p className="text-sm">{errorMessage}</p>
                 </div>
               )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -15,6 +15,7 @@ import { FloatingCartButton } from "@/components/cartButton";
 import axios from "axios";
 import {
   Carousel,
+  CarouselApi,
   CarouselContent,
   CarouselItem,
   CarouselNext,
@@ -25,6 +26,7 @@ import { ProductDetailSkeleton } from "@/components/ProductDetailsSkeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { EmptyState } from "@/components/EmptyState";
 
 export default function ProductDetailPage({
   params,
@@ -38,6 +40,26 @@ export default function ProductDetailPage({
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [api, setApi] = useState<CarouselApi>();
+
+  useEffect(() => {
+    if (!api) return;
+
+    const updateIndex = () => {
+      setActiveIndex(api.selectedScrollSnap());
+    };
+
+    // Update initially
+    updateIndex();
+
+    // Listen to carousel slide changes
+    api.on("select", updateIndex);
+
+    return () => {
+      api.off("select", updateIndex);
+    };
+  }, [api]);
 
   const fetchProduct = useCallback(async () => {
     if (!param.id) return;
@@ -126,26 +148,50 @@ export default function ProductDetailPage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {/* Product Image */}
         <div className="rounded-lg overflow-hidden">
-          {product.images && product.images.length > 0 ? (
-            <Carousel className="w-full max-w-md mx-auto">
-              <CarouselContent>
+          {product.images?.length ? (
+            <div className="w-full max-w-md mx-auto">
+              {/* Main carousel */}
+              <Carousel className="w-full max-w-md mx-auto" setApi={setApi}>
+                <CarouselContent>
+                  {product.images.map((img, idx) => (
+                    <CarouselItem key={idx}>
+                      <div className="aspect-square relative">
+                        <Image
+                          src={img}
+                          alt={product.title}
+                          fill
+                          className="object-contain"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
+
+              {/* Thumbnail row */}
+              <div className="mt-4 flex justify-center p-2 gap-2 overflow-x-auto">
                 {product.images.map((img, idx) => (
-                  <CarouselItem key={idx}>
-                    <div className="aspect-square relative">
-                      <Image
-                        src={img}
-                        alt={product.title}
-                        fill
-                        className="object-contain"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                    </div>
-                  </CarouselItem>
+                  <button
+                    key={idx}
+                    onClick={() => api?.scrollTo(idx)}
+                    className={`relative w-16 h-16 border rounded-md overflow-hidden ${
+                      activeIndex === idx ? "ring-2 ring-primary" : "opacity-70"
+                    }`}
+                  >
+                    <Image
+                      src={img}
+                      alt={`Thumbnail ${idx + 1}`}
+                      fill
+                      className="object-contain"
+                      sizes="64px"
+                    />
+                  </button>
                 ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
+              </div>
+            </div>
           ) : (
             <div className="aspect-square flex items-center justify-center text-muted-foreground">
               No image available
@@ -172,7 +218,10 @@ export default function ProductDetailPage({
           </div>
 
           {/* Render Markdown */}
-          <div className="prose prose-sm dark:prose-invert text-muted-foreground mb-6 break-words max-w-full">
+          <div
+            className="prose prose-sm dark:prose-invert text-muted-foreground mb-6 break-words max-w-full
+             [&>hr]:my-6 [&>hr]:border-t [&>hr]:border-muted"
+          >
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {product.description}
             </ReactMarkdown>
@@ -223,54 +272,67 @@ export default function ProductDetailPage({
       <div className="mt-16">
         <h2 className="text-2xl font-bold mb-6">You might also like</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {relatedProducts.map((relatedProduct) => (
-            <Link
-              key={relatedProduct.id}
-              href={`/products/${relatedProduct.id}`}
-              className="group overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
-            >
-              <div className="rounded-lg overflow-hidden">
-                {relatedProduct.images && relatedProduct.images.length > 0 ? (
-                  <Carousel className="w-full max-w-md mx-auto">
-                    <CarouselContent>
-                      {relatedProduct.images.map((img, idx) => (
-                        <CarouselItem key={idx}>
-                          <div className="aspect-square relative">
-                            <Image
-                              src={img}
-                              alt={relatedProduct.title}
-                              fill
-                              className="object-contain"
-                              sizes="(max-width: 768px) 100vw, 50vw"
-                            />
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                  </Carousel>
-                ) : (
-                  <div className="aspect-square flex items-center justify-center text-muted-foreground">
-                    No image available
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <h3 className="font-medium line-clamp-1">
-                  {relatedProduct.title}
-                </h3>
-                <div className="mt-1 flex items-center justify-between">
-                  <p className="font-semibold">
-                    ${relatedProduct.price.toFixed(2)}
-                  </p>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {relatedProduct.category}
-                  </p>
+          {relatedProducts.length > 0 ? (
+            <EmptyState
+              title="No Related Products"
+              description="We couldn't find any related products at the moment."
+              icon="boxs"
+              action={
+                <Button asChild>
+                  <Link href="/products">Browse Products</Link>
+                </Button>
+              }
+            />
+          ) : (
+            relatedProducts.map((relatedProduct) => (
+              <Link
+                key={relatedProduct.id}
+                href={`/products/${relatedProduct.id}`}
+                className="group overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
+              >
+                <div className="rounded-lg overflow-hidden">
+                  {relatedProduct.images && relatedProduct.images.length > 0 ? (
+                    <Carousel className="w-full max-w-md mx-auto">
+                      <CarouselContent>
+                        {relatedProduct.images.map((img, idx) => (
+                          <CarouselItem key={idx}>
+                            <div className="aspect-square relative">
+                              <Image
+                                src={img}
+                                alt={relatedProduct.title}
+                                fill
+                                className="object-contain"
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                              />
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious />
+                      <CarouselNext />
+                    </Carousel>
+                  ) : (
+                    <div className="aspect-square flex items-center justify-center text-muted-foreground">
+                      No image available
+                    </div>
+                  )}
                 </div>
-              </div>
-            </Link>
-          ))}
+                <div className="p-4">
+                  <h3 className="font-medium line-clamp-1">
+                    {relatedProduct.title}
+                  </h3>
+                  <div className="mt-1 flex items-center justify-between">
+                    <p className="font-semibold">
+                      ${relatedProduct.price.toFixed(2)}
+                    </p>
+                    <p className="text-sm text-muted-foreground capitalize">
+                      {relatedProduct.category}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>

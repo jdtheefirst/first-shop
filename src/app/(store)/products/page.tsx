@@ -137,12 +137,13 @@ export default function ProductsPage({
             Error Loading Products
           </h2>
           <p className="text-muted-foreground mb-4">{error}</p>
-          <button
-            onClick={fetchProducts}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          <Button
+            variant={"destructive"}
+            onClick={() => router.refresh()}
+            className="w-full sm:w-auto cursor-pointer"
           >
             Try Again
-          </button>
+          </Button>
         </div>
       </div>
     );

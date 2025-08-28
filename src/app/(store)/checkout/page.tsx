@@ -319,7 +319,7 @@ export default function CheckoutPage() {
                               />
                               <Label className="text-sm">
                                 PayPal{" "}
-                                <span className="text-muted-foreground">
+                                <span className="text-muted-foreground text-xs">
                                   (credit/debit card or PayPal account)
                                 </span>
                               </Label>
