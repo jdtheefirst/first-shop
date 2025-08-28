@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -19,9 +19,12 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useStore } from "@/lib/context/StoreContext";
 
-export default function SuccessPage() {
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId") || "ORD-12345";
+export default function SuccessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ orderId?: string }>;
+}) {
+  const { orderId } = use(searchParams);
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();

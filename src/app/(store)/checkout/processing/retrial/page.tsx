@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { toast } from "sonner";
-
-export default function CheckoutPage() {
+import { use } from "react";
+export default function CheckoutPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ orderId?: string }>;
+}) {
   const { user } = useAuth();
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId") || "ORD-12345";
+  const { orderId } = use(searchParams);
   const router = useRouter();
 
   useEffect(() => {

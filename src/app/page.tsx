@@ -3,17 +3,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/store";
 import { beltLevels } from "@/lib/utils";
+import { ProductCardSkeleton } from "@/components/ProductSkeleton";
+import { Suspense } from "react";
 
-export default async function Home() {
+async function fetchFeatured() {
   let featuredProducts: Product[] = [];
 
   try {
     const response = await fetch(
-      `${process.env.VERCEL_URL}/api/products/featured`,
-      {
-        method: "GET",
-        next: { revalidate: 3600 }, // Revalidate every hour
-      }
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/products/featured`
     );
 
     if (response.ok) {
@@ -24,7 +22,68 @@ export default async function Home() {
   } catch (error) {
     console.error("Error fetching featured products:", error);
   }
+  return featuredProducts;
+}
 
+async function featuredSection() {
+  const featuredProducts = await fetchFeatured();
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {featuredProducts.map((product) => (
+        <Link
+          key={product.id}
+          href={`/products/${product.id}`}
+          className="group relative overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          <div className="aspect-square relative">
+            {product.images?.[0] ? (
+              <>
+                <Image
+                  src={product.images[0]}
+                  alt={product.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 
+                   (max-width: 1200px) 50vw, 
+                   33vw"
+                />
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+                {/* Text overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-blue-300 transition-colors">
+                    {product.title}
+                  </h3>
+                  <div className="mt-1 flex items-center justify-between text-sm">
+                    <p className="font-medium">${product.price.toFixed(2)}</p>
+                    <p className="capitalize opacity-80">{product.category}</p>
+                  </div>
+                  {product.belt_level !== "all" && (
+                    <p className="mt-1 text-xs opacity-70">
+                      {
+                        beltLevels.find((b) => b.id === product.belt_level)
+                          ?.name
+                      }
+                    </p>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                No Image
+              </div>
+            )}
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+export default async function Home() {
+  const featuredProducts = await featuredSection();
   // Mock categories
   const categories = [
     { name: "Uniforms", slug: "uniforms", image: "/categories/uniforms.jpg" },
@@ -124,61 +183,13 @@ export default async function Home() {
           <h2 className="text-3xl font-bold text-center mb-12">
             Featured Products
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
-              <Link
-                key={product.id}
-                href={`/products/${product.id}`}
-                className="group relative overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
-              >
-                <div className="aspect-square relative">
-                  {product.images?.[0] ? (
-                    <>
-                      <Image
-                        src={product.images[0]}
-                        alt={product.title}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, 
-                   (max-width: 1200px) 50vw, 
-                   33vw"
-                      />
-                      {/* Overlay gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-
-                      {/* Text overlay */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                        <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-blue-300 transition-colors">
-                          {product.title}
-                        </h3>
-                        <div className="mt-1 flex items-center justify-between text-sm">
-                          <p className="font-medium">
-                            ${product.price.toFixed(2)}
-                          </p>
-                          <p className="capitalize opacity-80">
-                            {product.category}
-                          </p>
-                        </div>
-                        {product.belt_level !== "all" && (
-                          <p className="mt-1 text-xs opacity-70">
-                            {
-                              beltLevels.find(
-                                (b) => b.id === product.belt_level
-                              )?.name
-                            }
-                          </p>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                      No Image
-                    </div>
-                  )}
-                </div>
-              </Link>
+          <Suspense
+            fallback={Array.from({ length: 8 }).map((_, index) => (
+              <ProductCardSkeleton key={index} />
             ))}
-          </div>
+          >
+            {featuredProducts}
+          </Suspense>
           <div className="mt-12 text-center">
             <Button asChild size="lg">
               <Link href="/products">View All Products</Link>
