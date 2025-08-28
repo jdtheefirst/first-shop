@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
+// app/(store)/page.tsx
+import { permanentRedirect } from "next/navigation";
 
 export default function StorePage() {
-  // Redirect to the main homepage
-  redirect("/");
+  permanentRedirect("/");
 }
