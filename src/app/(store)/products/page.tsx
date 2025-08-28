@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { Filter, ChevronDown } from "lucide-react";
@@ -39,13 +39,16 @@ const tags = [
   { id: "advanced", name: "Advanced" },
 ];
 
-export default function ProductsPage() {
-  const searchParams = useSearchParams();
-  const initialCategory = searchParams.get("category") || "";
+export default function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = use(searchParams);
   const { state } = useStore();
   const orderData = state.pendingOrder;
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [selectedCategory, setSelectedCategory] = useState(category);
   const [selectedBeltLevel, setSelectedBeltLevel] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
