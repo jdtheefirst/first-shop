@@ -1,18 +1,48 @@
+import Link from "next/link";
+
 export default function ShippingPage() {
   return (
-    <div className="container py-8 max-w-4xl mx-auto">
-      <div className="bg-background rounded-lg border p-6 md:p-10">
-        <h1 className="text-4xl font-bold tracking-tight mb-6">
+    <div className="container py-8 px-2 max-w-4xl mx-auto">
+      <div>
+        <h1 className="text-4xl font-bold tracking-tight mb-6 text-center">
           Shipping Policy
         </h1>
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
-          <p>
+          <p className="text-lg text-muted-foreground text-center mb-8">
             Welcome to the WorldSamma Shop! We know you're excited to get your
             new gear and get back to training. Our goal is to get your order to
-            you as quickly and efficiently as possible, just like a
-            well-executed technique.
+            you as quickly and efficiently as possible.
           </p>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h3 className="text-xl font-semibold text-blue-800 mb-2">
+              Shipping At A Glance
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div className="bg-white p-4 rounded-lg border text-center">
+                <div className="text-2xl font-bold text-blue-600">$3</div>
+                <div className="text-sm font-medium">Nairobi</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  1-2 business days
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border text-center">
+                <div className="text-2xl font-bold text-blue-600">$5</div>
+                <div className="text-sm font-medium">Within Kenya</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  2-4 business days
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border text-center">
+                <div className="text-2xl font-bold text-blue-600">$10+</div>
+                <div className="text-sm font-medium">International</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  5-10 business days
+                </div>
+              </div>
+            </div>
+          </div>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">Processing Time</h2>
           <p>
@@ -25,25 +55,88 @@ export default function ShippingPage() {
           <h2 className="text-2xl font-semibold mt-8 mb-4">
             Shipping Rates & Estimates
           </h2>
-          <p>We offer flat-rate shipping to keep things simple.</p>
-          <ul>
-            <li>
-              <strong>Standard Shipping (Nairobi):</strong> KES 300 (1-2
-              business days)
-            </li>
-            <li>
-              <strong>Standard Shipping (Rest of Kenya):</strong> KES 500 (2-4
-              business days)
-            </li>
-            <li>
-              <strong>International Shipping:</strong> Currently, we only ship
-              within Kenya. We are working on expanding our dojo to the rest of
-              the world soon!
-            </li>
-          </ul>
+          <p>We offer transparent pricing with simple flat rates.</p>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 mt-4 mb-6">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Destination
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Base Rate
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Extra Weight Charge
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Delivery Time
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    Nairobi
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    $3.00
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    $1.00 per kg over 1kg
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    1-2 business days
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    Kenya (outside Nairobi)
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    $5.00
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    $1.00 per kg over 1kg
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    2-4 business days
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    International
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    $10.00
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    $5.00 per kg over 1kg
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    5-10 business days
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <p>
-            <strong>Free shipping</strong> is available for all orders over KES
-            5,000.
+            <strong>Free shipping</strong> is available for all orders over
+            $100.
           </p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">
@@ -56,10 +149,15 @@ export default function ShippingPage() {
             become available.
           </p>
           <p>
-            If you haven't received your order within 5 days of receiving your
-            shipping confirmation email, please contact us at{" "}
-            <a href="mailto:shop@worldsamma.org">shop@worldsamma.org</a> with
-            your name and order number, and we will look into it for you.
+            If you haven't received your order within the expected timeframe,
+            please contact us at{" "}
+            <a
+              href="mailto:shop@worldsamma.org"
+              className="text-blue-600 hover:underline"
+            >
+              shop@worldsamma.org
+            </a>{" "}
+            with your name and order number, and we will look into it for you.
           </p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">
@@ -67,8 +165,11 @@ export default function ShippingPage() {
           </h2>
           <p>
             We want you to be completely satisfied with your gear. Please see
-            our <a href="/returns">Returns Policy</a> page for detailed
-            information about your options.
+            our{" "}
+            <Link href="/returns" className="text-blue-600 hover:underline">
+              Returns Policy
+            </Link>{" "}
+            page for detailed information about your options.
           </p>
         </div>
       </div>

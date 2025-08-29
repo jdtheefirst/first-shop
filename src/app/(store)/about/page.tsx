@@ -6,7 +6,7 @@ export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-6xl">
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold mb-4">About Samma Shop</h1>
+        <h1 className="text-4xl font-bold mb-4">About Main Samma Shop</h1>
         <p className="text-xl max-w-3xl mx-auto">
           Your trusted source for authentic Samma Martial Arts equipment and
           accessories
@@ -32,7 +32,7 @@ export default function AboutPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center hover:text-blue-800 font-medium"
             >
-              Learn more about Samma Martial Arts
+              Learn more about Samma Martial Art
               <BookOpen className="ml-2 h-5 w-5" />
             </Link>
           </div>
@@ -45,7 +45,7 @@ export default function AboutPage() {
               Authentic Samma Products
             </h3>
             <p>
-              All our products are approved by World Samma organization and
+              All our products are approved by World Samma Federation and
               designed specifically for Samma practitioners.
             </p>
           </div>

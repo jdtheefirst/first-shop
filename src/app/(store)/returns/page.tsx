@@ -1,17 +1,18 @@
 export default function ReturnsPage() {
   return (
-    <div className="container py-8 max-w-4xl mx-auto">
-      <div className="bg-background rounded-lg border p-6 md:p-10">
+    <div className="container py-8 px-2 mx-auto max-w-4xl">
+      <div>
         <h1 className="text-4xl font-bold tracking-tight mb-6">
           Returns & Refunds Policy
         </h1>
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <p>
-            At WorldSamma Shop, we stand by the quality of our gear. If you're
-            not completely satisfied with your purchase, we're here to help.
-            Think of our return policy as a friendly sparring partner—fair,
-            straightforward, and designed to find the best outcome.
+            At World Samma Academy Shop, we stand by the quality of our gear. If
+            you're not completely satisfied with your purchase, we're here to
+            help. Think of our return policy as a friendly sparring
+            partner—fair, straightforward, and designed to find the best
+            outcome.
           </p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-4">

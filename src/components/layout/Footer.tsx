@@ -91,10 +91,10 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <address className="not-italic text-sm text-muted-foreground">
-              <p>123 Martial Arts Way</p>
-              <p>Nairobi, Kenya</p>
-              <p className="mt-2">Email: info@worldsamma.org</p>
-              <p>Phone: +254 123 456 789</p>
+              <p>Old Malindi Rd</p>
+              <p>Mombasa, Kenya</p>
+              <p className="mt-2">Email: shop@worldsamma.org</p>
+              <p>Phone: +254 729498622</p>
             </address>
           </div>
         </div>

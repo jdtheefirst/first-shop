@@ -4,12 +4,12 @@ import { MapPin, Phone, Clock, Mail, MessageCircle } from "lucide-react";
 
 export default function ContactPage() {
   return (
-    <div className="container mx-auto px-4 py-12 max-w-6xl">
+    <div className="container mx-auto px-2 py-12 max-w-6xl">
       <div className="text-center mb-16">
         <h1 className="text-4xl font-bold mb-4">Contact Samma Shop</h1>
         <p className="text-xl max-w-3xl mx-auto">
           We're here to help you with any questions about our products or Samma
-          Martial Arts
+          Martial Art
         </p>
       </div>
 
@@ -29,7 +29,7 @@ export default function ContactPage() {
               </div>
               <div className="ml-3">
                 <h3 className="text-lg font-medium">Phone Support</h3>
-                <p>+1 (555) 123-SAMMA</p>
+                <p>+254 (729) 498622</p>
                 <p className="text-sm text-gray-500">
                   Monday-Friday, 9am-5pm EST
                 </p>
@@ -55,8 +55,8 @@ export default function ContactPage() {
               </div>
               <div className="ml-3">
                 <h3 className="text-lg font-medium">Visit Us</h3>
-                <p>123 Martial Way</p>
-                <p>Dojo City, MA 54321</p>
+                <p>Old Malindi Rd</p>
+                <p>Mombasa, Kenya</p>
               </div>
             </div>
 
@@ -77,20 +77,20 @@ export default function ContactPage() {
           <div className="text-center mb-8">
             <MessageCircle className="h-12 w-12 text-blue-600 mx-auto mb-4" />
             <h2 className="text-2xl font-semibold">
-              Samma Martial Arts Information
+              Samma Martial Art Information
             </h2>
             <p className="mt-2">
-              For detailed information about Samma Martial Arts, certifications,
-              or events, please visit the official World Samma blog.
+              For detailed information about Samma Martial Art, certifications,
+              or events, please visit the official Samma blog.
             </p>
           </div>
 
           <div className="space-y-4">
             <div className="p-4 rounded-lg shadow-sm">
-              <h3 className="font-medium mb-2">About Samma Martial Arts</h3>
+              <h3 className="font-medium mb-2">About Samma Martial Art</h3>
               <p className="text-sm mb-3">
                 Learn about the history, philosophy, and techniques of Samma
-                Martial Arts.
+                Martial Art.
               </p>
               <Link
                 href="https://blog.worldsamma.org/about"
@@ -145,11 +145,11 @@ export default function ContactPage() {
             <div className="p-4 rounded-lg shadow-sm">
               <h3 className="font-medium mb-2">Samma Events & Workshops</h3>
               <p className="text-sm mb-3">
-                Find upcoming Samma Martial Arts events, tournaments, and
+                Find upcoming Samma Martial Art events, tournaments, and
                 training workshops.
               </p>
               <Link
-                href="https://blog.worldsamma.org/events"
+                href="https://worldsamma.org"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center"
               >
