@@ -15,6 +15,7 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -142,9 +143,10 @@ export default function AdminOrdersPage() {
             <SheetContent side="right">
               <SheetHeader>
                 <SheetTitle>Filters</SheetTitle>
+                <SheetDescription>Refine your order search</SheetDescription>
               </SheetHeader>
 
-              <div className="py-6 space-y-6">
+              <div className="py-6 space-y-6 px-2">
                 {/* Statuses */}
                 <div>
                   <h3 className="font-medium mb-3">Order Status</h3>
@@ -287,14 +289,14 @@ export default function AdminOrdersPage() {
 
         {/* Pagination */}
         {filteredOrders.length > 0 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t">
+          <div className="px-6 py-4 border-t">
             <p className="text-sm text-muted-foreground">
               Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
               {Math.min(currentPage * itemsPerPage, filteredOrders.length)} of{" "}
               {filteredOrders.length} orders
             </p>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
               <Button
                 variant="outline"
                 size="icon"

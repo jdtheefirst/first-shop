@@ -169,19 +169,23 @@ BEGIN
       'pendingOrders', total_pending_orders
     ),
     'recentOrders', COALESCE((
-      select json_agg(
-        json_build_object(
-          'id', o.id,
-          'customer', o.shipping_info->>'firstName' || ' ' || coalesce(o.shipping_info->>'lastName',''),
-          'date', o.created_at,
-          'total', o.total,
-          'status', o.status
-        )
-        order by o.created_at desc
-      )
-      from orders o
-      limit 5
-    ), '[]'::json) -- This ensures empty array instead of null
+  select json_agg(
+    json_build_object(
+      'id', o.id,
+      'customer', o.shipping_info->>'firstName' || ' ' || coalesce(o.shipping_info->>'lastName',''),
+      'date', o.created_at,
+      'total', o.total,
+      'status', o.status
+    )
+    order by o.created_at desc
+  )
+  from (
+    select *
+    from orders
+    order by created_at desc
+    limit 5
+  ) o
+), '[]'::json)
   )
   into result;
 
