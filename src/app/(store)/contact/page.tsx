@@ -115,9 +115,11 @@ export default function ContactPage() {
             </div>
 
             <div className="p-4 rounded-lg shadow-sm">
-              <h3 className="font-medium mb-2">Contact World Samma</h3>
+              <h3 className="font-medium mb-2">
+                Contact World Samma Federation
+              </h3>
               <p className="text-sm mb-3">
-                For questions about Samma Martial Arts training, certifications,
+                For questions about Samma Martial Art training, certifications,
                 or events.
               </p>
               <Link
@@ -175,19 +177,19 @@ export default function ContactPage() {
 
       <div className="rounded-xl p-8 text-center">
         <h2 className="text-2xl font-semibold mb-4">
-          More About Samma Martial Arts
+          More About Samma Martial Art
         </h2>
         <p className="max-w-2xl mx-auto mb-6">
-          For comprehensive information about Samma Martial Arts philosophy,
-          belt rankings, training techniques, and community events, please visit
-          the official World Samma blog.
+          For comprehensive information about Samma Martial Art philosophy, belt
+          rankings, training techniques, and community events, please visit the
+          official Samma blog.
         </p>
         <Link
           href="https://blog.worldsamma.org/about"
           rel="noopener noreferrer"
           className="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
         >
-          Explore World Samma Blog
+          Explore Samma Blog
         </Link>
       </div>
     </div>

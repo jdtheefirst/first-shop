@@ -10,9 +10,9 @@ export default function ShippingPage() {
 
         <div className="prose prose-lg dark:prose-invert max-w-none">
           <p className="text-lg text-muted-foreground text-center mb-8">
-            Welcome to the WorldSamma Shop! We know you're excited to get your
-            new gear and get back to training. Our goal is to get your order to
-            you as quickly and efficiently as possible.
+            Welcome to the Samma Shop! We know you're excited to get your new
+            gear and get back to training. Our goal is to get your order to you
+            as quickly and efficiently as possible.
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
