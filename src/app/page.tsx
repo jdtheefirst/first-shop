@@ -139,7 +139,7 @@ export default async function Home() {
       </section>
 
       {/* Featured Categories */}
-      <section className="py-16 bg-muted/50">
+      <section className="py-16">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">
             Shop by Category
