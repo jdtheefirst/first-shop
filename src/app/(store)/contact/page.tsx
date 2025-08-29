@@ -29,7 +29,7 @@ export default function ContactPage() {
               </div>
               <div className="ml-3">
                 <h3 className="text-lg font-medium">Phone Support</h3>
-                <p>+254 (729) 498622</p>
+                <p>+254 (789) 273384 or +254 (729) 498622</p>
                 <p className="text-sm text-gray-500">
                   Monday-Friday, 9am-5pm EST
                 </p>

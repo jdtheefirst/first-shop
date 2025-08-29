@@ -94,7 +94,7 @@ export default function Footer() {
               <p>Old Malindi Rd</p>
               <p>Mombasa, Kenya</p>
               <p className="mt-2">Email: shop@worldsamma.org</p>
-              <p>Phone: +254 729498622</p>
+              <p>Phone: +254 789 273384 or +254 729 498622</p>
             </address>
           </div>
         </div>
