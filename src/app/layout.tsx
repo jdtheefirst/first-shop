@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { StoreProvider } from "@/lib/context/StoreContext";
 import { Toaster } from "sonner";
+import { GlobalLoader } from "@/components/GlobalLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -74,6 +75,7 @@ export default function RootLayout({
                 <Header />
                 <main className="flex-grow">
                   {children}
+                  <GlobalLoader /> {/* shows on every route transition */}
                   <Toaster position="top-right" richColors closeButton />
                 </main>
                 <Footer />
