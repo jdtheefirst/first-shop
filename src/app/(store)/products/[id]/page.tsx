@@ -46,7 +46,7 @@ export async function generateMetadata({
     const url = `${SITE_URL}/products/${product.id}`;
     const image = product.images?.length
       ? product.images[0]
-      : "/default-product.png";
+      : "/covers/cover-1.jpg";
 
     return {
       title: `${product.title} | ${product.name}`,
@@ -90,26 +90,4 @@ export default async function ProductPage({
   if (!product) notFound();
 
   return <ProductsPage product={product} relatedProducts={relatedProducts} />;
-}
-
-// --- Error boundary fallback ---
-export function ErrorFallback({ error }: { error: string }) {
-  return (
-    <div className="container mx-auto px-2 py-8">
-      <div className="flex items-center w-full">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-        <Button asChild className="mt-4">
-          <Link href="/products">Back to Products</Link>
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-// --- Loading state ---
-export function Loading() {
-  return <ProductDetailSkeleton />;
 }
