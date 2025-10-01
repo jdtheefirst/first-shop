@@ -105,7 +105,7 @@ export async function POST(req: Request) {
           shipping_preference: "NO_SHIPPING", // optional, if no shipping
           user_action: "PAY_NOW",
           return_url: `${siteUrl}/checkout/success?orderId=${order.id}`,
-          cancel_url: `${siteUrl}/checkout/cancel?orderId=${order.id}`,
+          cancel_url: `${siteUrl}/checkout/success?orderId=${order.id}`,
         },
       }),
     });

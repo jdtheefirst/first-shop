@@ -1,3 +1,4 @@
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -7,9 +8,22 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-lg font-semibold mb-4">Main Academy Shop</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mb-4">
               Your one-stop shop for martial arts gear and equipment.
             </p>
+            <Link
+              href="https://www.upwork.com/services/product/development-it-a-shopify-alternative-one-time-fee-no-subscriptions-1973336399139333730?ref=project_share"
+              className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+              passHref
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>
+                Built by JDTheeFirst | Scalable, no-subscription commerce
+                engine.
+              </span>{" "}
+              <ExternalLink className="h-4 w-4" />
+            </Link>
           </div>
 
           <div>
