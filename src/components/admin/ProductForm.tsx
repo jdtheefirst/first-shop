@@ -34,12 +34,21 @@ import { categories, getCurrencyOptions } from "@/lib/utils";
 
 // Product schema
 const productSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters."),
+  name: z.string().min(20, "Name must be at least 3 characters."),
   title: z.string().min(3, "Title must be at least 3 characters."),
   sku: z.string().min(2, "SKU must be at least 2 characters."),
   description: z
     .string()
     .min(10, "Description must be at least 10 characters."),
+  slug: z.preprocess((val, ctx) => {
+    const source = val || ctx?.parent?.name || "";
+    return source
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9\-]/g, "")
+      .replace(/-+/g, "-");
+  }, z.string().min(3, "Slug must be at least 3 characters.")),
   images: z.array(z.string()).optional(),
   price: z.preprocess(
     (val) => (val === "" || val === null ? undefined : Number(val)),
@@ -101,6 +110,7 @@ export default function ProductForm({
       title: "",
       sku: "",
       description: "",
+      slug: "",
       images: [],
       price: 0,
       stock: 0,

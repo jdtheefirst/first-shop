@@ -2,7 +2,7 @@
 
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Filter, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -344,7 +344,7 @@ export default function ProductsPage({
           : filteredProducts.map((product) => (
               <Link
                 key={product.id}
-                href={`/products/${product.id}`}
+                href={`/products/${product.slug}`}
                 className="group relative overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
               >
                 <div className="aspect-square relative">

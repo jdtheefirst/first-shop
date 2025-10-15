@@ -70,8 +70,8 @@ export function FloatingCartButton() {
           <DialogHeader>
             <DialogTitle>Your Cart</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+              Review your items before checkout. Make sure everything looks good
+              before you hit “Pay”.
             </DialogDescription>
           </DialogHeader>
           <Cart />

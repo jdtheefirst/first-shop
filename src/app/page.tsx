@@ -33,7 +33,7 @@ async function featuredSection() {
       {featuredProducts.map((product) => (
         <Link
           key={product.id}
-          href={`/products/${product.id}`}
+          href={`/products/${product.slug}`}
           className="group relative overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
         >
           <div className="aspect-square relative">

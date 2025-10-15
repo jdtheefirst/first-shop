@@ -15,6 +15,7 @@ CREATE TABLE products (
     images text[] DEFAULT '{}',
     sku text UNIQUE,
     description text,
+    slug text unique,
     price numeric(10, 2) NOT NULL,
     stock integer DEFAULT 0,
     category text,
@@ -443,6 +444,8 @@ CREATE INDEX ON order_items (product_id);
 CREATE INDEX ON transactions (order_id);
 CREATE INDEX ON page_views (user_id);
 CREATE INDEX ON page_views (path);
+create index on products (id);
+create index on products (slug);
 
 -- Enable RLS for all tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

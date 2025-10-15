@@ -1,13 +1,8 @@
 "use client";
 
-import { use, useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  AlertCircle,
-  ChevronLeft,
-  RefreshCw,
-  ShoppingCart,
-} from "lucide-react";
+import { ChevronLeft, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/context/StoreContext";
 import { Product } from "@/types/store";
@@ -36,7 +31,7 @@ export default function ProductDetailPage({
   const [activeIndex, setActiveIndex] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
 
-  const url = `${window.location.origin}/products/${product.id}`;
+  const url = `${window.location.origin}/products/${product.slug}`;
 
   useEffect(() => {
     if (!api) return;
@@ -141,8 +136,10 @@ export default function ProductDetailPage({
         </div>
 
         {/* Product Details */}
-        <div>
-          <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
+        <div className="space-y-4">
+          <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+
+          <h1 className="text-xl font-bold mb-2">{product.title}</h1>
 
           <div className="flex items-center gap-4 mb-4">
             <p className="text-2xl font-semibold">

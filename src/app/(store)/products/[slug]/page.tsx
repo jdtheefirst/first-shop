@@ -1,11 +1,6 @@
 // app/products/[id]/page.tsx
 import { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProductDetailSkeleton } from "@/components/ProductDetailsSkeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { AlertCircle } from "lucide-react";
 import ProductsPage from "@/components/ProductPage";
 import { Product } from "@/types/store";
 
@@ -13,8 +8,8 @@ const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://shop.worldsamma.org";
 
 // --- Fetch product directly from your API route ---
-async function getProduct(id: string) {
-  const res = await fetch(`${SITE_URL}/api/products/${id}`, {
+async function getProduct(slug: string) {
+  const res = await fetch(`${SITE_URL}/api/products/${slug}`, {
     cache: "no-store", // ensures fresh data
   });
 
@@ -29,11 +24,11 @@ async function getProduct(id: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   try {
-    const { id } = await params;
-    const data = await getProduct(id);
+    const { slug } = await params;
+    const data = await getProduct(slug);
     const product: Product | null = data?.product ?? null;
 
     if (!product) {
@@ -43,7 +38,7 @@ export async function generateMetadata({
       };
     }
 
-    const url = `${SITE_URL}/products/${product.id}`;
+    const url = `${SITE_URL}/products/${slug}`;
     const image = product.images?.length
       ? product.images[0]
       : "/covers/cover-1.jpg";
@@ -80,10 +75,10 @@ export async function generateMetadata({
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { id } = await params;
-  const data = await getProduct(id);
+  const { slug } = await params;
+  const data = await getProduct(slug);
   const product: Product | null = data?.product ?? null;
   const relatedProducts: Product[] = data?.relatedProducts || [];
 

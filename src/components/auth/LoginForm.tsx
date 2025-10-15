@@ -51,7 +51,7 @@ export default function LoginForm() {
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="email">Email address</Label>
             <Input
               type="email"
@@ -66,7 +66,7 @@ export default function LoginForm() {
             )}
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
               type="password"

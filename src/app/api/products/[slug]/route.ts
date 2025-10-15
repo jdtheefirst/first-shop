@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { secureRatelimit } from "@/lib/limit";
 
 export async function GET(request: NextRequest, context: any) {
-  const { id } = await context.params as { id: string };
+  const { slug } = (await context.params) as { slug: string };
   // Rate limiting
   const { success } = await secureRatelimit(request);
   if (!success) {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, context: any) {
     const { data: product, error: productError } = await supabaseAdmin
       .from("products")
       .select("*")
-      .eq("id", id)
+      .eq("slug", slug)
       .single();
 
     if (productError) {
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, context: any) {
       .from("products")
       .select("*")
       .eq("category", product.category)
-      .neq("id", id)
+      .neq("slug", slug)
       .limit(4);
 
     if (relatedError) {
