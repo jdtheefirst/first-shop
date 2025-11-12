@@ -16,8 +16,6 @@ import {
   LinkedinIcon,
   RedditShareButton,
   RedditIcon,
-  EmailShareButton,
-  EmailIcon,
   InstapaperShareButton,
   InstagramIcon,
 } from "next-share";
@@ -86,15 +84,6 @@ export default function ProductShare({ product, url }: ProductShareProps) {
       props: { title: shareText },
       label: "Share on Reddit",
     },
-    {
-      Component: EmailShareButton,
-      Icon: EmailIcon,
-      props: {
-        subject: shareText,
-        body: `Check out this product: ${url}`,
-      },
-      label: "Share via Email",
-    },
     ...(productImage
       ? [
           {
@@ -123,7 +112,10 @@ export default function ProductShare({ product, url }: ProductShareProps) {
       document.body.appendChild(textArea);
       textArea.select();
       try {
-        document.execCommand("copy");
+        navigator.clipboard
+          .writeText("Text to copy")
+          .then(() => console.log("Text copied to clipboard"))
+          .catch((err) => console.error("Failed to copy text: ", err));
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (fallbackErr) {

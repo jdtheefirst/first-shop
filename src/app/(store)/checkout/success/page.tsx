@@ -28,7 +28,7 @@ export default function SuccessPage({
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const { dispatch } = useStore();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -67,7 +67,7 @@ export default function SuccessPage({
     setPaymentStatus("processing");
 
     try {
-      if (!user) {
+      if (!profile) {
         toast.info("Haven't logged in yet, redirecting to login...");
         return router.push("/login");
       }

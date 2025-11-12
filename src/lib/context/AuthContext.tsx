@@ -14,18 +14,12 @@ import {
   Session,
   AuthError,
 } from "@supabase/supabase-js";
-import { getSupabaseClient } from "../supabase/client";
-
-export interface CustomUser extends SupabaseUser {
-  role: string;
-  email: string;
-  metadata: {};
-  created_at: string; // when the user was created (ISO string)
-  updated_at: string; // when the user was last updated (ISO string)
-}
+import { getSupabaseClient } from "@/lib/supabase/client";
+import { ProfileData } from "@/types/student";
 
 interface AuthContextType {
-  user: CustomUser | null;
+  profile: ProfileData | null;
+  setProfile: React.Dispatch<React.SetStateAction<ProfileData | null>>;
   loading: boolean;
   signIn: (
     email: string,
@@ -34,19 +28,18 @@ interface AuthContextType {
   signInWithMagicLink: (email: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithTwitter: () => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   supabase: ReturnType<typeof getSupabaseClient>;
-  debouncePromise: <T extends (...args: any[]) => Promise<any>>(
-    fn: T,
-    delay: number
-  ) => (...args: Parameters<T>) => Promise<ReturnType<T>>;
+  deleteFileFromSupabase: (
+    fileUrl: string,
+    bucketName: string
+  ) => Promise<boolean>; // ✅ Also needed!
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<CustomUser | null>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [supabase] = useState(() => getSupabaseClient());
 
@@ -56,8 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       try {
         const { data, error } = await supabase
-          .from("users")
-          .select("*") // join + alias
+          .from("users_profile")
+          .select("*")
           .eq("id", supabaseUser.id)
           .maybeSingle();
 
@@ -71,7 +64,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        setUser(data as CustomUser); // consider zod here
+        // Remove password fields and ensure type consistency
+        const profileData: ProfileData = {
+          id: data.id,
+          email: data.email,
+          full_name: data.full_name,
+          country_code: data.country_code,
+          county_code: data.county_code,
+          postal_address: data.postal_address,
+          phone_number: data.phone_number || "",
+          avatar_url: data.avatar_url,
+          language: data.language,
+          gender: data.gender,
+          admission_no: data.admission_no,
+          belt_level: data.belt_level,
+          role: data.role,
+          referred_by: data.referred_by,
+        };
+
+        setProfile(profileData);
       } catch (err) {
         console.error("Unexpected error in fetchUserRole:", err);
       } finally {
@@ -100,7 +111,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           await fetchUserRole(session.user);
         } else {
-          setUser(null);
           setLoading(false);
         }
       }
@@ -119,7 +129,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           await fetchUserRole(session.user);
         } else {
-          setUser(null);
           setLoading(false);
         }
       })(); // wrapped in IIFE
@@ -148,15 +157,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const signInWithMagicLink = async (email: string): Promise<void> => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        shouldCreateUser: true, // Automatically create user if they don't exist
-      },
+  // Login with magic link
+  const signInWithMagicLink = async (email: string) => {
+    const res = await fetch("/api/auth/magic-link", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+      headers: { "Content-Type": "application/json" },
     });
-    if (error) throw error;
+    const data = await res.json();
+    if (!res.ok)
+      throw new Error(data.error || data.message || "Magic link failed");
   };
 
   const signInWithGoogle = async (): Promise<void> => {
@@ -179,63 +189,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
-  const signUp = async (email: string, password: string): Promise<void> => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (error) throw error;
-  };
-
   const signOut = async (): Promise<void> => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
 
-  function debouncePromise<T extends (...args: any[]) => Promise<any>>(
-    fn: T,
-    delay: number
-  ) {
-    let timer: NodeJS.Timeout | null = null;
-    let lastCall: Promise<any> | null = null;
+  /**
+   * Deletes a file from Supabase Storage using its public URL.
+   * Only works in the browser (requires cookie-based auth).
+   */
+  const deleteFileFromSupabase = async (
+    fileUrl: string | null,
+    bucketName: string | null
+  ): Promise<boolean> => {
+    if (!fileUrl || !bucketName) {
+      console.warn("Missing URL or bucket name.");
+      return false;
+    }
 
-    return (...args: Parameters<T>): Promise<ReturnType<T>> => {
-      if (timer) clearTimeout(timer);
-      return new Promise((resolve) => {
-        timer = setTimeout(() => {
-          lastCall = fn(...args).then(resolve);
-        }, delay);
-      });
-    };
-  }
+    try {
+      const prefix = "/storage/v1/object/public/";
+      const [_, path] = fileUrl.split(prefix);
+
+      if (!path) {
+        console.warn("Invalid Supabase URL format:", fileUrl);
+        return false;
+      }
+
+      const { error } = await supabase.storage.from(bucketName).remove([path]);
+
+      if (error) {
+        console.error("Supabase delete error:", error.message);
+        return false;
+      }
+
+      console.log("Deleted from Supabase:", path);
+      return true;
+    } catch (err) {
+      console.error("Unexpected delete error:", err);
+      return false;
+    }
+  };
 
   const value = useMemo<AuthContextType>(() => {
     return {
-      user,
+      profile,
+      setProfile,
       loading,
       signIn,
       signInWithMagicLink,
       signInWithGoogle,
       signInWithTwitter,
-      signUp,
       signOut,
-      debouncePromise,
-      isAdmin: user?.role === "admin",
+      deleteFileFromSupabase,
       supabase,
     };
   }, [
-    user,
+    profile,
     loading,
     supabase,
+    deleteFileFromSupabase,
     signIn,
     signInWithGoogle,
     signInWithMagicLink,
     signInWithTwitter,
     signOut,
-    signUp,
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

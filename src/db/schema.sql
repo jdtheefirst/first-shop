@@ -72,30 +72,45 @@ CREATE TABLE page_views (
     created_at timestamptz DEFAULT now()
 );
 
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer set search_path = public
-as $$
-begin
-  -- Only insert if email is not null
-  if new.email is not null then
-    insert into public.users (id, email, metadata)
-    values (new.id, new.email, new.raw_user_meta_data)
-    on conflict (id) do nothing; -- prevents duplicate insert errors
-  end if;
+-- Updated handle_new_user function with better error handling
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  -- Only insert if email is not null and user doesn't already exist
+  IF new.email IS NOT NULL THEN
+    INSERT INTO public.users (id, email, role, metadata, created_at)
+    VALUES (
+      new.id, 
+      new.email, 
+      'customer', 
+      '{}'::jsonb, 
+      now()
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      email = EXCLUDED.email,
+      updated_at = now()
+    WHERE users.email IS DISTINCT FROM EXCLUDED.email;
+  END IF;
 
-  return new;
-end;
+  RETURN new;
+EXCEPTION
+  WHEN others THEN
+    -- Log error but don't fail the auth user creation
+    RAISE LOG 'Error in handle_new_user for user %: %', new.id, SQLERRM;
+    RETURN new;
+END;
 $$;
 
--- Trigger on auth.users
-create trigger on_auth_user_created
-after insert on auth.users
-for each row
-execute function public.handle_new_user();
+-- Recreate the trigger
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
 
--- 1. First create the admin verification function
+-- Replace the old verify_admin_access function
 CREATE OR REPLACE FUNCTION public.verify_admin_access()
 RETURNS boolean
 LANGUAGE plpgsql
@@ -103,8 +118,8 @@ SECURITY DEFINER
 AS $$
 BEGIN
     RETURN EXISTS (
-        SELECT 1 FROM users 
-        WHERE id = auth.uid() AND role = 'admin'
+        SELECT 1 FROM users_profile 
+        WHERE id = auth.uid() AND role IN ('admin', 'superadmin')
     );
 END;
 $$;
@@ -471,6 +486,7 @@ CREATE POLICY "Allow individual order items read access" ON order_items FOR SELE
 );
 
 -- 1. Create the admin check sql function
+-- Replace the old is_admin function
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS boolean
 LANGUAGE sql
@@ -478,8 +494,8 @@ SECURITY DEFINER
 STABLE
 AS $$
   SELECT EXISTS (
-    SELECT 1 FROM users 
-    WHERE id = auth.uid() AND role = 'admin'
+    SELECT 1 FROM users_profile 
+    WHERE id = auth.uid() AND role IN ('admin', 'superadmin')
   );
 $$;
 
@@ -504,22 +520,23 @@ USING (public.is_admin());
 
 
 -- Storage bucket RLS using your users.role approach
+-- Update storage bucket RLS to use users_profile
 CREATE POLICY "Allow admin access to product-images"
   ON storage.objects FOR ALL
   USING (
     bucket_id = 'product-images'
     AND EXISTS (
-      SELECT 1 FROM users 
-      WHERE users.id = auth.uid() 
-      AND users.role = 'admin'
+      SELECT 1 FROM users_profile 
+      WHERE users_profile.id = auth.uid() 
+      AND users_profile.role IN ('admin', 'superadmin')
     )
   )
   WITH CHECK (
     bucket_id = 'product-images'
     AND EXISTS (
-      SELECT 1 FROM users 
-      WHERE users.id = auth.uid() 
-      AND users.role = 'admin'
+      SELECT 1 FROM users_profile 
+      WHERE users_profile.id = auth.uid() 
+      AND users_profile.role IN ('admin', 'superadmin')
     )
   );
 

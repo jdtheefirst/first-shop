@@ -7,13 +7,13 @@ import { useAuth } from "@/lib/context/AuthContext";
 import { toast } from "sonner";
 
 export default function CheckoutPage() {
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const { state } = useStore();
   const router = useRouter();
 
   useEffect(() => {
     const checkout = async () => {
-      if (!user) {
+      if (!profile) {
         toast.info("Haven't logged in yet, redirecting to login...");
         return router.push("/login");
       }
@@ -36,7 +36,7 @@ export default function CheckoutPage() {
     };
 
     checkout();
-  }, [state.cart, router, user]);
+  }, [state.cart, router, profile]);
 
   return (
     <div className="p-8 text-center">

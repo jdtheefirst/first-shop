@@ -3,7 +3,6 @@ import type { NextRequest } from "next/server";
 import { UAParser } from "ua-parser-js";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "./lib/supabase/admin";
-import { countryAwareRateLimit, getIP, redis } from "./lib/limit";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -25,23 +24,6 @@ export async function middleware(request: NextRequest) {
   // Parse user agent
   const parser = new UAParser(request.headers.get("user-agent") || "");
   const userAgent = parser.getResult();
-
-  // Get IP address and geolocation
-  const ip = getIP(request);
-
-  // Paypal bans
-  const banStatus = await redis.get(`block:ip:${ip}`);
-  if (banStatus === "banned") {
-    return new Response("Access Denied", { status: 403 });
-  }
-
-  const { blocked } = await countryAwareRateLimit(request);
-
-  if (blocked) {
-    return new Response("Access denied. You're temporarily rate-limited.", {
-      status: 429,
-    });
-  }
 
   // 🚫 Block non-SEO bots
   const isBot =
@@ -99,11 +81,6 @@ export async function middleware(request: NextRequest) {
   }
 
   return res;
-}
-
-export function getCreatorUsername(path: string): string | null {
-  const match = path.match(/^\/creators\/([^\/]+)/);
-  return match?.[1] || null;
 }
 
 export const config = {

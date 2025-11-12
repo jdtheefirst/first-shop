@@ -10,13 +10,13 @@ export default function CheckoutPage({
 }: {
   searchParams: Promise<{ orderId?: string }>;
 }) {
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const { orderId } = use(searchParams);
   const router = useRouter();
 
   useEffect(() => {
     const checkout = async () => {
-      if (!user) {
+      if (!profile) {
         toast.info("Haven't logged in yet, redirecting to login...");
         return router.push("/login");
       }
@@ -39,7 +39,7 @@ export default function CheckoutPage({
     };
 
     checkout();
-  }, [orderId, router, user]);
+  }, [orderId, router, profile]);
 
   return (
     <div className="p-8 text-center">
