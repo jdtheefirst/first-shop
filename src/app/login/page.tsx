@@ -143,7 +143,7 @@ export default function LoginPage({
                       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                         <p className="text-xs text-blue-800 dark:text-blue-200">
                           After creating your account, return here to login and
-                          purchase courses
+                          purchase products
                         </p>
                       </div>
                     </div>
@@ -273,7 +273,15 @@ export default function LoginPage({
                 New to WSF?
               </h4>
               <div className="space-y-2 text-sm text-orange-800 dark:text-orange-300">
-                <p>1. Create account at worldsamma.org/onboarding</p>
+                <p className="flex items-center">
+                  1. Create account at{" "}
+                  <Link
+                    href={"https://worldsamma.org/onboarding"}
+                    target="_blank"
+                  >
+                    worldsamma.org/onboarding
+                  </Link>
+                </p>
                 <p>2. Verify email and complete registration</p>
                 <p>3. Return here to login and shop</p>
               </div>
