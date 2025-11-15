@@ -18,11 +18,9 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span>
-                Built by JDTheeFirst | Scalable, no-subscription commerce
-                engine.
-              </span>{" "}
-              <ExternalLink className="h-4 w-4" />
+              <span className="flex items-center">
+                Built by JDTheeFirst &nbsp; <ExternalLink className="h-4 w-4" />
+              </span>
             </Link>
           </div>
 
