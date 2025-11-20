@@ -109,7 +109,7 @@ export default async function Home() {
           backgroundImage: "url('/covers/cover-1.jpg')",
         }}
       >
-        <div className="absolute inset-0 bg-black/50 z-10" />
+        <div className="absolute inset-0 bg-black/70 z-10" />
         <div className="relative z-20 text-center text-white px-4">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
             Main Academy Shop
