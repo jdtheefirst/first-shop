@@ -54,7 +54,7 @@ export async function GET(request: Request) {
       // Redirect to onboarding
       await supabase.auth.signOut();
       const onboardingUrl = new URL(
-        "https://worldsamma.org/onboarding",
+        "https://www.worldsamma.org/onboarding",
         request.url
       );
       onboardingUrl.searchParams.set(

@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
     if (isProtectedRoute && user) {
       // 🔍 Get user role + profile.username in one shot
       const { data: userData } = await supabaseAdmin
-        .from("users")
+        .from("users_profile")
         .select(`role`)
         .eq("id", user.id)
         .single();

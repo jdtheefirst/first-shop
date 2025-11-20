@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Info } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -11,7 +11,7 @@ export default function Footer() {
             <p className="text-sm text-muted-foreground mb-4">
               Your one-stop shop for martial arts gear and equipment.
             </p>
-            <Link
+            {/* <Link
               href="https://www.upwork.com/services/product/development-it-a-shopify-alternative-one-time-fee-no-subscriptions-1973336399139333730?ref=project_share"
               className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
               passHref
@@ -21,7 +21,22 @@ export default function Footer() {
               <span className="flex items-center">
                 Built by JDTheeFirst &nbsp; <ExternalLink className="h-4 w-4" />
               </span>
+            </Link> */}
+            <Link
+              href="https://wa.me/254113062599"
+              className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+              passHref
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="flex items-center">
+                Built by JDTheeFirst &nbsp; <ExternalLink className="h-4 w-4" />
+              </span>
             </Link>
+            <span className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+              <Info className="h-3 w-3" />
+              Attribution included at the client’s discretion
+            </span>
           </div>
 
           <div>
