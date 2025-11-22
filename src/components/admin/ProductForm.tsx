@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -31,30 +31,23 @@ import { ImageUpload } from "./ImageUpload";
 import { useAuth } from "@/lib/context/AuthContext";
 import { toast } from "sonner";
 import { categories, getCurrencyOptions } from "@/lib/utils";
+import { Checkbox } from "../ui/checkbox";
+import { Input } from "../ui/input";
 
 // Product schema
 const productSchema = z.object({
-  name: z.string().min(20, "Name must be at least 3 characters."),
-  title: z.string().min(3, "Title must be at least 3 characters."),
+  name: z.string().min(3, "Name must be at least 3 characters."),
+  title: z.string().min(10, "Title must be at least 10 characters."),
   sku: z.string().min(2, "SKU must be at least 2 characters."),
   description: z
     .string()
     .min(10, "Description must be at least 10 characters."),
-  slug: z.preprocess((val, ctx) => {
-    const source = val || ctx?.parent?.name || "";
-    return source
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9\-]/g, "")
-      .replace(/-+/g, "-");
-  }, z.string().min(3, "Slug must be at least 3 characters.")),
+  slug: z.string().min(3, "Slug must be at least 10 characters."),
   images: z.array(z.string()).optional(),
   price: z.preprocess(
     (val) => (val === "" || val === null ? undefined : Number(val)),
     z.number().min(0, "Price must be a positive number.")
   ),
-
   stock: z.preprocess(
     (val) => (val === "" || val === null ? undefined : Number(val)),
     z.number().int().min(0, "Stock must be a non-negative integer.")
@@ -122,6 +115,25 @@ export default function ProductForm({
       Weight: 0,
     },
   });
+
+  // Watch the name field and generate slug automatically
+  const titleValue = form.watch("title");
+
+  useEffect(() => {
+    if (titleValue && !isEditing) {
+      // Only auto-generate for new products
+      const generatedSlug = titleValue
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9\-]/g, "")
+        .replace(/-+/g, "-");
+
+      form.setValue("slug", generatedSlug);
+    }
+  }, [titleValue, form, isEditing]);
+
+  console.log("Form Errors:", form.formState.errors);
 
   // Form submission handler
   const onSubmit = async (values: ProductFormValues) => {
@@ -191,7 +203,7 @@ export default function ProductForm({
               <FormItem>
                 <FormLabel>Product Name</FormLabel>
                 <FormControl>
-                  <input
+                  <Input
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Elite Samma Gi"
                     {...field}
@@ -210,7 +222,7 @@ export default function ProductForm({
               <FormItem>
                 <FormLabel>Product Title</FormLabel>
                 <FormControl>
-                  <input
+                  <Input
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Premium Samma Gi"
                     {...field}
@@ -229,7 +241,7 @@ export default function ProductForm({
               <FormItem>
                 <FormLabel>SKU</FormLabel>
                 <FormControl>
-                  <input
+                  <Input
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="KG-001"
                     {...field}
@@ -253,7 +265,7 @@ export default function ProductForm({
                     <span className="absolute left-3 top-5 -translate-y-1/2 text-muted-foreground">
                       $
                     </span>
-                    <input
+                    <Input
                       step="0.01"
                       className="flex h-10 w-full rounded-md border border-input bg-background pl-7 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       placeholder="99.99"
@@ -275,7 +287,7 @@ export default function ProductForm({
               <FormItem>
                 <FormLabel>Stock</FormLabel>
                 <FormControl>
-                  <input
+                  <Input
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="10"
                     type="number"
@@ -384,7 +396,7 @@ export default function ProductForm({
                     <span className="absolute left-3 top-5 -translate-y-1/2 text-muted-foreground">
                       <Weight size={16} />
                     </span>
-                    <input
+                    <Input
                       step="0.01"
                       className="flex h-10 w-full rounded-md border border-input bg-background pl-7 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       placeholder="0.5"
@@ -411,11 +423,10 @@ export default function ProductForm({
                   </FormDescription>
                 </div>
                 <FormControl>
-                  <input
-                    type="checkbox"
-                    className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+                  <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    className="rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
                   />
                 </FormControl>
               </FormItem>

@@ -500,7 +500,7 @@ AS $$
 $$;
 
 -- 2. Update all your admin policies
-CREATE POLICY "Allow admin access" ON users FOR ALL 
+CREATE POLICY "Allow admin access" ON users_profile FOR ALL 
 USING (public.is_admin());
 
 CREATE POLICY "Allow admin access" ON products FOR ALL 
@@ -519,7 +519,7 @@ CREATE POLICY "Allow admin access" ON page_views FOR ALL
 USING (public.is_admin());
 
 
--- Storage bucket RLS using your users.role approach
+-- Storage bucket RLS using your users_profile.role approach
 -- Update storage bucket RLS to use users_profile
 CREATE POLICY "Allow admin access to product-images"
   ON storage.objects FOR ALL
