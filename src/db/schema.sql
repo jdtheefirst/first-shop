@@ -423,34 +423,11 @@ from (
 end;
 $$;
 
--- Function to delete actual image files when product is deleted
-CREATE OR REPLACE FUNCTION delete_product_images()
-RETURNS TRIGGER AS $$
-DECLARE
-  image_url text;
-  image_path text;
-BEGIN
-  -- Loop through each image URL in the deleted product
-  FOREACH image_url IN ARRAY OLD.images
-  LOOP
-    -- Extract the file path from the URL (assuming format: https://supabase.co/storage/v1/object/public/product-images/products/filename.jpg)
-    image_path := substring(image_url from 'product-images/(.*)');
-    
-    -- Delete the actual file from storage
-    IF image_path IS NOT NULL THEN
-      PERFORM supabase.storage.delete_object('product-images', image_path);
-    END IF;
-  END LOOP;
-  
-  RETURN OLD;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Drop the trigger first
+DROP TRIGGER IF EXISTS cleanup_product_images ON products;
 
--- Trigger to cleanup images on product deletion
-CREATE TRIGGER cleanup_product_images
-  AFTER DELETE ON products
-  FOR EACH ROW
-  EXECUTE FUNCTION delete_product_images();
+-- Then drop the function
+DROP FUNCTION IF EXISTS delete_product_images();
 
 -- Add indexes for performance
 CREATE INDEX ON orders (user_id);

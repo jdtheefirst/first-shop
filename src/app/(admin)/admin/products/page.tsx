@@ -181,20 +181,61 @@ export default function AdminProductsPage() {
   const deleteProduct = async (id: string, name: string) => {
     if (!id) return;
 
+    // Add confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${name}"? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
     const toastId = toast.loading(`Deleting ${name}...`);
 
+    // Store the original products for rollback in case of error
+    const originalProducts = [...products];
+
     try {
+      // Optimistically remove the product from local state
+      setProducts((prev) => prev.filter((product) => product.id !== id));
+
+      // Find the product to get images (before optimistic update)
+      const productToDelete = originalProducts.find(
+        (product) => product.id === id
+      );
+
+      // Delete images from storage if they exist
+      if (productToDelete?.images && productToDelete.images.length > 0) {
+        const imagePaths = productToDelete.images
+          .map((imageUrl: string) => {
+            const match = imageUrl.match(/product-images\/(.+)/);
+            return match ? match[1] : null;
+          })
+          .filter((path): path is string => path !== null);
+
+        if (imagePaths.length > 0) {
+          const { error: storageError } = await supabase.storage
+            .from("product-images")
+            .remove(imagePaths);
+
+          if (storageError) {
+            console.warn("Failed to delete some images:", storageError);
+          }
+        }
+      }
+
+      // Delete the product from the database
       const { error } = await supabase.from("products").delete().eq("id", id);
 
       if (error) {
+        // Rollback optimistic update if database deletion fails
+        setProducts(originalProducts);
         toast.error(`Failed to delete ${name}`, { id: toastId });
         throw error;
       }
 
       toast.success(`Successfully deleted ${name}`, { id: toastId });
 
-      // Refetch products after successful deletion
-      fetchProducts();
+      // Optional: You could skip the refetch since we already optimistically updated
+      // fetchProducts();
     } catch (error) {
       console.error("Delete error:", error);
       toast.error("Failed to delete product", { id: toastId });
