@@ -10,10 +10,6 @@ import {
   WhatsappIcon,
   TelegramShareButton,
   TelegramIcon,
-  PinterestShareButton,
-  PinterestIcon,
-  LinkedinShareButton,
-  LinkedinIcon,
   RedditShareButton,
   RedditIcon,
   InstapaperShareButton,
@@ -39,7 +35,6 @@ export default function ProductShare({ product, url }: ProductShareProps) {
 
   const shareText = `${product.name} - only $${product.price}! 🚀`;
   const tags = product.tags;
-  const productImage = product.images?.[0];
 
   const shareOptions: ShareOption[] = [
     {
@@ -72,31 +67,6 @@ export default function ProductShare({ product, url }: ProductShareProps) {
       props: { title: shareText },
       label: "Share on Instagram",
     },
-    {
-      Component: LinkedinShareButton,
-      Icon: LinkedinIcon,
-      props: { title: shareText },
-      label: "Share on LinkedIn",
-    },
-    {
-      Component: RedditShareButton,
-      Icon: RedditIcon,
-      props: { title: shareText },
-      label: "Share on Reddit",
-    },
-    ...(productImage
-      ? [
-          {
-            Component: PinterestShareButton,
-            Icon: PinterestIcon,
-            props: {
-              media: productImage,
-              description: shareText,
-            },
-            label: "Share on Pinterest",
-          },
-        ]
-      : []),
   ];
 
   const handleCopy = async () => {
@@ -132,7 +102,7 @@ export default function ProductShare({ product, url }: ProductShareProps) {
       </p>
 
       <div
-        className="grid grid-cols-4 sm:grid-cols-6 gap-3"
+        className="grid grid-cols-5 sm:grid-cols-6 gap-1 sm:gap-3"
         role="group"
         aria-label="Social media sharing options"
       >
