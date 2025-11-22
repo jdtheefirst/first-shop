@@ -23,14 +23,14 @@ export default function Footer() {
               </span>
             </Link> */}
             <Link
-              href="https://wa.me/254113062599"
+              href="https://wa.me/254113062599?text=Hello Enginner!"
               className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
               passHref
               target="_blank"
               rel="noopener noreferrer"
             >
               <span className="flex items-center">
-                Built by JDTheeFirst &nbsp; <ExternalLink className="h-4 w-4" />
+                Talk to an architect &nbsp; <ExternalLink className="h-4 w-4" />
               </span>
             </Link>
             <span className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
