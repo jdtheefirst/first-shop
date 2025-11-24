@@ -54,10 +54,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .eq("id", supabaseUser.id)
           .maybeSingle();
 
-        if (error) {
-          console.error("Error fetching user role:", error.message);
-          return;
+         if (error) {
+        console.error("Error fetching user role:", error.message);
+        
+        // Immediately sign out on auth errors
+        if (
+          error.code?.includes("AUTH") ||
+          error.message?.includes("Invalid") ||
+          error.status === 400
+        ) {
+          await supabase.auth.signOut();
         }
+        return;
+      }
 
         if (!data) {
           console.warn("No user found with that ID.");
@@ -122,17 +131,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     }: {
       data: { subscription: { unsubscribe: () => void } };
-    } = supabase.auth.onAuthStateChange((_event: string, session: Session) => {
-      if (!mounted) return;
+    } = supabase.auth.onAuthStateChange(
+      async (event: string, session: Session) => {
+        if (!mounted) return;
 
-      (async () => {
-        if (session?.user) {
-          await fetchUserRole(session.user);
-        } else {
+        try {
+          // Handle specific auth events
+          if (event === "SIGNED_OUT" || event === "USER_DELETED") {
+            setProfile(null);
+            setLoading(false);
+          } else if (event === "TOKEN_REFRESHED") {
+            // Token was successfully refreshed
+            if (session?.user) {
+              await fetchUserRole(session.user);
+            }
+          } else if (event === "SIGNED_IN" && session?.user) {
+            await fetchUserRole(session.user);
+          } else {
+            // For other events, set loading to false
+            setLoading(false);
+          }
+        } catch (err) {
+          console.error("Error in auth state change:", err);
           setLoading(false);
         }
-      })(); // wrapped in IIFE
-    });
+      }
+    );
 
     return () => {
       mounted = false;
