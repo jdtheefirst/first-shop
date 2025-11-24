@@ -16,7 +16,6 @@ import {
 } from "@supabase/supabase-js";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { ProfileData } from "@/types/student";
-import AsyncRetry from "async-retry";
 
 interface AuthContextType {
   profile: ProfileData | null;
@@ -49,15 +48,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
 
       try {
-
-        // Use the supabase from the outer closure (the one from useState)
         const { data, error } = await supabase
           .from("users_profile")
           .select("*")
           .eq("id", supabaseUser.id)
           .maybeSingle();
-          
-         if (error) {
+
+          if (error) {
         console.error("Error fetching user role:", error.message);
         
         if (
@@ -70,29 +67,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-          if (!data) {
-            console.warn("No user found with that ID.");
-            return;
-          }
+        if (!data) {
+          console.warn("No user found with that ID.");
+          return;
+        }
 
-          const profileData: ProfileData = {
-            id: data.id,
-            email: data.email,
-            full_name: data.full_name,
-            country_code: data.country_code,
-            county_code: data.county_code,
-            postal_address: data.postal_address,
-            phone_number: data.phone_number || "",
-            avatar_url: data.avatar_url,
-            language: data.language,
-            gender: data.gender,
-            admission_no: data.admission_no,
-            belt_level: data.belt_level,
-            role: data.role,
-            referred_by: data.referred_by,
-          };
+        // Remove password fields and ensure type consistency
+        const profileData: ProfileData = {
+          id: data.id,
+          email: data.email,
+          full_name: data.full_name,
+          country_code: data.country_code,
+          county_code: data.county_code,
+          postal_address: data.postal_address,
+          phone_number: data.phone_number || "",
+          avatar_url: data.avatar_url,
+          language: data.language,
+          gender: data.gender,
+          admission_no: data.admission_no,
+          belt_level: data.belt_level,
+          role: data.role,
+          referred_by: data.referred_by,
+        };
 
-          setProfile(profileData);
+        setProfile(profileData);
       } catch (err) {
         console.error("Unexpected error in fetchUserRole:", err);
       } finally {
@@ -132,32 +130,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     }: {
       data: { subscription: { unsubscribe: () => void } };
-    } = supabase.auth.onAuthStateChange(
-      async (event: string, session: Session) => {
-        if (!mounted) return;
+    } = supabase.auth.onAuthStateChange((_event: string, session: Session) => {
+      if (!mounted) return;
 
-        try {
-          // Handle specific auth events
-          if (event === "SIGNED_OUT" || event === "USER_DELETED") {
-            setProfile(null);
-            setLoading(false);
-          } else if (event === "TOKEN_REFRESHED") {
-            // Token was successfully refreshed
-            if (session?.user) {
-              await fetchUserRole(session.user);
-            }
-          } else if (event === "SIGNED_IN" && session?.user) {
-            await fetchUserRole(session.user);
-          } else {
-            // For other events, set loading to false
-            setLoading(false);
-          }
-        } catch (err) {
-          console.error("Error in auth state change:", err);
+      (async () => {
+        if (session?.user) {
+          await fetchUserRole(session.user);
+        } else {
           setLoading(false);
         }
-      }
-    );
+      })(); // wrapped in IIFE
+    });
 
     return () => {
       mounted = false;
