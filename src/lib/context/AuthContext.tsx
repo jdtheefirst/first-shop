@@ -16,6 +16,7 @@ import {
 } from "@supabase/supabase-js";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { ProfileData } from "@/types/student";
+import AsyncRetry from "async-retry";
 
 interface AuthContextType {
   profile: ProfileData | null;
@@ -48,6 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
 
       try {
+
+        // Use the supabase from the outer closure (the one from useState)
         const { data, error } = await supabase
           .from("users_profile")
           .select("*")
@@ -55,34 +58,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .maybeSingle();
 
         if (error) {
-          console.error("Error fetching user role:", error.message);
-          return;
+        console.error("Error fetching user role:", error.message);
+           // Immediately sign out on auth errors
+        if (
+          error.code?.includes("AUTH") ||
+          error.message?.includes("Invalid") ||
+          error.status === 400
+        ) {
+          await supabase.auth.signOut();
         }
+        return;
+      }
 
-        if (!data) {
-          console.warn("No user found with that ID.");
-          return;
-        }
+          if (!data) {
+            console.warn("No user found with that ID.");
+            return;
+          }
 
-        // Remove password fields and ensure type consistency
-        const profileData: ProfileData = {
-          id: data.id,
-          email: data.email,
-          full_name: data.full_name,
-          country_code: data.country_code,
-          county_code: data.county_code,
-          postal_address: data.postal_address,
-          phone_number: data.phone_number || "",
-          avatar_url: data.avatar_url,
-          language: data.language,
-          gender: data.gender,
-          admission_no: data.admission_no,
-          belt_level: data.belt_level,
-          role: data.role,
-          referred_by: data.referred_by,
-        };
+          const profileData: ProfileData = {
+            id: data.id,
+            email: data.email,
+            full_name: data.full_name,
+            country_code: data.country_code,
+            county_code: data.county_code,
+            postal_address: data.postal_address,
+            phone_number: data.phone_number || "",
+            avatar_url: data.avatar_url,
+            language: data.language,
+            gender: data.gender,
+            admission_no: data.admission_no,
+            belt_level: data.belt_level,
+            role: data.role,
+            referred_by: data.referred_by,
+          };
 
-        setProfile(profileData);
+          setProfile(profileData);
       } catch (err) {
         console.error("Unexpected error in fetchUserRole:", err);
       } finally {
