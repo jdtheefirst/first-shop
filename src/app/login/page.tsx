@@ -74,10 +74,10 @@ export default function LoginPage({
                   <ShoppingBag className="w-8 h-8 text-orange-600 dark:text-orange-400" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                  WSF Shop
+                  Uniform Shop
                 </CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Access your courses and training materials
+                  Access your account to purchase school uniforms and supplies
                 </CardDescription>
 
                 {message && (
@@ -104,6 +104,7 @@ export default function LoginPage({
                     </TabsTrigger>
                     <TabsTrigger
                       value="signup"
+                      disabled
                       className="data-[state=active]:bg-white data-[state=active]:text-orange-600 dark:data-[state=active]:bg-gray-600 dark:data-[state=active]:text-orange-400"
                     >
                       Sign Up
@@ -183,7 +184,7 @@ export default function LoginPage({
           </div>
 
           {/* Right Column - Shop Benefits */}
-          <div className="space-y-6">
+          {/* <div className="space-y-6">
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center space-x-2 bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-4 py-2 rounded-full text-sm font-medium mb-4">
                 <ShoppingBag className="w-4 h-4" />
@@ -198,7 +199,7 @@ export default function LoginPage({
             </div>
 
             {/* Shop Features Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
                   <Video className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -257,7 +258,7 @@ export default function LoginPage({
             </div>
 
             {/* Cross-Platform Note */}
-            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          {/* <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                 Single Sign-On
               </h4>
@@ -265,10 +266,10 @@ export default function LoginPage({
                 Your WSF account works across all platforms: federation portal,
                 shop, and mobile apps. One login, everywhere.
               </p>
-            </div>
+            </div> */}
 
-            {/* Quick Steps */}
-            <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+          {/* Quick Steps */}
+          {/* <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
               <h4 className="font-semibold text-orange-900 dark:text-orange-200 mb-3">
                 New to WSF?
               </h4>
@@ -286,7 +287,7 @@ export default function LoginPage({
                 <p>3. Return here to login and shop</p>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

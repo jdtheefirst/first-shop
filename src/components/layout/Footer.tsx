@@ -7,9 +7,9 @@ export default function Footer() {
       <div className="container mx-auto py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Main Academy Shop</h3>
+            <h3 className="text-lg font-semibold mb-4">Uniform Shop</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Your one-stop shop for martial arts gear and equipment.
+              Your one-stop shop for quality uniforms.
             </p>
             {/* <Link
               href="https://www.upwork.com/services/product/development-it-a-shopify-alternative-one-time-fee-no-subscriptions-1973336399139333730?ref=project_share"
@@ -71,7 +71,7 @@ export default function Footer() {
                   href="/products?category=gear"
                   className="text-sm text-muted-foreground hover:text-foreground"
                 >
-                  Protective Gear
+                  Gear & Accessories
                 </Link>
               </li>
             </ul>
@@ -118,17 +118,17 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <address className="not-italic text-sm text-muted-foreground">
-              <p>Old Malindi Rd</p>
+              <p>Thika Highway Rd</p>
               <p>Mombasa, Kenya</p>
-              <p className="mt-2">Email: shop@worldsamma.org</p>
-              <p>Phone: +254 789 273384 or +254 729 498622</p>
+              <p className="mt-2">Email: </p>
+              <p>Phone: </p>
             </address>
           </div>
         </div>
 
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Samma Shop. All rights reserved.
+            © {new Date().getFullYear()} Uniform Shop. All rights reserved.
           </p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link

@@ -5,6 +5,7 @@ import { Product } from "@/types/store";
 import { beltLevels } from "@/lib/utils";
 import { ProductCardSkeleton } from "@/components/ProductSkeleton";
 import { Suspense } from "react";
+import { ChevronDown, ShieldCheck, Shirt, ShoppingBag } from "lucide-react";
 
 async function fetchFeatured() {
   let featuredProducts: Product[] = [];
@@ -143,46 +144,115 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
+      {/* Hero Section - Fixed for mobile */}
       <section
-        className="relative h-[400px] sm:h-[500px] w-full bg-cover bg-center flex items-center justify-center text-white"
+        className="relative min-h-[500px] sm:h-[600px] w-full bg-cover bg-center flex items-center justify-center py-8 sm:py-0"
         style={{
-          backgroundImage: "url('/covers/cover-1.jpg')",
+          backgroundImage:
+            "linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.7)), url('/covers/cover-1.jpg')",
+          backgroundPosition: "center 30%",
         }}
       >
-        <div className="absolute inset-0 bg-black/70 z-10" />
-        <div className="relative z-20 text-center text-white px-4 max-w-4xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            Main Academy Shop
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8">
-            Quality gear for every martial artist
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Button
-              asChild
-              size="lg"
-              className="bg-white text-black hover:bg-white/90 text-sm sm:text-base"
-            >
-              <Link href="/products">Shop Now</Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="bg-black text-white hover:bg-white/10 text-sm sm:text-base"
-            >
-              <Link href="/categories">Browse Categories</Link>
-            </Button>
+        <div className="px-4 sm:px-6 lg:px-8 relative z-20 w-full">
+          <div className="max-w-4xl mx-auto">
+            {/* Main Headline - Responsive sizes */}
+            <div className="mb-4 sm:mb-6">
+              <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
+                <span className="bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent block">
+                  PROFESSIONAL
+                </span>
+                <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent animate-gradient block mt-1 sm:mt-2">
+                  UNIFORMS
+                </span>
+              </h1>
+            </div>
+
+            {/* Subheading - Better mobile spacing */}
+            <div className="mb-6 sm:mb-10">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <div className="w-8 sm:w-12 h-1 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"></div>
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-white/90">
+                  Elevate Your Team's Presence
+                </p>
+              </div>
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white leading-relaxed">
+                Premium Quality • Custom Fit • Bulk Orders
+              </p>
+            </div>
+
+            {/* Feature badges - Stack on mobile */}
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+              <div className="flex items-center gap-1 sm:gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm sm:text-base">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
+                <span className="font-medium text-white truncate">
+                  Free Shipping
+                </span>
+              </div>
+              <div className="flex items-center gap-1 sm:gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm sm:text-base">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-400 rounded-full animate-pulse flex-shrink-0"></div>
+                <span className="font-medium text-white truncate">
+                  Custom Embroidery
+                </span>
+              </div>
+              <div className="flex items-center gap-1 sm:gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm sm:text-base">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-yellow-400 rounded-full animate-pulse flex-shrink-0"></div>
+                <span className="font-medium text-white truncate">
+                  Bulk Discounts
+                </span>
+              </div>
+            </div>
+
+            {/* CTA Buttons - Better mobile sizing */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Button
+                asChild
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold py-4 sm:py-6 px-6 sm:px-8 rounded-xl text-sm sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:hover:shadow-2xl shadow-blue-500/30"
+              >
+                <Link
+                  href="/products"
+                  className="flex items-center justify-center gap-1 sm:gap-2"
+                >
+                  <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+                  SHOP COLLECTION
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="bg-transparent border-2 border-white/30 hover:bg-white/10 text-white font-bold py-4 sm:py-6 px-6 sm:px-8 rounded-xl text-sm sm:text-lg transition-all duration-300 hover:scale-105"
+              >
+                <Link
+                  href="/contact"
+                  className="flex items-center justify-center gap-1 sm:gap-2"
+                >
+                  <Shirt className="w-4 h-4 sm:w-5 sm:h-5" />
+                  CONTACT US
+                </Link>
+              </Button>
+            </div>
+
+            {/* Trust indicator - Better mobile text */}
+            <div className="mt-6 sm:mt-10 pt-4 sm:pt-6 border-t border-white/20">
+              <p className="text-white/70 text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2 flex-wrap justify-center">
+                <ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                Trusted by 50+ Schools & Businesses Nationwide
+              </p>
+            </div>
           </div>
         </div>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-neutral-900 to-neutral-700" />
+
+        {/* Scroll indicator - Smaller on mobile */}
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <ChevronDown className="w-4 h-4 sm:w-6 sm:h-6 text-white/60" />
+        </div>
       </section>
 
       {/* Featured Categories */}
-      <section className="py-12 sm:py-16">
+      <section className="py-8 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-12">
             Shop by Category
           </h2>
           <CategoriesGrid categories={categories} />
@@ -190,14 +260,14 @@ export default async function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-12 sm:py-16">
+      <section className="py-8 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-12">
             Featured Products
           </h2>
           <Suspense
             fallback={
-              <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
                 {Array.from({ length: 8 }).map((_, index) => (
                   <ProductCardSkeleton key={index} />
                 ))}
@@ -206,7 +276,7 @@ export default async function Home() {
           >
             <FeaturedProductsGrid products={featuredProducts} />
           </Suspense>
-          <div className="mt-8 sm:mt-12 text-center">
+          <div className="mt-6 sm:mt-12 text-center">
             <Button asChild size="lg" className="text-sm sm:text-base">
               <Link href="/products">View All Products</Link>
             </Button>
@@ -215,46 +285,44 @@ export default async function Home() {
       </section>
 
       {/* Testimonials/Features */}
-      <section className="py-12 sm:py-16 bg-muted/50">
+      <section className="py-8 sm:py-16 bg-muted/50">
         <div className="container mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
-            Why Choose Samma Store
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-12">
+            Why Choose Our Store
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
             <div className="flex flex-col items-center text-center p-4 sm:p-6 rounded-lg bg-background shadow-sm">
-              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 sm:mb-4">
-                <span className="text-primary text-lg sm:text-xl">✓</span>
+              <div className="h-8 w-8 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2 sm:mb-4">
+                <span className="text-primary text-base sm:text-xl">✓</span>
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">
-                Quality Gear
+              <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 sm:mb-2">
+                Quality Uniforms
               </h3>
-              <p className="text-muted-foreground text-sm sm:text-base">
+              <p className="text-muted-foreground text-xs sm:text-sm md:text-base">
                 All our products are carefully selected to ensure durability and
-                performance.
+                comfort.
               </p>
             </div>
             <div className="flex flex-col items-center text-center p-4 sm:p-6 rounded-lg bg-background shadow-sm">
-              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 sm:mb-4">
-                <span className="text-primary text-lg sm:text-xl">✓</span>
+              <div className="h-8 w-8 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2 sm:mb-4">
+                <span className="text-primary text-base sm:text-xl">✓</span>
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">
+              <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 sm:mb-2">
                 Expert Advice
               </h3>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                Our team of martial arts practitioners can help you find the
-                right equipment.
+              <p className="text-muted-foreground text-xs sm:text-sm md:text-base">
+                Our team can help you find the right uniforms to fit your needs.
               </p>
             </div>
             <div className="flex flex-col items-center text-center p-4 sm:p-6 rounded-lg bg-background shadow-sm">
-              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 sm:mb-4">
-                <span className="text-primary text-lg sm:text-xl">✓</span>
+              <div className="h-8 w-8 sm:h-12 sm:w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2 sm:mb-4">
+                <span className="text-primary text-base sm:text-xl">✓</span>
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">
+              <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 sm:mb-2">
                 Fast Shipping
               </h3>
-              <p className="text-muted-foreground text-sm sm:text-base">
-                We offer quick delivery options to get you training with your
-                new gear as soon as possible.
+              <p className="text-muted-foreground text-xs sm:text-sm md:text-base">
+                Quick delivery options to get your uniform as soon as possible.
               </p>
             </div>
           </div>
@@ -262,14 +330,14 @@ export default async function Home() {
       </section>
 
       {/* Call to Action */}
-      <section className="py-12 sm:py-16 bg-primary text-primary-foreground">
+      <section className="py-8 sm:py-16 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-            Ready to Elevate Your Training?
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
+            Ready to Elevate Your School?
           </h2>
-          <p className="text-lg sm:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto">
-            Discover our premium selection of martial arts gear and take your
-            practice to the next level.
+          <p className="text-base sm:text-lg md:text-xl mb-4 sm:mb-8 max-w-2xl mx-auto px-2">
+            Discover our premium selection of uniforms and take your school to
+            the next level.
           </p>
           <Button
             asChild
