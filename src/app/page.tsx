@@ -149,7 +149,7 @@ export default async function Home() {
         className="relative min-h-[500px] sm:h-[600px] w-full bg-cover bg-center flex items-center justify-center py-8 sm:py-0"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.7)), url('/covers/cover-1.jpg')",
+            "linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.7)), url('/covers/hero-uniforms.jpg')",
           backgroundPosition: "center 30%",
         }}
       >
@@ -157,14 +157,14 @@ export default async function Home() {
           <div className="max-w-4xl mx-auto">
             {/* Main Headline - Responsive sizes */}
             <div className="mb-4 sm:mb-6">
-              <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
-                <span className="bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent block">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                <span className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent">
                   PROFESSIONAL
                 </span>
-                <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent animate-gradient block mt-1 sm:mt-2">
+                <span className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent animate-gradient mt-1 sm:mt-0">
                   UNIFORMS
                 </span>
-              </h1>
+              </div>
             </div>
 
             {/* Subheading - Better mobile spacing */}
@@ -202,12 +202,12 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* CTA Buttons - Better mobile sizing */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            {/* CTA Buttons - Responsive centering */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold py-4 sm:py-6 px-6 sm:px-8 rounded-xl text-sm sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:hover:shadow-2xl shadow-blue-500/30"
+                className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold py-4 sm:py-6 px-6 sm:px-8 rounded-xl text-sm sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl sm:hover:shadow-2xl shadow-blue-500/30 w-full sm:w-auto"
               >
                 <Link
                   href="/products"
@@ -221,7 +221,7 @@ export default async function Home() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="bg-transparent border-2 border-white/30 hover:bg-white/10 text-white font-bold py-4 sm:py-6 px-6 sm:px-8 rounded-xl text-sm sm:text-lg transition-all duration-300 hover:scale-105"
+                className="bg-transparent border-2 border-white/30 hover:bg-white/10 text-white font-bold py-4 sm:py-6 px-6 sm:px-8 rounded-xl text-sm sm:text-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
               >
                 <Link
                   href="/contact"
