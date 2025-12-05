@@ -1,13 +1,12 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Login | World Samma Academy Store",
+  title: "Login | Finest Uniform Store",
   description:
-    "Sign in to access your account and manage your martial arts gear and training resources.",
+    "Sign in to access your account and explore exclusive uniform offers.",
   openGraph: {
-    title: "Login | World Samma Academy Store",
-    description:
-      "Join World Samma Academy Store to access exclusive martial arts gear and training resources.",
+    title: "Login | Finest Uniform Store",
+    description: "Join our store to access exclusinve uniform offers",
     url: "/login",
     siteName: "store.worldsamma.org",
     images: [
@@ -15,7 +14,7 @@ export const metadata: Metadata = {
         url: "/ownyourbrand.jpg",
         width: 1200,
         height: 630,
-        alt: "World Samma Academy Store Login",
+        alt: "Finest Uniform Store Login",
       },
     ],
     type: "website",

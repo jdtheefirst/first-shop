@@ -155,6 +155,7 @@ export default function LoginPage({
 
                         <Button
                           asChild
+                          disabled
                           className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                         >
                           <Link href="/register">
@@ -323,6 +324,7 @@ export default function LoginPage({
                   </ul>
                   <Button
                     asChild
+                    disabled
                     variant="link"
                     className="text-blue-600 dark:text-blue-400 p-0 h-auto mt-3"
                   >
