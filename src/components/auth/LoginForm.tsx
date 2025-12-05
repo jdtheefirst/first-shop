@@ -11,29 +11,21 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 // ---- SCHEMA ----
 const loginSchema = z.object({
-  email: z.string().email("Invalid email"),
+  email: z.string("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-  const { signIn, signInWithGoogle, profile } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    if (profile) {
-      const role = profile.role;
-      if (role === "admin" || role === "superadmin") router.push("/admin");
-      else router.push("/products");
-    }
-  }, [profile]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
