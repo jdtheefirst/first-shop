@@ -18,6 +18,8 @@ import { PaymentStatus } from "../payment/page";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useStore } from "@/lib/context/StoreContext";
+import { format } from "path";
+import { formatCurrency } from "@/lib/utils";
 
 export default function SuccessPage({
   searchParams,
@@ -199,14 +201,17 @@ export default function SuccessPage({
                       </p>
                     </div>
                     <p className="font-medium">
-                      ${(item.unit_price * item.qty).toFixed(2)}
+                      {formatCurrency(
+                        item.unit_price * item.qty,
+                        item.currency
+                      )}
                     </p>
                   </li>
                 ))}
               </ul>
               <div className="border-t pt-4 flex justify-between font-semibold">
                 <span>Total (shipping included)</span>
-                <span>${orderDetails.total.toFixed(2)}</span>
+                <span>{formatCurrency(orderDetails.total, "KES")}</span>
               </div>
             </div>
 

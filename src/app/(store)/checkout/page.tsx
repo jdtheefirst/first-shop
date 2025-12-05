@@ -392,12 +392,12 @@ export default function CheckoutPage() {
               <div className="space-y-3 pt-4 border-t">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${state.total.toFixed(2)}</span>
+                  <span>{formatCurrency(state.total, "KES")}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>${shippingCost.toFixed(2)}</span>
+                  <span>{formatCurrency(shippingCost, "KES")}</span>
                 </div>
 
                 <div className="flex justify-between text-sm text-muted-foreground">
