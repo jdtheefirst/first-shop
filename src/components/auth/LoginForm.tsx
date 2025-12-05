@@ -45,7 +45,8 @@ export default function LoginForm() {
       const { error } = await signIn(data.email, data.password);
       if (error) throw error;
 
-      router.push("/admin");
+      // router.push("/admin");
+      window.location.href = "/admin";
       toast.success("Logged in successfully! 🔓", { id: toastId });
     } catch (err: any) {
       setError("root", { message: err.message || "Login failed" });

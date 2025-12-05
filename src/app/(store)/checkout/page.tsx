@@ -64,7 +64,7 @@ export default function CheckoutPage() {
       state: "",
       postalCode: "",
       country: "",
-      paymentMethod: "paypal", // Default payment method
+      paymentMethod: "mpesa", // Default payment method
     },
     mode: "onBlur",
   });
@@ -315,11 +315,12 @@ export default function CheckoutPage() {
                                 value="paypal"
                                 checked={field.value === "paypal"}
                                 onChange={field.onChange}
+                                disabled
                                 className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                               />
                               <Label className="text-sm">
                                 PayPal{" "}
-                                <span className="text-muted-foreground text-xs">
+                                <span className="text-muted-foreground text-xs text-line-through">
                                   (credit/debit card or PayPal account)
                                 </span>
                               </Label>

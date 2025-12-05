@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { UAParser } from "ua-parser-js";
-import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "./lib/supabase/admin";
+import { createMiddlewareSupabaseClient } from "./lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const res = NextResponse.next();
-  const supabase = await createClient();
+  const supabase = await createMiddlewareSupabaseClient(request);
 
   try {
     const {
