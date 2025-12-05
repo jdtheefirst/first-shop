@@ -48,7 +48,7 @@ export default function LoginPage({
           ? `/admin`
           : orderData
           ? "/checkout/payment"
-          : "/dashboard"; // Changed to dashboard
+          : "/products";
       router.push(redirectPath);
     }
   }, [profile, router, orderData]);
