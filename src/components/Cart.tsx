@@ -86,7 +86,7 @@ export function Cart() {
           <div className="mt-6">
             <div className="flex justify-between text-lg font-bold">
               <span>Total</span>
-              <span>{formatCurrency(state.total)}</span>
+              <span>{formatCurrency(state.total, "KES")}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span>Items</span>

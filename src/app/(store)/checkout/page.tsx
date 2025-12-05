@@ -19,7 +19,11 @@ import {
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { buildOrderData, useCart, useStore } from "@/lib/context/StoreContext";
-import { calculateOrderTotals, calculateShipping } from "@/lib/utils";
+import {
+  calculateOrderTotals,
+  calculateShipping,
+  formatCurrency,
+} from "@/lib/utils";
 
 // Form schema
 const formSchema = z.object({
@@ -376,7 +380,10 @@ export default function CheckoutPage() {
                       </p>
                     </div>
                     <p className="font-medium">
-                      ${(item.product.price * item.quantity).toFixed(2)}
+                      {formatCurrency(
+                        item.product.price * item.quantity,
+                        item.product.currency
+                      )}
                     </p>
                   </li>
                 ))}
@@ -403,7 +410,7 @@ export default function CheckoutPage() {
                 <div className="border-t pt-2 mt-2">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>${orderTotal.toFixed(2)}</span>
+                    <span>{formatCurrency(orderTotal, "KES")}</span>
                   </div>
                 </div>
               </div>

@@ -5,6 +5,7 @@ import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart, useStore } from "@/lib/context/StoreContext";
 import Image from "next/image";
+import { formatCurrency } from "@/lib/utils";
 
 export default function CartPage() {
   const { cartItems, clearCart } = useCart();
@@ -93,7 +94,10 @@ export default function CartPage() {
                             </Link>
                           </h3>
                           <p className="text-sm text-muted-foreground mt-1">
-                            ${item.product.price.toFixed(2)}
+                            {formatCurrency(
+                              item.product.price,
+                              item.product.currency
+                            )}
                           </p>
                         </div>
 
@@ -121,7 +125,10 @@ export default function CartPage() {
                       </div>
 
                       <p className="text-sm font-medium mt-4 sm:text-right">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                        {formatCurrency(
+                          item.product.price * item.quantity,
+                          item.product.currency
+                        )}
                       </p>
                     </div>
                   </div>
