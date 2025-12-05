@@ -20,6 +20,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { EmptyState } from "@/components/EmptyState";
 import ProductShare from "./ProductShare";
+import { formatCurrency } from "@/lib/utils";
 
 export default function ProductDetailPage({
   product,
@@ -143,7 +144,7 @@ export default function ProductDetailPage({
 
           <div className="flex items-center gap-4 mb-4">
             <p className="text-2xl font-semibold">
-              ${product.price.toFixed(2)}
+              {formatCurrency(product.price, product.currency)}
             </p>
             <div className="text-sm px-2 py-1 bg-muted rounded-full">
               {product.category}

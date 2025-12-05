@@ -16,7 +16,7 @@ import { useStore } from "@/lib/context/StoreContext";
 import { Product } from "@/types/store";
 import { FloatingCartButton } from "@/components/cartButton";
 import axios from "axios";
-import { beltLevels } from "@/lib/utils";
+import { beltLevels, formatCurrency } from "@/lib/utils";
 import { ProductCardSkeleton } from "@/components/ProductSkeleton";
 import Image from "next/image";
 
@@ -369,7 +369,7 @@ export default function ProductsPage({
                         </h3>
                         <div className="mt-1 flex items-center justify-between text-sm">
                           <p className="font-medium">
-                            ${product.price.toFixed(2)}
+                            {formatCurrency(product.price, product.currency)}
                           </p>
                           <p className="capitalize opacity-80">
                             {product.category}

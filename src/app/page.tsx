@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/store";
-import { beltLevels } from "@/lib/utils";
+import { beltLevels, formatCurrency } from "@/lib/utils";
 import { ProductCardSkeleton } from "@/components/ProductSkeleton";
 import { Suspense } from "react";
 import { ChevronDown, ShieldCheck, Shirt, ShoppingBag } from "lucide-react";
@@ -58,7 +58,9 @@ function FeaturedProductsGrid({ products }: { products: Product[] }) {
                     {product.title}
                   </h3>
                   <div className="flex items-center justify-between text-xs sm:text-sm">
-                    <p className="font-medium">${product.price.toFixed(2)}</p>
+                    <p className="font-medium">
+                      {formatCurrency(product.price, product.currency)}
+                    </p>
                     <p className="capitalize opacity-80">{product.category}</p>
                   </div>
                   {product.belt_level !== "all" && (

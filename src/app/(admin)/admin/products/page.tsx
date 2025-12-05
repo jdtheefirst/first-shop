@@ -28,7 +28,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { categories } from "@/lib/utils";
+import { categories, formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -446,7 +446,9 @@ export default function AdminProductsPage() {
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.title}</TableCell>
                   <TableCell>{product.sku}</TableCell>
-                  <TableCell>${product.price.toFixed(2)}</TableCell>
+                  <TableCell>
+                    {formatCurrency(product.price, product.currency)}
+                  </TableCell>
                   <TableCell>
                     <span
                       className={`${
