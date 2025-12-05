@@ -53,10 +53,7 @@ export async function GET(request: Request) {
 
       // Redirect to onboarding
       await supabase.auth.signOut();
-      const onboardingUrl = new URL(
-        "https://www.worldsamma.org/onboarding",
-        request.url
-      );
+      const onboardingUrl = new URL("/login", request.url);
       onboardingUrl.searchParams.set(
         "error",
         "No account found with this email. Please sign up first."

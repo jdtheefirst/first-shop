@@ -20,8 +20,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Word Samma Academy Shop",
-  description: "Quality martial arts gear for every practitioner.",
+  title: "Finest Uniform Shop",
+  description: "Quality uniforms and apparel for all occasions.",
 };
 
 export default function RootLayout({
