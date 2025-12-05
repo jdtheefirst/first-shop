@@ -201,10 +201,7 @@ export default function SuccessPage({
                       </p>
                     </div>
                     <p className="font-medium">
-                      {formatCurrency(
-                        item.unit_price * item.qty,
-                        item.currency
-                      )}
+                      {formatCurrency(item.unit_price * item.qty, "KES")}
                     </p>
                   </li>
                 ))}
