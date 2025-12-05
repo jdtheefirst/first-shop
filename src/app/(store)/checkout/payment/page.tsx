@@ -179,10 +179,11 @@ export default function PaymentPage() {
                         router.push("/checkout/processing/initial");
                       }}
                       className="w-full bg-[#0070ba] hover:bg-[#003087] text-white"
-                      disabled={
-                        paymentStatus === "processing" ||
-                        paymentStatus === "success"
-                      }
+                      // disabled={
+                      //   paymentStatus === "processing" ||
+                      //   paymentStatus === "success"
+                      // }
+                      disabled
                     >
                       Pay with PayPal
                     </Button>

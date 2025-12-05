@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 
 export async function createClient() {
   const cookieStore = await cookies();
-  const isProduction = process.env.VERCEL_ENV === "production";
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,9 +17,6 @@ export async function createClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, {
                 ...options,
-                domain: isProduction ? ".worldsamma.org" : undefined, // 👈 Shared cookie for all subdomains
-                sameSite: "lax",
-                secure: isProduction,
               })
             );
           } catch (error) {

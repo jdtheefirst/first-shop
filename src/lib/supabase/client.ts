@@ -6,8 +6,6 @@ let supabase: ReturnType<typeof createBrowserClientBase> | null = null;
 
 export function getSupabaseClient() {
   if (!supabase) {
-    const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production";
-
     supabase = createBrowserClientBase(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -15,11 +13,6 @@ export function getSupabaseClient() {
         cookieEncoding: "base64url",
         auth: {
           flowType: "pkce",
-        },
-        cookieOptions: {
-          domain: isProduction ? ".worldsamma.org" : undefined, // 👈 Shared cookie for all subdomains
-          sameSite: "lax",
-          secure: isProduction,
         },
       }
     );
