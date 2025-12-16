@@ -14,11 +14,9 @@ export async function GET(request: NextRequest) {
     // Fetch featured products
     const { data: products, error } = await supabaseAdmin
       .from("products")
-<<<<<<< HEAD
-      .select("id, title, price, currency, images, category, belt_level, slug")
-=======
-      .select("id, title, price, images, category, belt_level, slug")
->>>>>>> origin/main
+      .select(
+        "id, title, price, originalPrice, currency, images, category, belt_level, slug"
+      )
       .eq("featured", true)
       .order("created_at", { ascending: false })
       .limit(8); // Limit to 8 featured products
