@@ -1,0 +1,313 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { redirect, useRouter } from "next/navigation";
+import { ChevronLeft, CheckCircle, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/context/AuthContext";
+import { useStore } from "@/lib/context/StoreContext";
+import { toast } from "sonner";
+
+// Payment status types
+export type PaymentStatus = "idle" | "processing" | "success" | "error";
+
+export default function PaymentPage() {
+  const router = useRouter();
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const { profile } = useAuth(); // Assuming useAuth is defined in your context
+  const { state } = useStore(); // Assuming useStore is defined in your context
+  const orderData = state.pendingOrder;
+
+  // If there's no pending order, redirect to products
+  // Redirect safely inside useEffect
+  useEffect(() => {
+    if (!orderData) {
+      router.replace("/products");
+    }
+  }, [orderData, router]);
+
+  if (!orderData) return null;
+
+  // M-Pesa payment
+  const handleMPesaPayment = async () => {
+    setPaymentStatus("processing");
+
+    try {
+      if (!profile) {
+        toast.info("Haven't logged in yet, redirecting to login...");
+        return router.push("/login");
+      }
+
+      if (!phoneNumber) {
+        setPaymentStatus("error");
+        setErrorMessage("Please enter your phone number.");
+        toast.error("Please enter your phone number.");
+        return;
+      }
+
+      const res = await fetch("/api/checkout/mpesa/initial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart: state.pendingOrder, phoneNumber }),
+      });
+
+      const data = await res.json();
+      console.log("Data:", data);
+
+      if (!res.ok || data.error) {
+        setPaymentStatus("error");
+        setErrorMessage(data.message || "Failed to initiate M-Pesa payment.");
+        toast.error(data.message || "Failed to initiate M-Pesa payment.");
+        console.error("M-Pesa payment error:", data);
+        return;
+      }
+
+      // Simulate successful payment
+      setPaymentStatus("success");
+
+      // they have received an STK push notification
+      toast.success(
+        "M-Pesa payment initiated successfully! Please complete the payment on your phone."
+      );
+
+      const { orderId: confirmedOrderId, data: mpesaResponse } = data;
+
+      if (mpesaResponse?.CustomerMessage) {
+        toast.info(mpesaResponse.CustomerMessage);
+      }
+
+      router.push(`/checkout/success?orderId=${confirmedOrderId}`);
+    } catch (error) {
+      console.error("Payment error:", error);
+      setPaymentStatus("error");
+      setErrorMessage(
+        "There was an error processing your M-Pesa payment. Please try again."
+      );
+      toast.error(
+        "There was an error processing your M-Pesa payment. Please try again."
+      );
+    }
+  };
+
+  return (
+    <div className="container mx-auto py-8 px-2">
+      {/* Breadcrumb */}
+      <div className="mb-8">
+        <Link
+          href="/checkout"
+          className="flex items-center text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Back to Checkout
+        </Link>
+      </div>
+
+      <h1 className="text-3xl font-bold mb-8">Payment</h1>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Payment Options */}
+        <div className="lg:col-span-2">
+          <div className="bg-background rounded-lg border overflow-hidden">
+            <div className="p-6 border-b">
+              <h2 className="text-xl font-semibold">Complete Your Payment</h2>
+            </div>
+
+            <div className="py-6 px-2">
+              {/* Payment Status Messages */}
+              {paymentStatus === "processing" && (
+                <div className="mb-6 p-4 bg-blue-50 text-blue-700 rounded-lg flex items-center">
+                  <div className="animate-spin mr-2 h-5 w-5 border-2 border-blue-700 border-t-transparent rounded-full"></div>
+                  <p className="text-sm">Processing your payment...</p>
+                </div>
+              )}
+
+              {paymentStatus === "success" && (
+                <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg flex items-center">
+                  <CheckCircle className="mr-2 h-5 w-5" />
+                  <p className="text-sm">
+                    Payment successful! Redirecting to confirmation page...
+                  </p>
+                </div>
+              )}
+
+              {paymentStatus === "error" && (
+                <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg flex items-center">
+                  <AlertCircle className="mr-2 h-5 w-5" />
+                  <p className="text-sm">{errorMessage}</p>
+                </div>
+              )}
+
+              {/* { orderData.shipping.paymentMethod decides which payment to use } */}
+              {orderData.shipping?.paymentMethod === "paypal" && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium mb-4">
+                    Paying with PayPal
+                  </h3>
+
+                  <div className="border rounded-lg p-6">
+                    <p className="text-center text-muted-foreground mb-4">
+                      When you choose Pay with PayPal, you’ll be securely
+                      redirected to PayPal’s checkout page. Once payment is
+                      complete, you’ll be brought back automatically.
+                    </p>
+
+                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 mb-4">
+                      <li>
+                        You can pay using your <strong>PayPal account</strong>
+                      </li>
+                      <li>
+                        Or pay directly with a{" "}
+                        <strong>credit or debit card</strong>
+                      </li>
+                      <li>
+                        Or use a <strong>bank account</strong> (where supported)
+                      </li>
+                      <li>No PayPal account is required</li>
+                      <li>
+                        Your payment is{" "}
+                        <strong>securely processed by PayPal</strong>
+                      </li>
+                    </ul>
+
+                    {/* Simulated PayPal button */}
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        router.push("/checkout/processing/initial");
+                      }}
+                      className="w-full bg-[#0070ba] hover:bg-[#003087] text-white"
+                      // disabled={
+                      //   paymentStatus === "processing" ||
+                      //   paymentStatus === "success"
+                      // }
+                      disabled
+                    >
+                      Pay with PayPal
+                    </Button>
+
+                    <p className="text-xs text-center text-muted-foreground mt-4">
+                      By clicking this button, you agree to our Terms of Service
+                      and Privacy Policy.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* M-Pesa Payment Option */}
+              {orderData.shipping?.paymentMethod === "mpesa" && (
+                <div>
+                  <h3 className="text-lg font-medium mb-4">
+                    Paying with M-Pesa
+                  </h3>
+
+                  <div className="border rounded-lg p-6">
+                    <p className="text-center text-muted-foreground mb-4">
+                      Enter your phone number to receive an M-Pesa payment
+                      prompt.
+                    </p>
+
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-1">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="e.g., 254712345678"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        pattern="^254[0-9]{9}$"
+                        required
+                        minLength={12}
+                        maxLength={12} // Assuming 254 is the country code for Kenya
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      onClick={handleMPesaPayment}
+                      className="w-full bg-[#4CAF50] hover:bg-[#388E3C] text-white"
+                      disabled={
+                        paymentStatus === "processing" ||
+                        paymentStatus === "success" ||
+                        phoneNumber.length !== 12
+                      }
+                    >
+                      {paymentStatus === "processing"
+                        ? "Processing..."
+                        : "Pay with M-Pesa"}
+                    </Button>
+
+                    <p className="text-xs text-center text-muted-foreground mt-4">
+                      You will receive an STK push notification on your phone to
+                      complete the payment.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Order Summary */}
+        <div>
+          <div className="bg-background rounded-lg border overflow-hidden sticky top-20">
+            <div className="p-6 border-b">
+              <h2 className="text-xl font-semibold">Order Summary</h2>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-4">
+                <p className="font-medium">Order #</p>
+              </div>
+
+              <ul className="divide-y mb-4">
+                {orderData.items.map((item: any) => (
+                  <li key={item.name} className="py-3 flex justify-between">
+                    <div>
+                      <p className="font-medium">{item.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Qty: {item.quantity}
+                      </p>
+                    </div>
+                    <p className="font-medium">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="border-t pt-4 mt-4">
+                <div className="flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span>${orderData.total.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {orderData.shipping && (
+                <div className="mt-6 pt-6 border-t">
+                  <h3 className="font-medium mb-2">Shipping Address</h3>
+                  <address className="not-italic text-sm text-muted-foreground">
+                    <p>
+                      {orderData.shipping.firstName}{" "}
+                      {orderData.shipping.lastName}
+                    </p>
+                    <p>{orderData.shipping.address}</p>
+                    <p>
+                      {orderData.shipping.city}, {orderData.shipping.state}{" "}
+                      {orderData.shipping.postalCode}
+                    </p>
+                    <p>{orderData.shipping.country}</p>
+                  </address>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
