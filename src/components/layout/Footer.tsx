@@ -7,9 +7,9 @@ export default function Footer() {
       <div className="container mx-auto py-8 md:py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Uniform Shop</h3>
+            <h3 className="text-lg font-semibold mb-4">Shop Example</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Your one-stop shop for quality uniforms.
+              Your one-stop online store for quality products.
             </p>
             {/* <Link
               href="https://www.upwork.com/services/product/development-it-a-shopify-alternative-one-time-fee-no-subscriptions-1973336399139333730?ref=project_share"
@@ -128,7 +128,7 @@ export default function Footer() {
 
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Uniform Shop. All rights reserved.
+            © {new Date().getFullYear()} Shop Example. All rights reserved.
           </p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link

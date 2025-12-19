@@ -31,112 +31,7 @@ import {
 import { categories, formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/context/AuthContext";
-import { useRouter } from "next/navigation";
 import { Product } from "@/types/store";
-
-// Mock product data - in a real app, this would come from the database
-const products = [
-  {
-    id: "1",
-    title: "Premium Karate Gi",
-    sku: "KG-001",
-    price: 89.99,
-    stock: 15,
-    category: "uniforms",
-    belt_level: "all",
-    created_at: "2023-05-10T10:00:00Z",
-  },
-  {
-    id: "2",
-    title: "Competition Sparring Gear Set",
-    sku: "SG-001",
-    price: 129.99,
-    stock: 8,
-    category: "gear",
-    belt_level: "all",
-    created_at: "2023-05-09T14:30:00Z",
-  },
-  {
-    id: "3",
-    title: "Black Belt - Premium Cotton",
-    sku: "BB-001",
-    price: 34.99,
-    stock: 20,
-    category: "belts",
-    belt_level: "black",
-    created_at: "2023-05-08T09:15:00Z",
-  },
-  {
-    id: "4",
-    title: "Training Gloves",
-    sku: "TG-001",
-    price: 49.99,
-    stock: 12,
-    category: "gear",
-    belt_level: "all",
-    created_at: "2023-05-07T16:45:00Z",
-  },
-  {
-    id: "5",
-    title: "White Belt Uniform",
-    sku: "WU-001",
-    price: 59.99,
-    stock: 25,
-    category: "uniforms",
-    belt_level: "white",
-    created_at: "2023-05-06T11:20:00Z",
-  },
-  {
-    id: "6",
-    title: "Blue Belt Uniform",
-    sku: "BU-001",
-    price: 64.99,
-    stock: 18,
-    category: "uniforms",
-    belt_level: "blue",
-    created_at: "2023-05-05T13:10:00Z",
-  },
-  {
-    id: "7",
-    title: "Headgear",
-    sku: "HG-001",
-    price: 39.99,
-    stock: 10,
-    category: "gear",
-    belt_level: "all",
-    created_at: "2023-05-04T15:30:00Z",
-  },
-  {
-    id: "8",
-    title: "Mouth Guard",
-    sku: "MG-001",
-    price: 12.99,
-    stock: 30,
-    category: "gear",
-    belt_level: "all",
-    created_at: "2023-05-03T10:45:00Z",
-  },
-  {
-    id: "9",
-    title: "Focus Pads",
-    sku: "FP-001",
-    price: 29.99,
-    stock: 15,
-    category: "equipment",
-    belt_level: "all",
-    created_at: "2023-05-02T14:20:00Z",
-  },
-  {
-    id: "10",
-    title: "Punching Bag",
-    sku: "PB-001",
-    price: 79.99,
-    stock: 5,
-    category: "equipment",
-    belt_level: "all",
-    created_at: "2023-05-01T09:00:00Z",
-  },
-];
 
 const beltLevels = [
   { id: "all", name: "All Levels" },
@@ -444,7 +339,11 @@ export default function AdminProductsPage() {
             <TableBody>
               {paginatedProducts.map((product) => (
                 <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.title}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="truncate max-w-[200px]">
+                      {product.title}
+                    </div>
+                  </TableCell>
                   <TableCell>{product.sku}</TableCell>
                   <TableCell>
                     {formatCurrency(product.price, product.currency)}

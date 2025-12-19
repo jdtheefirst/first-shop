@@ -49,7 +49,7 @@ export default function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between">
         <div className="flex items-center justify-center gap-6">
           <Link href="/" className="font-bold text-xl">
-            Uniform Shop
+            Shop Example
           </Link>
 
           <nav className="hidden md:flex gap-6">

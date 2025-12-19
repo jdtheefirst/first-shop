@@ -20,8 +20,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Finest Uniform Shop",
-  description: "Quality uniforms and apparel for all occasions.",
+  title: {
+    default: "Finest Shop | Premium Apparel Demo",
+    template: "%s | Finest Shop Demo",
+  },
+  description:
+    "An example e-commerce store showcasing modern shopping features. This demo includes product catalog, cart functionality, and checkout process.",
+  keywords: [
+    "e-commerce demo",
+    "online shop example",
+    "apparel store",
+    "shopping cart",
+  ],
+
+  // Social media example
+  openGraph: {
+    title: "Finest Shop Example Store",
+    description: "A modern e-commerce shop demonstration",
+    type: "website",
+    images: ["/images/demo-store-preview.jpg"],
+  },
 };
 
 export default function RootLayout({

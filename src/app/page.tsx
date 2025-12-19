@@ -307,8 +307,8 @@ function TestimonialsSection() {
         <AnimatedSection animation="fade" delay={0.8} once className="mt-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             {[
-              { value: "50+", label: "Schools & Clubs" },
-              { value: "10,000+", label: "Uniforms Delivered" },
+              { value: "50+", label: "Schools, Shops & Clubs" },
+              { value: "8+", label: "Stores Delivered" },
               { value: "47", label: "Counties Served" },
               { value: "98%", label: "Satisfaction Rate" },
             ].map((stat, index) => (
@@ -374,7 +374,7 @@ export default async function Home() {
                     PROFESSIONAL{" "}
                   </span>
                   <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent animate-gradient">
-                    UNIFORMS
+                    SHOP EXAMPLE
                   </span>
                 </h1>
               </AnimatedSection>
@@ -393,7 +393,7 @@ export default async function Home() {
                   Premium Quality • Custom Fit • Bulk Orders
                 </p>
                 <p className="text-lg sm:text-xl text-white/95 max-w-2xl mx-auto drop-shadow">
-                  Elevate your team's presence with our exclusive collection
+                  Elevate your shop presence with our exclusive online store
                 </p>
               </div>
             </AnimatedSection>
@@ -479,7 +479,7 @@ export default async function Home() {
               <div className="mt-8 pt-6 border-t border-white/30">
                 <p className="text-white/90 text-sm flex items-center justify-center gap-2 flex-wrap">
                   <ShieldCheck className="w-4 h-4" />
-                  Trusted by Kenyan schools from Mombasa to Kisumu
+                  Trusted by shop owners across Kenya
                 </p>
               </div>
             </AnimatedSection>
@@ -568,7 +568,7 @@ export default async function Home() {
                 icon: CheckCircle,
                 title: "Premium Kenyan Quality",
                 description:
-                  "Durable fabrics perfect for our climate, expert craftsmanship for long-lasting uniforms",
+                  "Durable fabrics perfect for our climate, expert craftsmanship for long-lasting shop",
                 color: "from-green-500 to-emerald-500",
               },
               {
@@ -582,7 +582,7 @@ export default async function Home() {
                 icon: Users,
                 title: "School Discounts",
                 description:
-                  "Special rates and custom solutions for Kenyan schools & teams",
+                  "Special rates and custom solutions for Kenyan shops, schools & teams",
                 color: "from-purple-500 to-pink-500",
               },
             ].map((feature, index) => (
