@@ -392,9 +392,8 @@ export default async function Home() {
                 </Button>
                 <Button
                   asChild
-                  variant="outline"
                   size="lg"
-                  className="bg-white/10 backdrop-blur-sm border-2 border-gray-900 hover:bg-white/20 text-black dark:text-black font-bold py-6 px-8 rounded-xl text-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                  className="font-bold py-6 px-8 rounded-xl text-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                 >
                   <Link
                     href="/contact"
@@ -542,9 +541,8 @@ export default async function Home() {
                 </Button>
                 <Button
                   asChild
-                  variant="outline"
                   size="lg"
-                  className="border-2 border-white text-white hover:bg-white/10 font-bold px-10 py-6 text-lg rounded-xl hover:scale-105 transition-transform duration-300"
+                  className="font-bold px-10 py-6 text-lg rounded-xl hover:scale-105 transition-transform duration-300"
                 >
                   <Link href="/contact">Book a Consultation</Link>
                 </Button>

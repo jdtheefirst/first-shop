@@ -48,6 +48,10 @@ const productSchema = z.object({
     (val) => (val === "" || val === null ? undefined : Number(val)),
     z.number().min(0, "Price must be a positive number.")
   ),
+  original_price: z.preprocess(
+    (val) => (val === "" || val === null ? null : Number(val)),
+    z.number().min(0, "Original price must be a positive number.")
+  ),
   stock: z.preprocess(
     (val) => (val === "" || val === null ? undefined : Number(val)),
     z.number().int().min(0, "Stock must be a non-negative integer.")
@@ -106,6 +110,7 @@ export default function ProductForm({
       slug: "",
       images: [],
       price: 0,
+      original_price: null,
       stock: 0,
       category: "",
       belt_level: "all",
@@ -143,6 +148,7 @@ export default function ProductForm({
       const productData = {
         ...values,
         price: Number(values.price),
+        original_price: values.original_price ? Number(values.price) : null,
         stock: Number(values.stock),
         tags: values.tags
           ? values.tags.split(",").map((tag) => tag.trim())
@@ -279,6 +285,32 @@ export default function ProductForm({
             )}
           />
 
+          {/* Original Price */}
+          <FormField
+            control={form.control}
+            name="original_price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Original Price</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <span className="absolute left-3 top-5 -translate-y-1/2 text-muted-foreground">
+                      $
+                    </span>
+                    <Input
+                      step="0.01"
+                      className="flex h-10 w-full rounded-md border border-input bg-background pl-7 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="99.99"
+                      {...field}
+                      type="number"
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           {/* Stock */}
           <FormField
             control={form.control}
@@ -329,9 +361,10 @@ export default function ProductForm({
           />
 
           {/* Belt Level */}
-          <FormField
+          {/* <FormField
             control={form.control}
             name="belt_level"
+            disabled
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Belt Level</FormLabel>
@@ -355,7 +388,7 @@ export default function ProductForm({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
             control={form.control}

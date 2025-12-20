@@ -1,4 +1,4 @@
-// app/login/page.tsx - FOR uniforms shop
+// app/login/page.tsx - FOR e-commerce platform demo
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,6 +25,9 @@ import {
   Star,
   Shield,
   RotateCcw,
+  Heart,
+  Eye,
+  Truck,
 } from "lucide-react";
 import { useStore } from "@/lib/context/StoreContext";
 
@@ -41,17 +44,17 @@ export default function LoginPage({
   const { state } = useStore();
   const orderData = state.pendingOrder;
 
-  useEffect(() => {
-    if (profile) {
-      const redirectPath =
-        redirect || profile.role === "admin"
-          ? `/admin`
-          : orderData
-          ? "/checkout/payment"
-          : "/products";
-      router.push(redirectPath);
-    }
-  }, [profile, router, orderData]);
+  // useEffect(() => {
+  //   if (profile) {
+  //     const redirectPath =
+  //       redirect || profile.role === "admin"
+  //         ? `/admin`
+  //         : orderData
+  //         ? "/checkout/payment"
+  //         : "/products";
+  //     router.push(redirectPath);
+  //   }
+  // }, [profile, router, orderData]);
 
   const handleTabChange = (value: string) => {
     if (value === "signin" || value === "signup") {
@@ -69,17 +72,17 @@ export default function LoginPage({
               <CardHeader className="text-center space-y-4">
                 <div className="flex justify-center items-center space-x-3">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-lg flex items-center justify-center">
-                    <Package className="w-8 h-8 text-white" />
+                    <ShoppingBag className="w-8 h-8 text-white" />
                   </div>
                   <div className="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
-                  <ShoppingBag className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                  <Heart className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Uniforms Shop Account
+                  Your Shopping Account
                 </CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Login for faster reorders, exclusive discounts, and order
-                  tracking
+                  Login for faster checkout, order tracking, and personalized
+                  recommendations
                 </CardDescription>
 
                 {message && (
@@ -125,7 +128,7 @@ export default function LoginPage({
                         Create Your Account
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Sign up for exclusive benefits and faster reordering
+                        Sign up for personalized shopping experience
                       </p>
 
                       <div className="space-y-4">
@@ -136,19 +139,21 @@ export default function LoginPage({
                           <ul className="text-xs text-green-700 dark:text-green-300 space-y-1 text-left">
                             <li className="flex items-center gap-2">
                               <Percent className="w-3 h-3" />
-                              Exclusive discounts for returning customers
+                              Member-only discounts and early access to sales
                             </li>
                             <li className="flex items-center gap-2">
-                              <RotateCcw className="w-3 h-3" />
-                              One-click reorders from your history
+                              <Eye className="w-3 h-3" />
+                              Personalized recommendations based on your
+                              interests
                             </li>
                             <li className="flex items-center gap-2">
                               <Clock className="w-3 h-3" />
-                              Save shopping lists for repeat purchases
+                              Faster checkout with saved addresses & payment
+                              methods
                             </li>
                             <li className="flex items-center gap-2">
                               <Award className="w-3 h-3" />
-                              Loyalty points on every purchase
+                              Earn loyalty points on every purchase
                             </li>
                           </ul>
                         </div>
@@ -208,7 +213,7 @@ export default function LoginPage({
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     Need help?{" "}
                     <Link
-                      href="mailto:support@uniforms-shop.com"
+                      href="mailto:support@example-shop.com"
                       className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       Contact Support
@@ -224,13 +229,13 @@ export default function LoginPage({
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center space-x-2 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-full text-sm font-medium mb-4">
                 <Shield className="w-4 h-4" />
-                <span>Trusted Uniform Supplier</span>
+                <span>Secure Shopping Platform</span>
               </div>
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Why Create an Account?
+                Enhance Your Shopping Experience
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-                Unlock exclusive benefits for school uniform purchases
+                Unlock personalized features and exclusive benefits
               </p>
             </div>
 
@@ -242,24 +247,24 @@ export default function LoginPage({
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">
-                    Reorder Discounts
+                    Exclusive Deals
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Get 10-15% off on repeat purchases for your school
+                    Get access to members-only sales and early bird discounts
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
                 <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full flex items-center justify-center">
-                  <RotateCcw className="w-5 h-5 text-white" />
+                  <Eye className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">
-                    Quick Reorder
+                    Personalized Feed
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    One-click reorders from your previous purchase history
+                    See recommendations tailored to your shopping preferences
                   </p>
                 </div>
               </div>
@@ -270,10 +275,10 @@ export default function LoginPage({
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">
-                    Save Shopping Lists
+                    Quick Checkout
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Save uniform lists for different classes or years
+                    Save addresses and payment methods for faster purchases
                   </p>
                 </div>
               </div>
@@ -284,41 +289,41 @@ export default function LoginPage({
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">
-                    Loyalty Points
+                    Loyalty Rewards
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Earn points on every purchase redeemable for discounts
+                    Earn points on every purchase, redeemable for discounts
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* For Schools Section */}
+            {/* For Business Customers */}
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center">
-                  <Users className="w-6 h-6 text-blue-600 dark:text-blue-300" />
+                  <Truck className="w-6 h-6 text-blue-600 dark:text-blue-300" />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2">
-                    For Schools & Bulk Purchases
+                    For Business & Bulk Orders
                   </h3>
                   <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
                     <li className="flex items-center gap-2">
                       <Star className="w-3 h-3 text-amber-500" />
-                      Dedicated account manager for schools
+                      Dedicated account manager for business customers
                     </li>
                     <li className="flex items-center gap-2">
                       <Star className="w-3 h-3 text-amber-500" />
-                      Special pricing for bulk orders
+                      Special pricing for bulk purchases
                     </li>
                     <li className="flex items-center gap-2">
                       <Star className="w-3 h-3 text-amber-500" />
-                      Custom embroidery and branding services
+                      Consolidated shipping and billing
                     </li>
                     <li className="flex items-center gap-2">
                       <Star className="w-3 h-3 text-amber-500" />
-                      Consolidated billing and invoicing
+                      Priority customer support
                     </li>
                   </ul>
                   <Button
@@ -326,7 +331,7 @@ export default function LoginPage({
                     variant="link"
                     className="text-blue-600 dark:text-blue-400 p-0 h-auto mt-3"
                   >
-                    <Link href="#">Learn about school partnerships →</Link>
+                    <Link href="#">Learn about business accounts →</Link>
                   </Button>
                 </div>
               </div>
@@ -336,21 +341,22 @@ export default function LoginPage({
             <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">JM</span>
+                  <span className="text-white font-bold text-sm">SR</span>
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 dark:text-white">
-                    James M., School Administrator
+                    Sarah R., Frequent Shopper
                   </h4>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Green Valley High School
+                    Saves 2+ hours weekly on shopping
                   </p>
                 </div>
               </div>
               <p className="text-gray-600 dark:text-gray-300 text-sm italic">
-                "Creating an account has saved us hours each semester. The quick
-                reorder feature and saved uniform lists make outfitting 300+
-                students incredibly efficient."
+                "Having an account has transformed how I shop online. The saved
+                addresses and quick reorder feature save me hours each week. The
+                personalized recommendations always help me discover great
+                products I love."
               </p>
               <div className="flex mt-2">
                 {[1, 2, 3, 4, 5].map((star) => (
