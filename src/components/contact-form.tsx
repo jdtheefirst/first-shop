@@ -20,12 +20,13 @@ import { toast } from "sonner";
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [estimatedOrders, setEstimatedOrders] = useState("");
+  const [estimatedOrders, setEstimatedOrders] = useState("1-50");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const form = e.currentTarget;
     const formData = new FormData(e.currentTarget);
     const data = {
       name: formData.get("name"),
@@ -42,7 +43,8 @@ export default function ContactForm() {
       !data.phone ||
       !data.email ||
       !data.business ||
-      !data.message
+      !data.message ||
+      !data.orders
     ) {
       toast.error("Missing Information");
       setIsSubmitting(false);
@@ -65,7 +67,7 @@ export default function ContactForm() {
       toast.success("Success!");
 
       // Reset form
-      e.currentTarget.reset();
+      form.reset();
       setEstimatedOrders("");
     } catch (error) {
       console.error("Error:", error);
