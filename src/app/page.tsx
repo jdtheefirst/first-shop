@@ -2,25 +2,39 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/store";
-import { beltLevels, formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { ProductCardSkeleton } from "@/components/ProductSkeleton";
 import { Suspense } from "react";
 import {
   ChevronDown,
   ShieldCheck,
-  Shirt,
   ShoppingBag,
   CheckCircle,
   Truck,
   Users,
-  Award,
   Star,
   Quote,
+  Package,
+  Headphones,
+  Globe,
+  CreditCard,
+  Smartphone,
+  Home as HomeIcon,
+  Shirt,
+  Smartphone as Phone,
+  Laptop,
+  Sofa,
+  Heart,
+  BookOpen,
+  Car,
+  Utensils,
+  Gamepad2,
 } from "lucide-react";
 import {
   AnimatedSection,
   CompactSection,
 } from "@/components/ui/animated-section";
+import { shopFeatures, testimonials } from "@/lib/constants";
 
 async function fetchFeatured() {
   let featuredProducts: Product[] = [];
@@ -74,16 +88,6 @@ function FeaturedProductsGrid({ products }: { products: Product[] }) {
                   {/* Subtle overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-70" />
 
-                  {/* Badge for belt level */}
-                  {product.belt_level !== "all" && (
-                    <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                      {
-                        beltLevels.find((b) => b.id === product.belt_level)
-                          ?.name
-                      }
-                    </div>
-                  )}
-
                   {/* Text overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 text-white">
                     <h3 className="font-semibold text-sm sm:text-base line-clamp-2 mb-1 transition-colors group-hover:text-blue-300">
@@ -111,7 +115,7 @@ function FeaturedProductsGrid({ products }: { products: Product[] }) {
                 </>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center text-muted-foreground bg-gradient-to-br from-muted to-muted/50">
-                  <Shirt className="w-8 h-8" />
+                  <Package className="w-8 h-8" />
                 </div>
               )}
             </div>
@@ -125,14 +129,14 @@ function FeaturedProductsGrid({ products }: { products: Product[] }) {
 function CategoriesGrid({
   categories,
 }: {
-  categories: Array<{ name: string; slug: string; image: string }>;
+  categories: Array<{ name: string; slug: string; icon: any }>;
 }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-5">
       {categories.map((category, index) => (
         <AnimatedSection
           key={category.slug}
-          delay={0.1 * index}
+          delay={0.05 * index}
           animation="fadeUp"
           className="h-full"
           spacing="none"
@@ -140,45 +144,18 @@ function CategoriesGrid({
         >
           <Link
             href={`/products?category=${category.slug}`}
-            className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 h-full block hover:-translate-y-1"
+            className="group relative overflow-hidden rounded-xl border bg-background shadow-sm hover:shadow-xl transition-all duration-300 h-full block hover:-translate-y-1 p-6"
           >
-            <div className="aspect-square relative">
-              <Image
-                src={category.image}
-                alt={category.name}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                sizes="(max-width: 480px) 50vw,
-                       (max-width: 768px) 33vw,
-                       (max-width: 1024px) 25vw,
-                       20vw"
-              />
-              {/* Darker overlay for better text visibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-
-              {/* Category content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-white">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mb-3 group-hover:bg-white/20 transition-colors">
-                  {category.slug === "uniforms" && (
-                    <Shirt className="w-6 h-6 sm:w-8 sm:h-8" />
-                  )}
-                  {category.slug === "gear" && (
-                    <ShieldCheck className="w-6 h-6 sm:w-8 sm:h-8" />
-                  )}
-                  {category.slug === "belts" && (
-                    <Award className="w-6 h-6 sm:w-8 sm:h-8" />
-                  )}
-                  {category.slug === "equipment" && (
-                    <Users className="w-6 h-6 sm:w-8 sm:h-8" />
-                  )}
-                </div>
-                <h3 className="font-bold text-lg sm:text-xl text-center group-hover:text-blue-300 transition-colors">
-                  {category.name}
-                </h3>
-                <span className="mt-2 text-sm opacity-90 group-hover:opacity-100 transition-opacity">
-                  Shop Now →
-                </span>
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <category.icon className="w-8 h-8 text-blue-600" />
               </div>
+              <h3 className="font-bold text-base group-hover:text-blue-600 transition-colors">
+                {category.name}
+              </h3>
+              <p className="text-xs text-muted-foreground mt-2 group-hover:text-blue-500 transition-colors">
+                Shop Now →
+              </p>
             </div>
           </Link>
         </AnimatedSection>
@@ -188,73 +165,26 @@ function CategoriesGrid({
 }
 
 function TestimonialsSection() {
-  const testimonials = [
-    {
-      name: "Mwangi Kimani",
-      role: "School Principal, Nairobi",
-      content:
-        "For 3 years now, our entire school has been getting uniforms from here. The quality is exceptional - even after daily use and washing, they still look new. Best investment for our students!",
-      rating: 5,
-      image: "/testimonials/principal.jpg",
-    },
-    {
-      name: "Grace Wanjiru",
-      role: "Martial Arts Academy Owner, Mombasa",
-      content:
-        "The custom embroidery on our dojo uniforms has brought us so many new students! Parents appreciate the professional look. Plus, the bulk discount for our 50+ students saved us a lot.",
-      rating: 5,
-      image: "/testimonials/academy-owner.jpg",
-    },
-    {
-      name: "David Omondi",
-      role: "Sports Club Manager, Kisumu",
-      content:
-        "Fastest delivery to western Kenya I've experienced. Ordered uniforms on Monday, had them by Thursday. The fabric is perfect for our hot climate - breathable yet durable.",
-      rating: 5,
-      image: "/testimonials/club-manager.jpg",
-    },
-    {
-      name: "Sarah Akinyi",
-      role: "Taekwondo Instructor, Nakuru",
-      content:
-        "As a female instructor, finding properly fitting uniforms was always a challenge. Their custom sizing option was a game-changer! My students now train comfortably and confidently.",
-      rating: 5,
-      image: "/testimonials/instructor.jpg",
-    },
-  ];
-
   return (
     <div className="relative overflow-hidden py-12 sm:py-4 md:py-8">
-      {/* Background pattern */}
-      <div className="absolute inset-0" />
-      <div
-        className="absolute inset-0 opacity-5"
-        style={{
-          /* Add to your styles or inline style */
-          backgroundImage: `linear-gradient(45deg, #060 25%, transparent 25%), 
-                  linear-gradient(-45deg, #060 25%, transparent 25%), 
-                  linear-gradient(45deg, transparent 75%, #060 75%), 
-                  linear-gradient(-45deg, transparent 75%, #060 75%)`,
-          backgroundSize: `20px 20px`,
-          backgroundPosition: `0 0, 0 10px, 10px -10px, -10px 0px`,
-        }}
-      />
+      {/* Change this fixed light blue background to theme-aware */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-cyan-50/30 dark:from-blue-950/20 dark:to-cyan-950/20" />
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <AnimatedSection animation="fadeUp" once>
           <div className="text-center mb-8 sm:mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4">
-              <Quote className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">
-                What Kenyan Schools Say
+            {/* Update badge background for dark mode */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 bg-blue-50 dark:bg-blue-900/30">
+              <Quote className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                What Kenyan Businesses Say
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
-              Trusted by Schools Across Kenya
+              Trusted by Kenyan Entrepreneurs
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Hear from principals, instructors, and club owners who've elevated
-              their teams
+              Join hundreds of successful Kenyan businesses growing online
             </p>
           </div>
         </AnimatedSection>
@@ -269,8 +199,9 @@ function TestimonialsSection() {
               className="h-full"
               spacing="none"
             >
-              <div className="rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-3 sm:p-6 h-full border border-gray-100 hover:-translate-y-1">
-                {/* Stars */}
+              {/* Change from fixed white to theme-aware background */}
+              <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-lg hover:shadow-xl transition-all duration-300 p-3 sm:p-6 h-full border dark:border-gray-800 hover:-translate-y-1">
+                {/* Stars - already OK */}
                 <div className="flex items-center gap-1 mb-4">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
                     <Star
@@ -282,20 +213,25 @@ function TestimonialsSection() {
 
                 {/* Quote content */}
                 <div className="relative mb-6">
-                  <Quote className="absolute -top-2 -left-2 w-8 h-8 text-blue-100" />
-                  <p className="leading-relaxed italic pl-4">
+                  <Quote className="absolute -top-2 -left-2 w-8 h-8 text-blue-100 dark:text-blue-900/30" />
+                  <p className="leading-relaxed italic pl-4 text-gray-700 dark:text-gray-300">
                     "{testimonial.content}"
                   </p>
                 </div>
 
                 {/* Author */}
-                <div className="flex items-center gap-3 border-t pt-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold">
+                <div className="flex items-center gap-3 border-t pt-4 dark:border-gray-800">
+                  {/* Avatar already OK */}
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center font-bold text-white">
                     {testimonial.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-bold">{testimonial.name}</h4>
-                    <p className="text-sm">{testimonial.role}</p>
+                    <h4 className="font-bold text-gray-900 dark:text-white">
+                      {testimonial.name}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {testimonial.role}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -303,23 +239,28 @@ function TestimonialsSection() {
           ))}
         </div>
 
-        {/* Stats */}
+        {/* Stats section */}
         <AnimatedSection animation="fade" delay={0.8} once className="mt-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             {[
-              { value: "50+", label: "Schools, Shops & Clubs" },
-              { value: "8+", label: "Stores Delivered" },
-              { value: "47", label: "Counties Served" },
-              { value: "98%", label: "Satisfaction Rate" },
+              { value: "50+", label: "Kenyan Businesses", icon: Users },
+              { value: "8+", label: "Industries Served", icon: Globe },
+              { value: "98%", label: "Uptime", icon: ShieldCheck },
+              { value: "24/7", label: "Support", icon: Headphones },
             ].map((stat, index) => (
               <div
                 key={index}
-                className="p-4 bg-white/80 backdrop-blur-sm rounded-xl border"
+                className="p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl border dark:border-gray-800"
               >
-                <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                <div className="flex justify-center mb-2">
+                  <stat.icon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
                   {stat.value}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">{stat.label}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
@@ -333,33 +274,37 @@ export default async function Home() {
   const featuredProducts = await fetchFeatured();
 
   const categories = [
-    { name: "Uniforms", slug: "uniforms", image: "/categories/uniforms.jpg" },
-    { name: "Protective Gear", slug: "gear", image: "/categories/gear.jpg" },
-    { name: "Belts", slug: "belts", image: "/categories/belts.jpg" },
-    {
-      name: "Training Equipment",
-      slug: "equipment",
-      image: "/categories/equipment.jpg",
-    },
+    { name: "Electronics", slug: "electronics", icon: Phone },
+    { name: "Fashion", slug: "fashion", icon: Shirt },
+    { name: "Home & Living", slug: "home-living", icon: HomeIcon },
+    { name: "Beauty", slug: "beauty", icon: Heart },
+    { name: "Phones & Tablets", slug: "phones", icon: Smartphone },
+    { name: "Computing", slug: "computing", icon: Laptop },
+    { name: "Furniture", slug: "furniture", icon: Sofa },
+    { name: "Books & Media", slug: "books", icon: BookOpen },
+    { name: "Automotive", slug: "automotive", icon: Car },
+    { name: "Groceries", slug: "groceries", icon: Utensils },
   ];
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section
-        className="relative min-h-[90vh] w-full bg-cover bg-center flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('/covers/hero-uniforms.jpg')",
-          backgroundPosition: "center 30%",
-          backgroundAttachment: "fixed",
-        }}
-      >
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-transparent to-cyan-900/10" />
+      <section className="relative min-h-[90vh] w-full bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.1)), url('/covers/hero-uniforms.jpg')",
+              backgroundPosition: "center 30%",
+              backgroundAttachment: "fixed",
+            }}
+          />
+        </div>
 
         <div className="px-4 sm:px-6 lg:px-8 relative z-20 w-full">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             {/* Main Headline */}
             <div className="mb-6 sm:mb-8">
               <AnimatedSection
@@ -369,12 +314,10 @@ export default async function Home() {
                 spacing="normal"
                 once
               >
-                <h1 className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight">
-                  <span className="bg-gradient-to-r from-white via-white to-gray-200 bg-clip-text text-transparent">
-                    PROFESSIONAL{" "}
-                  </span>
-                  <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent animate-gradient">
-                    SHOP EXAMPLE
+                <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
+                  <span className="block text-gray-900">Your Complete</span>
+                  <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 bg-clip-text text-transparent animate-gradient">
+                    E-commerce Solution
                   </span>
                 </h1>
               </AnimatedSection>
@@ -389,11 +332,12 @@ export default async function Home() {
               once
             >
               <div className="mb-8 sm:mb-12">
-                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 drop-shadow-lg">
-                  Premium Quality • Custom Fit • Bulk Orders
+                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+                  Sell Anything, Anywhere in Kenya
                 </p>
-                <p className="text-lg sm:text-xl text-white/95 max-w-2xl mx-auto drop-shadow">
-                  Elevate your shop presence with our exclusive online store
+                <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+                  From fashion to electronics, furniture to groceries - power
+                  your Kenyan business with our complete e-commerce platform
                 </p>
               </div>
             </AnimatedSection>
@@ -408,27 +352,16 @@ export default async function Home() {
             >
               <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
                 {[
-                  {
-                    text: "Free Shipping Nationwide",
-                    color: "from-green-500/90 to-emerald-400/90",
-                  },
-                  {
-                    text: "Custom Embroidery",
-                    color: "from-blue-500/90 to-cyan-400/90",
-                  },
-                  {
-                    text: "Bulk Discounts",
-                    color: "from-amber-500/90 to-yellow-400/90",
-                  },
-                  {
-                    text: "50+ Kenyan Schools",
-                    color: "from-purple-500/90 to-pink-400/90",
-                  },
+                  { text: "M-Pesa Integration", icon: CreditCard },
+                  { text: "Mobile-First Design", icon: Smartphone },
+                  { text: "Nationwide Delivery", icon: Truck },
+                  { text: "24/7 Support", icon: Headphones },
                 ].map((badge, index) => (
                   <div
                     key={index}
-                    className={`bg-gradient-to-r ${badge.color} backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-white shadow-lg hover:shadow-xl transition-shadow duration-300 border border-white/20`}
+                    className="flex items-center gap-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 shadow-lg hover:shadow-xl transition-shadow duration-300 border dark:border-gray-700"
                   >
+                    <badge.icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     {badge.text}
                   </div>
                 ))}
@@ -454,33 +387,23 @@ export default async function Home() {
                     className="flex items-center justify-center gap-2"
                   >
                     <ShoppingBag className="w-5 h-5" />
-                    SHOP COLLECTION
+                    VIEW DEMO STORE
                   </Link>
                 </Button>
                 <Button
                   asChild
                   variant="outline"
                   size="lg"
-                  className="bg-white/10 backdrop-blur-sm border-2 border-white/40 hover:bg-white/20 text-white font-bold py-6 px-8 rounded-xl text-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                  className="bg-white/10 backdrop-blur-sm border-2 border-gray-900 hover:bg-white/20 text-black dark:text-black font-bold py-6 px-8 rounded-xl text-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                 >
                   <Link
                     href="/contact"
                     className="flex items-center justify-center gap-2"
                   >
-                    <Shirt className="w-5 h-5" />
-                    CONTACT FOR BULK
+                    <Users className="w-5 h-5" />
+                    GET A QUOTE
                   </Link>
                 </Button>
-              </div>
-            </AnimatedSection>
-
-            {/* Trust indicator */}
-            <AnimatedSection animation="fade" delay={1} spacing="none" once>
-              <div className="mt-8 pt-6 border-t border-white/30">
-                <p className="text-white/90 text-sm flex items-center justify-center gap-2 flex-wrap">
-                  <ShieldCheck className="w-4 h-4" />
-                  Trusted by shop owners across Kenya
-                </p>
               </div>
             </AnimatedSection>
           </div>
@@ -488,17 +411,20 @@ export default async function Home() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronDown className="w-6 h-6 text-white/70" />
+          <ChevronDown className="w-6 h-6 text-blue-600/70" />
         </div>
       </section>
 
-      {/* Featured Categories */}
+      {/* Categories */}
       <CompactSection>
         <div className="container mx-auto px-4 sm:px-6">
           <AnimatedSection animation="fadeUp" spacing="none" once>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12">
-              Shop by Category
+              Sell Anything Online
             </h2>
+            <p className="text-lg text-center text-muted-foreground max-w-3xl mx-auto mb-12">
+              Our platform supports all types of Kenyan businesses
+            </p>
           </AnimatedSection>
           <CategoriesGrid categories={categories} />
         </div>
@@ -513,7 +439,7 @@ export default async function Home() {
                 Featured Products
               </h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Top picks from our premium collection
+                See how products appear on our platform
               </p>
             </div>
           </AnimatedSection>
@@ -542,50 +468,28 @@ export default async function Home() {
               variant="outline"
               className="px-8 py-6 text-base hover:scale-105 transition-transform duration-300"
             >
-              <Link href="/products">View All Products →</Link>
+              <Link href="/products">View Demo Products →</Link>
             </Button>
           </AnimatedSection>
         </div>
       </CompactSection>
 
-      {/* Why Choose Us */}
+      {/* Why Choose Our Platform */}
       <CompactSection className="bg-muted/20">
         <div className="container mx-auto px-4 sm:px-6">
           <AnimatedSection animation="fadeUp" spacing="none" once>
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
-                Why Choose Our Store
+                Why Kenyan Businesses Choose Us
               </h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Excellence in every detail
+                Built for the unique needs of Kenyan e-commerce
               </p>
             </div>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {[
-              {
-                icon: CheckCircle,
-                title: "Premium Kenyan Quality",
-                description:
-                  "Durable fabrics perfect for our climate, expert craftsmanship for long-lasting shop",
-                color: "from-green-500 to-emerald-500",
-              },
-              {
-                icon: Truck,
-                title: "Nationwide Delivery",
-                description:
-                  "Fast delivery to all 47 counties, from Nairobi to remote areas",
-                color: "from-blue-500 to-cyan-500",
-              },
-              {
-                icon: Users,
-                title: "School Discounts",
-                description:
-                  "Special rates and custom solutions for Kenyan shops, schools & teams",
-                color: "from-purple-500 to-pink-500",
-              },
-            ].map((feature, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {shopFeatures.map((feature, index) => (
               <AnimatedSection
                 key={index}
                 animation="fadeUp"
@@ -594,13 +498,16 @@ export default async function Home() {
                 className="h-full"
                 spacing="none"
               >
-                <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-background shadow-lg hover:shadow-xl transition-all duration-300 h-full hover:-translate-y-1 border">
+                {/* Change from fixed white to theme-aware background */}
+                <div className="flex flex-col p-6 rounded-2xl bg-white dark:bg-gray-900 shadow-lg hover:shadow-xl transition-all duration-300 h-full hover:-translate-y-1 border dark:border-gray-800">
                   <div
-                    className={`w-16 h-16 rounded-full bg-gradient-to-r ${feature.color} flex items-center justify-center mb-4`}
+                    className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.color} flex items-center justify-center mb-4`}
                   >
-                    <feature.icon className="w-8 h-8 text-white" />
+                    <feature.icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                  <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+                    {feature.title}
+                  </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     {feature.description}
                   </p>
@@ -611,7 +518,7 @@ export default async function Home() {
         </div>
       </CompactSection>
 
-      {/* Testimonials Section */}
+      {/* Testimonials */}
       <TestimonialsSection />
 
       {/* Final CTA */}
@@ -620,10 +527,10 @@ export default async function Home() {
           <AnimatedSection animation="fade" once>
             <div className="max-w-3xl mx-auto">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-                Ready to Elevate Your Kenyan School?
+                Ready to Launch Your Online Store?
               </h2>
               <p className="text-xl mb-8 opacity-95">
-                Join 50+ Kenyan schools already using our premium uniforms
+                Get a custom-built e-commerce solution for your Kenyan business
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
@@ -631,19 +538,20 @@ export default async function Home() {
                   size="lg"
                   className="bg-white text-blue-700 hover:bg-white/90 font-bold px-10 py-6 text-lg rounded-xl hover:scale-105 transition-transform duration-300"
                 >
-                  <Link href="/products">Shop the Collection →</Link>
+                  <Link href="/contact">Get Your Custom Store →</Link>
                 </Button>
                 <Button
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-2 border-white text-black hover:bg-white/10 font-bold px-10 py-6 text-lg rounded-xl hover:scale-105 transition-transform duration-300"
+                  className="border-2 border-white text-white hover:bg-white/10 font-bold px-10 py-6 text-lg rounded-xl hover:scale-105 transition-transform duration-300"
                 >
-                  <Link href="/contact">Request Bulk Quote</Link>
+                  <Link href="/contact">Book a Consultation</Link>
                 </Button>
               </div>
               <p className="mt-6 text-sm opacity-80">
-                Free consultation for schools ordering 20+ uniforms
+                Custom domain • Managed hosting • M-Pesa integration • Kenyan
+                support
               </p>
             </div>
           </AnimatedSection>
