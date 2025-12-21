@@ -44,17 +44,17 @@ export default function LoginPage({
   const { state } = useStore();
   const orderData = state.pendingOrder;
 
-  // useEffect(() => {
-  //   if (profile) {
-  //     const redirectPath =
-  //       redirect || profile.role === "admin"
-  //         ? `/admin`
-  //         : orderData
-  //         ? "/checkout/payment"
-  //         : "/products";
-  //     router.push(redirectPath);
-  //   }
-  // }, [profile, router, orderData]);
+  useEffect(() => {
+    if (profile) {
+      const redirectPath =
+        redirect || profile.role === "admin"
+          ? `/admin`
+          : orderData
+          ? "/checkout/payment"
+          : "/products";
+      router.push(redirectPath);
+    }
+  }, [profile, router, orderData]);
 
   const handleTabChange = (value: string) => {
     if (value === "signin" || value === "signup") {

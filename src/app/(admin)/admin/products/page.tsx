@@ -28,10 +28,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { categories, formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/context/AuthContext";
 import { Product } from "@/types/store";
+import { categoryOptions } from "@/lib/constants";
 
 const beltLevels = [
   { id: "all", name: "All Levels" },
@@ -212,7 +213,7 @@ export default function AdminProductsPage() {
                 <div>
                   <h3 className="font-medium mb-3">Categories</h3>
                   <div className="space-y-2">
-                    {categories.map((category) => (
+                    {categoryOptions.map((category) => (
                       <div key={category.id} className="flex items-center">
                         <input
                           type="radio"
@@ -297,7 +298,7 @@ export default function AdminProductsPage() {
           {selectedCategory !== "all" && (
             <div className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-sm">
               Category:{" "}
-              {categories.find((c) => c.id === selectedCategory)?.name}
+              {categoryOptions.find((c) => c.id === selectedCategory)?.name}
               <button
                 onClick={() => setSelectedCategory("all")}
                 className="ml-2 text-muted-foreground hover:text-foreground"
