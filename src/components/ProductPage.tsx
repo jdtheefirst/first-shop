@@ -322,7 +322,8 @@ export default function ProductDetailPage({
                   <div>
                     <p className="font-medium">Fast Delivery</p>
                     <p className="text-sm text-muted-foreground">
-                      Ships within 1-2 business days • Free shipping over $100
+                      Ships within 1-2 business days • Free shipping over 15,000
+                      KES
                     </p>
                   </div>
                 </div>
@@ -507,7 +508,7 @@ export default function ProductDetailPage({
                       <p className="text-sm text-muted-foreground">
                         • Ships within 1-2 business days
                         <br />
-                        • Free shipping on orders over $100
+                        • Free shipping on orders over 15,000 KES
                         <br />
                         • Real-time shipping calculations at checkout
                         <br />• Multiple delivery options available
@@ -523,10 +524,12 @@ export default function ProductDetailPage({
 
       {/* Related Products */}
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold">You Might Also Like</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-lg sm:text-2xl font-bold">
+              You Might Also Like
+            </h2>
+            <p className="text-sm text-muted-foreground">
               Browse related products in our demo store
             </p>
           </div>
