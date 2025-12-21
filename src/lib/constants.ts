@@ -62,91 +62,91 @@ export const categories = [
     slug: "mens-collection",
     description:
       "Smart casual wear, suits, traditional outfits, jeans, shirts, and footwear for the modern Kenyan man.",
-    image: "/categories/mens-fashion.jpg",
+    image: "/categories/mens-fashion.jpeg",
   },
   {
     name: "Electronics",
     slug: "electronics",
     description:
       "Smartphones, laptops, home appliances, audio systems, and gadgets at competitive prices.",
-    image: "/categories/electronics.jpg",
+    image: "/categories/electronics.jpeg",
   },
   {
     name: "Furniture & Home",
     slug: "furniture",
     description:
       "Quality sofas, beds, tables, chairs, and home decor to transform your living space.",
-    image: "/categories/furniture.jpg",
+    image: "/categories/furniture.jpeg",
   },
   {
     name: "Beauty & Cosmetics",
     slug: "beauty",
     description:
       "Skincare, makeup, hair care products, fragrances, and beauty tools from top brands.",
-    image: "/categories/beauty.jpg",
+    image: "/categories/beauty.jpeg",
   },
   {
     name: "Sports & Fitness",
     slug: "sports-fitness",
     description:
       "Gym equipment, sportswear, running gear, football kits, and fitness accessories.",
-    image: "/categories/sports.jpg",
+    image: "/categories/sports.jpeg",
   },
   {
     name: "Baby & Kids",
     slug: "baby-kids",
     description:
       "Clothing, toys, school supplies, nursery furniture, and essentials for children of all ages.",
-    image: "/categories/kids.jpg",
+    image: "/categories/kids.jpeg",
   },
   {
     name: "Groceries & Food",
     slug: "groceries",
     description:
       "Fresh produce, pantry staples, beverages, snacks, and household essentials delivered to your door.",
-    image: "/categories/groceries.jpg",
+    image: "/categories/groceries.jpeg",
   },
   {
     name: "Mobile Phones",
     slug: "mobile-phones",
     description:
       "Latest smartphones, tablets, accessories, and mobile gadgets from top brands.",
-    image: "/categories/mobile-phones.jpg",
+    image: "/categories/mobile-phones.jpeg",
   },
   {
     name: "Automotive",
     slug: "automotive",
     description:
       "Car parts, accessories, tools, lubricants, and maintenance products for your vehicle.",
-    image: "/categories/automotive.jpg",
+    image: "/categories/automotive.jpeg",
   },
   {
     name: "Books & Stationery",
     slug: "books-stationery",
     description:
       "Educational books, novels, office supplies, writing materials, and art supplies.",
-    image: "/categories/books.jpg",
+    image: "/categories/books.jpeg",
   },
   {
     name: "Health & Wellness",
     slug: "health-wellness",
     description:
       "Vitamins, supplements, medical equipment, personal care, and wellness products.",
-    image: "/categories/health.jpg",
+    image: "/categories/health.jpeg",
   },
   {
     name: "Jewelry & Watches",
     slug: "jewelry-watches",
     description:
       "Elegant jewelry pieces, traditional adornments, luxury watches, and fashion accessories.",
-    image: "/categories/jewelry.jpg",
+    image: "/categories/jewelry.jpeg",
   },
   {
     name: "Computing",
     slug: "computing",
     description:
       "Laptops, desktops, computer accessories, software, and networking equipment.",
-    image: "/categories/computing.jpg",
+    image: "/categories/computing.jpeg",
   },
 ];
 
