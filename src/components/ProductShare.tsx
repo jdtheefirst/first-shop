@@ -10,11 +10,11 @@ import {
   WhatsappIcon,
   TelegramShareButton,
   TelegramIcon,
-  RedditShareButton,
-  RedditIcon,
   InstapaperShareButton,
   InstagramIcon,
 } from "next-share";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 interface ShareOption {
   Component: React.ComponentType<any>;
@@ -122,21 +122,21 @@ export default function ProductShare({ product, url }: ProductShareProps) {
       </div>
 
       <div className="flex gap-2 items-center">
-        <input
+        <Input
           type="text"
           value={url}
           readOnly
           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-muted/40 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all"
           aria-label="Product URL to share"
         />
-        <button
+        <Button
           onClick={handleCopy}
           className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 active:bg-teal-800 disabled:bg-gray-400 transition-all duration-200 text-sm font-medium focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 outline-none"
           disabled={copied}
           aria-live="polite"
         >
-          {copied ? "Copied ✅" : "Copy"}
-        </button>
+          {copied ? "Copied ✅" : "Copy Link"}
+        </Button>
       </div>
     </div>
   );

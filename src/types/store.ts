@@ -20,6 +20,7 @@ export interface Product {
   tags: string[];
   featured: boolean;
   metadata: {};
+  created_at: string;
 }
 
 export interface ProductFormData {

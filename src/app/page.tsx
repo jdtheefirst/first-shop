@@ -168,19 +168,19 @@ function TestimonialsSection() {
   return (
     <div className="relative overflow-hidden py-12 sm:py-4 md:py-8">
       {/* Change this fixed light blue background to theme-aware */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-cyan-50/30 dark:from-blue-950/20 dark:to-cyan-950/20" />
+      <div className="absolute inset-0 bg-[url('/patterns/pattern-randomized.svg')]" />
 
-      <div className="container mx-auto px-4 sm:px-6 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10 ">
         <AnimatedSection animation="fadeUp" once>
           <div className="text-center mb-8 sm:mb-12">
             {/* Update badge background for dark mode */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 bg-blue-50 dark:bg-blue-900/30">
-              <Quote className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              <Quote className="w-4 h-4 text-blue-400 dark:text-blue-600" />
+              <span className="text-sm font-medium text-blue-300 dark:text-blue-700">
                 What Kenyan Businesses Say
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-black">
               Trusted by Kenyan Entrepreneurs
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -295,10 +295,9 @@ export default async function Home() {
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage:
-                "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.1)), url('/covers/hero-uniforms.jpg')",
+              backgroundImage: "url('/patterns/page-turner.svg')",
               backgroundPosition: "center 30%",
-              backgroundAttachment: "fixed",
+              backgroundAttachment: "cover",
             }}
           />
         </div>

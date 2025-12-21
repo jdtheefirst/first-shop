@@ -27,20 +27,20 @@ export default function PrivacyPolicy() {
         </p>
       </div>
 
-      <div className="space-y-10">
+      <div className="space-y-8">
         <div className="bg-muted/30 p-6 rounded-lg">
-          <p className="text-lg font-medium">
-            World Samma Academy ("we," "our," or "us") is committed to
-            protecting your privacy. This Privacy Policy explains how we
-            collect, use, disclose, and safeguard your information when you
-            visit our website{" "}
-            <Link
-              href="/"
-              className="text-primary underline hover:no-underline"
-            >
-              shop.worldsamma.org
-            </Link>
-            .
+          <h1 className="text-3xl font-bold mb-4">
+            Professional Terms of Service Framework
+          </h1>
+          <p className="text-lg font-medium mb-4">
+            This demonstrates the type of professional legal frameworks we build
+            into custom e-commerce platforms. Your store will include terms
+            specifically tailored to your business type, products, and
+            operational requirements.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            All our custom builds include legal documentation compliant with
+            Kenyan commercial law and international e-commerce standards.
           </p>
         </div>
 
@@ -191,20 +191,22 @@ export default function PrivacyPolicy() {
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <span>
-                World Samma Academy
+                Our Shop
                 <br />
-                Old Malindi Rd
+                Some Rd
                 <br />
-                Mombasa, Kenya
+                Location, Kenya
               </span>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="h-5 w-5 flex-shrink-0" />
-              <span>privacy@worldsamma.org</span>
+              <span>privacy@domain.com</span>
             </div>
             <div className="flex items-center gap-3">
               <Phone className="h-5 w-5 flex-shrink-0" />
-              <span>+254 737 832218, +254 789 273384 or +254 729 498622</span>
+              <span>
+                +254 XXX XXX XXX, +254 XXX XXX XXX or +254 XXX XXX XXX
+              </span>
             </div>
           </div>
         </section>

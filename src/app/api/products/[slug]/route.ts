@@ -31,8 +31,6 @@ export async function GET(request: NextRequest, context: any) {
       .neq("slug", slug)
       .limit(4);
 
-    console.log("Related products:", relatedProducts);
-
     if (relatedError) {
       console.error("Error fetching related products:", relatedError);
       // Continue even if related products fail

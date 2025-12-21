@@ -6,7 +6,6 @@ import {
   Smartphone,
   Users,
 } from "lucide-react";
-import { features } from "process";
 
 export const categories = [
   {
@@ -44,8 +43,13 @@ export const categories = [
       "Rep Samma Martial Arts outside the dojo with branded t-shirts, hoodies, caps, and streetwear.",
     image: "/categories/merch.jpg",
   },
-
-  // Additional Popular Kenyan E-commerce Categories
+  {
+    name: "Accessories",
+    slug: "accessories",
+    description:
+      "Thoughtfully designed Samma Martial Arts accessories made for training days, off days, and everything in between.",
+    image: "/categories/accessories.jpg",
+  },
   {
     name: "Women's Fashion",
     slug: "womens-fashion",

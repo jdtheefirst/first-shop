@@ -1,8 +1,13 @@
 // app/api/contact/route.ts
-import { resend } from "@/lib/limit";
+import { resend, secureRatelimit } from "@/lib/limit";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
+  const secure = await secureRatelimit(request);
+  if (!secure.success) {
+    NextResponse.json({ error: "Too many requests" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
 

@@ -15,18 +15,29 @@ export default function TermsOfService() {
         </p>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-10">
         <div className="bg-muted/30 p-6 rounded-lg">
-          <p className="text-lg font-medium mb-4">
-            Please read these Terms of Service carefully before using the{" "}
-            <Link
-              href="/"
-              className="text-primary underline hover:no-underline"
-            >
-              shop.worldsamma.org
-            </Link>{" "}
-            website operated by World Samma Academy.
+          <h1 className="text-3xl font-bold mb-4">
+            Privacy Policy Framework for Custom E-commerce Stores
+          </h1>
+          <p className="text-lg font-medium">
+            Our platform provides custom e-commerce solutions with built-in
+            privacy frameworks compliant with Kenyan data protection laws and
+            GDPR standards. The policies you see here demonstrate the
+            professional legal frameworks we can build into your custom online
+            store.
           </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-1 text-xs font-medium text-blue-800 dark:text-blue-300">
+              Kenya Data Protection Act, 2019
+            </span>
+            <span className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-xs font-medium text-green-800 dark:text-green-300">
+              GDPR Compliant
+            </span>
+            <span className="inline-flex items-center rounded-full bg-purple-100 dark:bg-purple-900/30 px-3 py-1 text-xs font-medium text-purple-800 dark:text-purple-300">
+              Customizable for Your Business
+            </span>
+          </div>
         </div>
 
         <section className="space-y-4">
@@ -48,8 +59,8 @@ export default function TermsOfService() {
           <p className="text-base leading-relaxed">
             The content, organization, graphics, design, and other matters
             related to our site are protected under applicable copyrights,
-            trademarks, and other proprietary laws. The "World Samma" name and
-            logo are registered trademarks of World Samma Federation.
+            trademarks, and other proprietary laws. The "[SHOP]" name and logo
+            are registered trademarks of [SHOP].
           </p>
         </section>
 
@@ -143,9 +154,9 @@ export default function TermsOfService() {
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold">9. Limitation of Liability</h2>
           <p className="text-base leading-relaxed">
-            World Samma Academy shall not be liable for any damages that result
-            from the use of, or inability to use, the materials on this site or
-            the performance of the products, even if we have been advised of the
+            [SHOP] shall not be liable for any damages that result from the use
+            of, or inability to use, the materials on this site or the
+            performance of the products, even if we have been advised of the
             possibility of such damages.
           </p>
         </section>
@@ -170,20 +181,22 @@ export default function TermsOfService() {
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
               <span>
-                World Samma Academy
+                OUR SHOP
                 <br />
-                Old Malindi Rd
+                SOME Rd
                 <br />
-                Mombasa, Kenya
+                LOCATION, Kenya
               </span>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="h-5 w-5 flex-shrink-0" />
-              <span>legal@worldsamma.org</span>
+              <span>legal@domain.com</span>
             </div>
             <div className="flex items-center gap-3">
               <Phone className="h-5 w-5 flex-shrink-0" />
-              <span>+254 737 832218, +254 789 273384 or +254 729 498622</span>
+              <span>
+                +254 XXX XXX XXX, +254 XXX XXX XXX or +254 XXX XXX XXX
+              </span>
             </div>
           </div>
         </section>

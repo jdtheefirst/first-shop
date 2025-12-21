@@ -1,9 +1,16 @@
 "use client";
-
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Filter, ChevronDown } from "lucide-react";
+import {
+  Filter,
+  ChevronDown,
+  ShoppingBag,
+  Sparkles,
+  X,
+  ShoppingCart,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -12,23 +19,55 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { useStore } from "@/lib/context/StoreContext";
 import { Product } from "@/types/store";
 import { FloatingCartButton } from "@/components/cartButton";
 import axios from "axios";
-import { beltLevels, formatCurrency } from "@/lib/utils";
+import { beltLevels, cn, formatCurrency } from "@/lib/utils";
 import { ProductCardSkeleton } from "@/components/ProductSkeleton";
 import Image from "next/image";
 
-// Filter options
-const categories = [
+// Filter options - updated to match your categories array
+const categoryOptions = [
   { id: "uniforms", name: "Uniforms" },
   { id: "gear", name: "Protective Gear" },
   { id: "belts", name: "Belts" },
   { id: "equipment", name: "Training Equipment" },
+  { id: "womens-fashion", name: "Women's Fashion" },
+  { id: "mens-collection", name: "Men's Collection" },
+  { id: "electronics", name: "Electronics" },
+  { id: "furniture", name: "Furniture" },
+  { id: "beauty", name: "Beauty & Cosmetics" },
+  { id: "sports-fitness", name: "Sports & Fitness" },
+  { id: "baby-kids", name: "Baby & Kids" },
+  { id: "groceries", name: "Groceries" },
+  { id: "mobile-phones", name: "Mobile Phones" },
+  { id: "automotive", name: "Automotive" },
+  { id: "books-stationery", name: "Books & Stationery" },
+  { id: "health-wellness", name: "Health & Wellness" },
+  { id: "jewelry-watches", name: "Jewelry & Watches" },
+  { id: "computing", name: "Computing" },
 ];
 
-const tags = [
+const tagOptions = [
   { id: "premium", name: "Premium" },
   { id: "competition", name: "Competition" },
   { id: "training", name: "Training" },
@@ -37,6 +76,13 @@ const tags = [
   { id: "beginner", name: "Beginner" },
   { id: "intermediate", name: "Intermediate" },
   { id: "advanced", name: "Advanced" },
+];
+
+const sortOptions = [
+  { value: "featured", label: "Featured" },
+  { value: "newest", label: "Newest" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
 ];
 
 export default function ProductsPage({
@@ -48,23 +94,30 @@ export default function ProductsPage({
   const { state } = useStore();
   const orderData = state.pendingOrder;
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState(category);
+  const [selectedCategory, setSelectedCategory] = useState(category || "");
   const [selectedBeltLevel, setSelectedBeltLevel] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState("featured");
+  const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { dispatch } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [clickedStates, setClickedStates] = useState<Record<string, boolean>>(
+    {}
+  );
 
   // Fetch products
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const res = await axios.get("/api/products");
       setProducts(res.data || []);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Failed to load products");
+      console.error("Error fetching products:", err);
     } finally {
       setLoading(false);
     }
@@ -78,42 +131,79 @@ export default function ProductsPage({
     }
   }, [orderData, fetchProducts, router]);
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (productId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Find the product
+    const product = products.find((p) => p.id === productId);
+    if (!product) return;
+
+    // Set animation state
+    setClickedStates((prev) => ({ ...prev, [productId]: true }));
+
+    // Dispatch to cart
     dispatch({
       type: "ADD_TO_CART",
-      payload: {
-        product,
-        quantity: 1,
-      },
+      payload: { product, quantity: 1 },
     });
+
+    // Reset after animation
+    setTimeout(() => {
+      setClickedStates((prev) => ({ ...prev, [productId]: false }));
+    }, 1500);
   };
 
-  // Filter products based on selected filters
-  const filteredProducts = products.filter((product) => {
-    // Filter by category
-    if (selectedCategory && product.category !== selectedCategory) {
-      return false;
-    }
+  // Filter and sort products
+  const filteredProducts = products
+    .filter((product) => {
+      // Filter by category
+      if (selectedCategory && product.category !== selectedCategory) {
+        return false;
+      }
 
-    // Filter by belt level
-    if (
-      selectedBeltLevel &&
-      product.belt_level !== selectedBeltLevel &&
-      product.belt_level !== "all"
-    ) {
-      return false;
-    }
+      // Filter by belt level
+      if (
+        selectedBeltLevel &&
+        product.belt_level !== selectedBeltLevel &&
+        product.belt_level !== "all"
+      ) {
+        return false;
+      }
 
-    // Filter by tags
-    if (
-      selectedTags.length > 0 &&
-      !selectedTags.some((tag) => product.tags.includes(tag))
-    ) {
-      return false;
-    }
+      // Filter by tags
+      if (
+        selectedTags.length > 0 &&
+        !selectedTags.some((tag) => product.tags?.includes(tag))
+      ) {
+        return false;
+      }
 
-    return true;
-  });
+      // Filter by featured
+      if (showFeaturedOnly && !product.featured) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return (
+            new Date(b.created_at || 0).getTime() -
+            new Date(a.created_at || 0).getTime()
+          );
+        case "price-asc":
+          return a.price - b.price;
+        case "price-desc":
+          return b.price - a.price;
+        case "featured":
+        default:
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return 0;
+      }
+    });
 
   // Toggle tag selection
   const toggleTag = (tagId: string) => {
@@ -127,6 +217,12 @@ export default function ProductsPage({
     setSelectedCategory("");
     setSelectedBeltLevel("");
     setSelectedTags([]);
+    setShowFeaturedOnly(false);
+  };
+
+  // Apply filters and close sheet
+  const applyFilters = () => {
+    setIsFilterOpen(false);
   };
 
   if (error) {
@@ -138,8 +234,8 @@ export default function ProductsPage({
           </h2>
           <p className="text-muted-foreground mb-4">{error}</p>
           <Button
-            variant={"destructive"}
-            onClick={() => router.refresh()}
+            variant="outline"
+            onClick={() => fetchProducts()}
             className="w-full sm:w-auto cursor-pointer"
           >
             Try Again
@@ -152,33 +248,74 @@ export default function ProductsPage({
   return (
     <div className="container mx-auto py-8 px-2">
       <FloatingCartButton />
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Products</h1>
-          <p className="text-muted-foreground mt-1">
-            {filteredProducts.length} products found
-          </p>
+
+      {/* Header Section */}
+      <div className="mb-10">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge
+                variant="outline"
+                className="bg-blue-50 text-blue-700 border-blue-200"
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                Demo Platform
+              </Badge>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold mb-3">
+              Explore Our Demo Products
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Pick any product to test the complete checkout experience—from
+              adding to cart to payment. This shows how your custom store will
+              work.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-sm">
+              {filteredProducts.length} products
+            </Badge>
+          </div>
         </div>
 
-        <div className="flex gap-4 w-full md:w-auto">
+        <Separator className="my-6" />
+      </div>
+
+      {/* Filter and Sort Bar */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex flex-wrap items-center gap-2">
           <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Filter className="h-4 w-4" />
                 Filters
+                {(selectedCategory ||
+                  selectedBeltLevel ||
+                  selectedTags.length > 0 ||
+                  showFeaturedOnly) && (
+                  <Badge variant="secondary" className="ml-1 h-5 w-5 p-0">
+                    {[
+                      selectedCategory ? 1 : 0,
+                      selectedBeltLevel ? 1 : 0,
+                      selectedTags.length,
+                      showFeaturedOnly ? 1 : 0,
+                    ].reduce((a, b) => a + b, 0)}
+                  </Badge>
+                )}
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-full sm:max-w-md">
               <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
+                <SheetTitle>Filter Products</SheetTitle>
               </SheetHeader>
 
               <div className="py-6 space-y-6 px-2">
                 {/* Categories */}
                 <div>
                   <h3 className="font-medium mb-3">Categories</h3>
-                  <div className="space-y-2">
-                    {categories.map((category) => (
+                  <div className="space-y-2 max-h-60 overflow-y-auto p-2">
+                    {categoryOptions.map((category) => (
                       <div key={category.id} className="flex items-center">
                         <input
                           type="radio"
@@ -199,10 +336,25 @@ export default function ProductsPage({
                   </div>
                 </div>
 
+                <Separator />
+
                 {/* Belt Levels */}
                 <div>
                   <h3 className="font-medium mb-3">Belt Level</h3>
                   <div className="space-y-2">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="level-all"
+                        name="beltLevel"
+                        checked={selectedBeltLevel === ""}
+                        onChange={() => setSelectedBeltLevel("")}
+                        className="h-4 w-4 rounded-full border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <label htmlFor="level-all" className="ml-2 text-sm">
+                        All Levels
+                      </label>
+                    </div>
                     {beltLevels.map((level) => (
                       <div key={level.id} className="flex items-center">
                         <input
@@ -224,11 +376,30 @@ export default function ProductsPage({
                   </div>
                 </div>
 
+                <Separator />
+
+                {/* Featured Filter */}
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="featured-only"
+                    className="text-sm font-medium"
+                  >
+                    Featured Products Only
+                  </Label>
+                  <Switch
+                    id="featured-only"
+                    checked={showFeaturedOnly}
+                    onCheckedChange={setShowFeaturedOnly}
+                  />
+                </div>
+
+                <Separator />
+
                 {/* Tags */}
                 <div>
                   <h3 className="font-medium mb-3">Tags</h3>
                   <div className="space-y-2">
-                    {tags.map((tag) => (
+                    {tagOptions.map((tag) => (
                       <div key={tag.id} className="flex items-center">
                         <input
                           type="checkbox"
@@ -248,18 +419,17 @@ export default function ProductsPage({
                   </div>
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <Separator />
+
+                <div className="flex gap-3 pt-4">
                   <Button
                     onClick={clearFilters}
                     variant="outline"
-                    className="w-full"
+                    className="flex-1"
                   >
-                    Clear Filters
+                    Clear All
                   </Button>
-                  <Button
-                    onClick={() => setIsFilterOpen(false)}
-                    className="w-full"
-                  >
+                  <Button onClick={applyFilters} className="flex-1">
                     Apply Filters
                   </Button>
                 </div>
@@ -267,166 +437,260 @@ export default function ProductsPage({
             </SheetContent>
           </Sheet>
 
-          <div className="relative w-full md:w-auto">
-            <select
-              className="w-full md:w-auto appearance-none rounded-md border border-input bg-background px-3 py-2 pr-8 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              defaultValue="featured"
-            >
-              <option value="featured">Featured</option>
-              <option value="newest">Newest</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          {/* Active Filters Display */}
+          <div className="flex flex-wrap gap-2">
+            {selectedCategory && (
+              <Badge variant="secondary" className="pl-3 pr-1 py-1">
+                {categoryOptions.find((c) => c.id === selectedCategory)?.name}
+                <button
+                  onClick={() => setSelectedCategory("")}
+                  className="ml-2 hover:bg-muted rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+
+            {selectedBeltLevel && (
+              <Badge variant="secondary" className="pl-3 pr-1 py-1">
+                Belt: {beltLevels.find((b) => b.id === selectedBeltLevel)?.name}
+                <button
+                  onClick={() => setSelectedBeltLevel("")}
+                  className="ml-2 hover:bg-muted rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+
+            {selectedTags.map((tagId) => (
+              <Badge key={tagId} variant="secondary" className="pl-3 pr-1 py-1">
+                {tagOptions.find((t) => t.id === tagId)?.name}
+                <button
+                  onClick={() => toggleTag(tagId)}
+                  className="ml-2 hover:bg-muted rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+
+            {showFeaturedOnly && (
+              <Badge variant="secondary" className="pl-3 pr-1 py-1">
+                Featured Only
+                <button
+                  onClick={() => setShowFeaturedOnly(false)}
+                  className="ml-2 hover:bg-muted rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+
+            {(selectedCategory ||
+              selectedBeltLevel ||
+              selectedTags.length > 0 ||
+              showFeaturedOnly) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="text-primary hover:text-primary/80 h-8 px-2"
+              >
+                Clear all
+              </Button>
+            )}
           </div>
+        </div>
+
+        {/* Sort Dropdown */}
+        <div className="w-full md:w-auto">
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              {sortOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* Active Filters */}
-      {(selectedCategory || selectedBeltLevel || selectedTags.length > 0) && (
-        <div className="flex flex-wrap gap-2 mb-6">
-          {selectedCategory && (
-            <div className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-sm">
-              Category:{" "}
-              {categories.find((c) => c.id === selectedCategory)?.name}
-              <button
-                onClick={() => setSelectedCategory("")}
-                className="ml-2 text-muted-foreground hover:text-foreground"
-              >
-                &times;
-              </button>
+      {/* Demo Callout */}
+      <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+        <CardContent>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="font-bold text-lg mb-1">
+                Test the Complete Checkout Experience
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Add products to cart, proceed to checkout, and see how payments,
+                shipping, and order confirmation work in a real store.
+              </p>
             </div>
-          )}
-
-          {selectedBeltLevel && (
-            <div className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-sm">
-              Belt: {beltLevels.find((b) => b.id === selectedBeltLevel)?.name}
-              <button
-                onClick={() => setSelectedBeltLevel("")}
-                className="ml-2 text-muted-foreground hover:text-foreground"
-              >
-                &times;
-              </button>
-            </div>
-          )}
-
-          {selectedTags.map((tagId) => (
-            <div
-              key={tagId}
-              className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-sm"
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="border-blue-300"
             >
-              {tags.find((t) => t.id === tagId)?.name}
-              <button
-                onClick={() => toggleTag(tagId)}
-                className="ml-2 text-muted-foreground hover:text-foreground"
-              >
-                &times;
-              </button>
-            </div>
-          ))}
-
-          <button
-            onClick={clearFilters}
-            className="text-sm text-primary hover:underline"
-          >
-            Clear all
-          </button>
-        </div>
-      )}
+              <Link href="/cart">
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                View Cart
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-2 xs:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {loading
-          ? // Show skeleton loaders while loading
-            Array.from({ length: 8 }).map((_, index) => (
+          ? Array.from({ length: 8 }).map((_, index) => (
               <ProductCardSkeleton key={index} />
             ))
           : filteredProducts.map((product) => (
-              <Link
+              <Card
                 key={product.id}
-                href={`/products/${product.slug}`}
-                className="group relative overflow-hidden rounded-lg border bg-background shadow-sm hover:shadow-md transition-all duration-300"
+                className="group relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="aspect-square relative">
-                  {product.images?.[0] ? (
-                    <>
-                      <Image
-                        src={product.images[0]}
-                        alt={product.title}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, 
-                   (max-width: 1200px) 50vw, 
-                   33vw"
-                      />
-                      {/* Overlay gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <Link href={`/products/${product.slug}`} className="block">
+                  <div className="aspect-square relative">
+                    {product.images?.[0] ? (
+                      <>
+                        <Image
+                          src={product.images[0]}
+                          alt={product.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-                      {/* Text overlay */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                        <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-blue-300 transition-colors">
-                          {product.title}
-                        </h3>
-                        <div className="mt-auto flex items-center justify-between text-sm">
-                          <div>
-                            <p className="font-bold text-base sm:text-lg">
-                              {formatCurrency(product.price, product.currency)}
-                            </p>
-                            {product.originalPrice && (
-                              <p className="text-xs text-muted-foreground line-through">
-                                {formatCurrency(
-                                  product.originalPrice,
-                                  product.currency
-                                )}
-                              </p>
-                            )}
-                          </div>
-                          <p className="capitalize opacity-80">
-                            {product.category}
-                          </p>
-                        </div>
-                        {product.belt_level !== "all" && (
-                          <p className="mt-1 text-xs opacity-70">
+                        {product.featured && (
+                          <Badge className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-orange-500">
+                            Featured
+                          </Badge>
+                        )}
+
+                        {product.belt_level && product.belt_level !== "all" && (
+                          <Badge className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm">
                             {
                               beltLevels.find(
                                 (b) => b.id === product.belt_level
                               )?.name
                             }
+                          </Badge>
+                        )}
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                        <ShoppingBag className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+
+                  <CardHeader className="sm:pb-2">
+                    <CardTitle className="text-lg font-semibold line-clamp-1">
+                      {product.title}
+                    </CardTitle>
+                    {product.category && (
+                      <p className="text-sm text-muted-foreground capitalize">
+                        {categoryOptions.find((c) => c.id === product.category)
+                          ?.name || product.category}
+                      </p>
+                    )}
+                  </CardHeader>
+
+                  <CardContent className="pt-0">
+                    <div className="flex flex-col sm:flex-row items-center justify-between">
+                      <div>
+                        <p className="text-xl font-bold">
+                          {formatCurrency(product.price, product.currency)}
+                        </p>
+                        {product.originalPrice && (
+                          <p className="text-sm text-muted-foreground line-through">
+                            {formatCurrency(
+                              product.originalPrice,
+                              product.currency
+                            )}
                           </p>
                         )}
                       </div>
-                    </>
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                      No Image
+                      <Badge variant="outline">
+                        {product.stock > 0
+                          ? `${product.stock} in stock`
+                          : "Out of stock"}
+                      </Badge>
                     </div>
-                  )}
-                </div>
+                  </CardContent>
+                </Link>
 
-                {/* Floating Add to Cart Button */}
-                <button
-                  onClick={() => handleAddToCart({ ...product })}
-                  className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md 
-        hover:from-blue-700 hover:to-blue-800 transition-all shadow-md
-        px-3 py-1.5 text-xs sm:text-sm opacity-0 group-hover:opacity-100 
-        translate-y-[-8px] group-hover:translate-y-0 duration-300"
-                >
-                  Add to Cart
-                </button>
-              </Link>
+                <CardFooter className="pt-0">
+                  <Button
+                    onClick={(e) => handleAddToCart(product.id, e)}
+                    className={cn(
+                      "w-full transition-all duration-300",
+                      "hover:scale-[1.02] active:scale-[0.98]",
+                      clickedStates[product.id] &&
+                        "bg-green-500 hover:bg-green-600"
+                    )}
+                    disabled={product.stock === 0 || clickedStates[product.id]}
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      {clickedStates[product.id] ? (
+                        <>
+                          <Check className="h-4 w-4 animate-[bounce_0.3s]" />
+                          <span className="animate-[fadeIn_0.3s]">Added!</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="h-4 w-4" />
+                          Add to Cart
+                        </>
+                      )}
+                    </span>
+                  </Button>
+                </CardFooter>
+              </Card>
             ))}
       </div>
 
       {/* Empty State */}
-      {filteredProducts.length === 0 && (
-        <div className="text-center py-12">
-          <h3 className="text-lg font-medium mb-2">No products found</h3>
-          <p className="text-muted-foreground mb-6">
-            Try adjusting your filters or search criteria.
+      {filteredProducts.length === 0 && !loading && (
+        <div className="text-center py-16">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <Filter className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">
+            No products match your filters
+          </h3>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            Try adjusting your filters or browse all products.
           </p>
-          <Button onClick={clearFilters}>Clear Filters</Button>
+          <Button onClick={clearFilters}>Clear All Filters</Button>
         </div>
       )}
+
+      {/* Bottom CTA */}
+      <div className="mt-12 pt-8 border-t text-center">
+        <h3 className="text-xl font-semibold mb-4">
+          Need a Custom Store Like This?
+        </h3>
+        <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+          This demo shows just a fraction of what we can build for your
+          business. Get a fully customized e-commerce platform with your
+          products, branding, and features.
+        </p>
+        <Button asChild size="lg">
+          <Link href="/contact">Get Your Custom Store Quote</Link>
+        </Button>
+      </div>
     </div>
   );
 }

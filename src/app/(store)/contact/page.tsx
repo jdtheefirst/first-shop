@@ -29,7 +29,7 @@ export default function ContactPage() {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-20">
-        <div className="absolute inset-0 bg-[url('/patterns/grid.svg')] opacity-10" />
+        <div className="absolute inset-0 bg-[url('/patterns/abstract-timekeeper.svg')] opacity-10" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
