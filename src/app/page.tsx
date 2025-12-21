@@ -168,19 +168,19 @@ function TestimonialsSection() {
   return (
     <div className="relative overflow-hidden py-12 sm:py-4 md:py-8">
       {/* Change this fixed light blue background to theme-aware */}
-      <div className="absolute inset-0 bg-[url('/patterns/pattern-randomized.svg')]" />
+      <div className="absolute inset-0 bg-[url('/patterns/pattern-randomized.svg')] dark:hidden" />
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10 ">
         <AnimatedSection animation="fadeUp" once>
           <div className="text-center mb-8 sm:mb-12">
             {/* Update badge background for dark mode */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 bg-blue-50 dark:bg-blue-900/30">
-              <Quote className="w-4 h-4 text-blue-400 dark:text-blue-600" />
-              <span className="text-sm font-medium text-blue-300 dark:text-blue-700">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4">
+              <Quote className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
                 What Kenyan Businesses Say
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-black">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
               Trusted by Kenyan Entrepreneurs
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -200,7 +200,7 @@ function TestimonialsSection() {
               spacing="none"
             >
               {/* Change from fixed white to theme-aware background */}
-              <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-lg hover:shadow-xl transition-all duration-300 p-3 sm:p-6 h-full border dark:border-gray-800 hover:-translate-y-1">
+              <div className="rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-3 sm:p-6 h-full border dark:border-gray-800 hover:-translate-y-1">
                 {/* Stars - already OK */}
                 <div className="flex items-center gap-1 mb-4">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
@@ -250,7 +250,7 @@ function TestimonialsSection() {
             ].map((stat, index) => (
               <div
                 key={index}
-                className="p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl border dark:border-gray-800"
+                className="p-4 rounded-xl border dark:border-gray-800"
               >
                 <div className="flex justify-center mb-2">
                   <stat.icon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -322,6 +322,45 @@ export default async function Home() {
               </AnimatedSection>
             </div>
 
+            {/* Christmas Discount Badge */}
+            <AnimatedSection
+              animation="fadeUp"
+              delay={0.3}
+              className="text-center mb-6"
+              spacing="none"
+              once
+            >
+              <Link
+                href="https://northwind.yunobase.com/products/shop-system#pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500 via-red-600 to-amber-500 hover:from-red-600 hover:via-red-700 hover:to-amber-600 text-white font-bold py-3 px-3 sm:px-6 rounded-full sm:text-xl shadow-2xl shadow-red-500/30 hover:shadow-red-500/50 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 animate-pulse"
+              >
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-6 h-6"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <span className="relative">
+                    🎄 CHRISTMAS SPECIAL: 50% OFF!
+                    <span className="absolute -top-2 -right-6 text-xs font-normal bg-white text-red-600 px-2 py-0.5 rounded-full animate-bounce">
+                      Limited Time
+                    </span>
+                  </span>
+                  <svg
+                    className="w-6 h-6"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </div>
+              </Link>
+            </AnimatedSection>
+
             {/* Subheading */}
             <AnimatedSection
               animation="fadeUp"
@@ -386,7 +425,7 @@ export default async function Home() {
                     className="flex items-center justify-center gap-2"
                   >
                     <ShoppingBag className="w-5 h-5" />
-                    VIEW DEMO STORE
+                    TRY LIVE DEMO
                   </Link>
                 </Button>
                 <Button
@@ -408,7 +447,7 @@ export default async function Home() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 animate-bounce">
           <ChevronDown className="w-6 h-6 text-blue-600/70" />
         </div>
       </section>
@@ -417,11 +456,12 @@ export default async function Home() {
       <CompactSection>
         <div className="container mx-auto px-4 sm:px-6">
           <AnimatedSection animation="fadeUp" spacing="none" once>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-12">
               Sell Anything Online
             </h2>
-            <p className="text-lg text-center text-muted-foreground max-w-3xl mx-auto mb-12">
-              Our platform supports all types of Kenyan businesses
+            <p className="sm:text-lg text-center text-muted-foreground max-w-3xl mx-auto mb-6 sm:mb-12">
+              A custom built online store that supports all types of Kenyan
+              businesses
             </p>
           </AnimatedSection>
           <CategoriesGrid categories={categories} />
@@ -429,15 +469,16 @@ export default async function Home() {
       </CompactSection>
 
       {/* Featured Products */}
-      <CompactSection className="bg-gradient-to-b from-background to-muted/30">
+      <CompactSection>
         <div className="container mx-auto px-4 sm:px-6">
           <AnimatedSection animation="fadeUp" spacing="none" once>
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
-                Featured Products
+                Featured Product Display Preview
               </h2>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                See how products appear on our platform
+              <p className="text-muted-foreground sm:text-lg max-w-2xl mx-auto">
+                A preview of your store's product presentation and shopping
+                experience
               </p>
             </div>
           </AnimatedSection>
@@ -473,14 +514,14 @@ export default async function Home() {
       </CompactSection>
 
       {/* Why Choose Our Platform */}
-      <CompactSection className="bg-muted/20">
+      <CompactSection>
         <div className="container mx-auto px-4 sm:px-6">
           <AnimatedSection animation="fadeUp" spacing="none" once>
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
                 Why Kenyan Businesses Choose Us
               </h2>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              <p className="text-muted-foreground sm:text-lg max-w-2xl mx-auto">
                 Built for the unique needs of Kenyan e-commerce
               </p>
             </div>
@@ -527,7 +568,7 @@ export default async function Home() {
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
                 Ready to Launch Your Online Store?
               </h2>
-              <p className="text-xl mb-8 opacity-95">
+              <p className="text-lg sm:text-xl mb-8 opacity-95">
                 Get a custom-built e-commerce solution for your Kenyan business
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
