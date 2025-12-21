@@ -30,9 +30,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "./ImageUpload";
 import { useAuth } from "@/lib/context/AuthContext";
 import { toast } from "sonner";
-import { categories, getCurrencyOptions } from "@/lib/utils";
+import { getCurrencyOptions } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
+import { categoryOptions } from "@/lib/constants";
 
 // Product schema
 const productSchema = z.object({
@@ -348,7 +349,7 @@ export default function ProductForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories.map((category) => (
+                    {categoryOptions.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
                       </SelectItem>

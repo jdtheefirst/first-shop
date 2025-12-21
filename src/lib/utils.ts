@@ -106,34 +106,6 @@ export function determineShippingZone(
   return "KENYA";
 }
 
-export const categories = [
-  { id: "all", name: "All Categories" },
-  { id: "uniforms", name: "Uniforms" },
-  { id: "gear", name: "Protective Gear" },
-  { id: "belts", name: "Belts" },
-  { id: "equipment", name: "Training Equipment" },
-  {
-    id: "merch",
-    name: "Merch & Apparel",
-  },
-  {
-    id: "accessories",
-    name: "Accessories",
-  },
-  {
-    id: "lifestyle",
-    name: "Home & Lifestyle",
-  },
-  {
-    id: "books",
-    name: "Books & Media",
-  },
-  {
-    id: "kids",
-    name: "Kids & Juniors",
-  },
-];
-
 // Belt level options
 export const beltLevels = [
   { id: "all", name: "All Levels" },

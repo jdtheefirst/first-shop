@@ -7,6 +7,38 @@ import {
   Users,
 } from "lucide-react";
 
+export const categoryOptions = [
+  { id: "uniforms", name: "Uniforms" },
+  { id: "gear", name: "Protective Gear" },
+  { id: "belts", name: "Belts" },
+  { id: "equipment", name: "Training Equipment" },
+  { id: "womens-fashion", name: "Women's Fashion" },
+  { id: "mens-collection", name: "Men's Collection" },
+  { id: "electronics", name: "Electronics" },
+  { id: "furniture", name: "Furniture" },
+  { id: "beauty", name: "Beauty & Cosmetics" },
+  { id: "sports-fitness", name: "Sports & Fitness" },
+  { id: "baby-kids", name: "Baby & Kids" },
+  { id: "groceries", name: "Groceries" },
+  { id: "mobile-phones", name: "Mobile Phones" },
+  { id: "automotive", name: "Automotive" },
+  { id: "books-stationery", name: "Books & Stationery" },
+  { id: "health-wellness", name: "Health & Wellness" },
+  { id: "jewelry-watches", name: "Jewelry & Watches" },
+  { id: "computing", name: "Computing" },
+];
+
+export const tagOptions = [
+  { id: "premium", name: "Premium" },
+  { id: "competition", name: "Competition" },
+  { id: "training", name: "Training" },
+  { id: "protective", name: "Protective" },
+  { id: "essential", name: "Essential" },
+  { id: "beginner", name: "Beginner" },
+  { id: "intermediate", name: "Intermediate" },
+  { id: "advanced", name: "Advanced" },
+];
+
 export const categories = [
   {
     name: "Uniforms (Gi)",

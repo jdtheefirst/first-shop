@@ -57,7 +57,7 @@ async function fetchFeatured() {
 
 function FeaturedProductsGrid({ products }: { products: Product[] }) {
   return (
-    <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
       {products.map((product, index) => (
         <AnimatedSection
           key={product.id}
@@ -86,7 +86,7 @@ function FeaturedProductsGrid({ products }: { products: Product[] }) {
                     priority={false}
                   />
                   {/* Subtle overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-70" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-70" />
 
                   {/* Text overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 text-white">
