@@ -139,8 +139,6 @@ export default function ProductForm({
     }
   }, [titleValue, form, isEditing]);
 
-  console.log("Form Errors:", form.formState.errors);
-
   // Form submission handler
   const onSubmit = async (values: ProductFormValues) => {
     setIsSubmitting(true);
@@ -149,7 +147,7 @@ export default function ProductForm({
       const productData = {
         ...values,
         price: Number(values.price),
-        original_price: values.original_price ? Number(values.price) : null,
+        originalPrice: values.original_price ? Number(values.price) : null,
         stock: Number(values.stock),
         tags: values.tags
           ? values.tags.split(",").map((tag) => tag.trim())
