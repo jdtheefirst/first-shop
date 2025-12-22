@@ -153,3 +153,63 @@ export const generateToken = async () => {
     throw error; // Re-throw the error to handle it in the calling function
   }
 };
+
+// utils/tag-filters.ts
+export const getAvailableTagsForCategory = (categoryId: string) => {
+  const tagCategoryMap: Record<string, string[]> = {
+    // Martial Arts specific
+    uniforms: [
+      "premium",
+      "competition",
+      "training",
+      "beginner",
+      "intermediate",
+      "advanced",
+    ],
+    gear: ["protective", "competition", "training", "essential"],
+    belts: [
+      "premium",
+      "competition",
+      "training",
+      "beginner",
+      "intermediate",
+      "advanced",
+    ],
+    equipment: [
+      "training",
+      "essential",
+      "beginner",
+      "intermediate",
+      "advanced",
+    ],
+
+    // General categories
+    electronics: ["premium", "essential"],
+    furniture: ["premium", "essential"],
+    beauty: ["premium", "essential"],
+    "sports-fitness": ["training", "beginner", "intermediate", "advanced"],
+    groceries: ["essential"],
+    automotive: ["premium", "essential"],
+
+    // Default for uncategorized
+    default: ["premium", "essential", "beginner", "intermediate", "advanced"],
+  };
+
+  return tagCategoryMap[categoryId] || tagCategoryMap["default"];
+};
+
+// Group tags by type
+export const groupedTagOptions = [
+  {
+    group: "Quality Level",
+    tags: ["premium", "essential"],
+  },
+  {
+    group: "Skill Level",
+    tags: ["beginner", "intermediate", "advanced"],
+  },
+  {
+    group: "Purpose",
+    tags: ["training", "competition", "protective"],
+  },
+];

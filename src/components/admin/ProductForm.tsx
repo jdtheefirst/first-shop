@@ -34,6 +34,7 @@ import { getCurrencyOptions } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { categoryOptions } from "@/lib/constants";
+import { TagInput } from "../tag-input";
 
 // Product schema
 const productSchema = z.object({
@@ -49,8 +50,8 @@ const productSchema = z.object({
     (val) => (val === "" || val === null ? undefined : Number(val)),
     z.number().min(0, "Price must be a positive number.")
   ),
-  original_price: z.preprocess(
-    (val) => (val === "" || val === null ? null : Number(val)),
+  originalPrice: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : Number(val)),
     z.number().min(0, "Original price must be a positive number.")
   ),
   stock: z.preprocess(
@@ -111,11 +112,11 @@ export default function ProductForm({
       slug: "",
       images: [],
       price: 0,
-      original_price: null,
+      originalPrice: 0,
       stock: 0,
       category: "",
       belt_level: "all",
-      currency: "USD",
+      currency: "KES",
       tags: "",
       featured: false,
       Weight: 0,
@@ -147,7 +148,10 @@ export default function ProductForm({
       const productData = {
         ...values,
         price: Number(values.price),
-        originalPrice: values.original_price ? Number(values.price) : null,
+        originalPrice:
+          Number(values.originalPrice) > 0
+            ? Number(values.originalPrice)
+            : null,
         stock: Number(values.stock),
         tags: values.tags
           ? values.tags.split(",").map((tag) => tag.trim())
@@ -210,7 +214,7 @@ export default function ProductForm({
                 <FormControl>
                   <Input
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Elite Samma Gi"
+                    placeholder="Elite Gi"
                     {...field}
                   />
                 </FormControl>
@@ -229,7 +233,7 @@ export default function ProductForm({
                 <FormControl>
                   <Input
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Premium Samma Gi"
+                    placeholder="Premium Gi"
                     {...field}
                   />
                 </FormControl>
@@ -268,12 +272,12 @@ export default function ProductForm({
                 <FormControl>
                   <div className="relative">
                     <span className="absolute left-3 top-5 -translate-y-1/2 text-muted-foreground">
-                      $
+                      KES
                     </span>
                     <Input
                       step="0.01"
-                      className="flex h-10 w-full rounded-md border border-input bg-background pl-7 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      placeholder="99.99"
+                      className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="1500"
                       {...field}
                       type="number"
                     />
@@ -287,19 +291,18 @@ export default function ProductForm({
           {/* Original Price */}
           <FormField
             control={form.control}
-            name="original_price"
+            name="originalPrice"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Original Price</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <span className="absolute left-3 top-5 -translate-y-1/2 text-muted-foreground">
-                      $
+                      KES
                     </span>
                     <Input
                       step="0.01"
-                      className="flex h-10 w-full rounded-md border border-input bg-background pl-7 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      placeholder="99.99"
+                      className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       {...field}
                       type="number"
                     />
@@ -398,6 +401,7 @@ export default function ProductForm({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -485,26 +489,26 @@ export default function ProductForm({
           )}
         />
 
-        {/* Tags */}
+        {/* Tags Field */}
         <FormField
           control={form.control}
           name="tags"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tags</FormLabel>
+              <FormLabel>Tags (max {5})</FormLabel>
               <FormControl>
-                <input
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="premium, competition, training"
-                  {...field}
+                <TagInput
+                  value={field.value || []}
+                  onChange={field.onChange}
+                  category={form.watch("category")} // Watch category for filtering
+                  placeholder="Type to add tags..."
+                  maxTags={5}
                 />
               </FormControl>
-              <FormDescription>Separate tags with commas</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="images"
