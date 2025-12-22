@@ -29,6 +29,9 @@ import {
   Car,
   Utensils,
   Gamepad2,
+  HelpCircle,
+  Play,
+  ArrowRight,
 } from "lucide-react";
 import {
   AnimatedSection,
@@ -494,21 +497,163 @@ export default async function Home() {
           >
             <FeaturedProductsGrid products={featuredProducts} />
           </Suspense>
+        </div>
+      </CompactSection>
 
+      {/* Demo Experience Callout */}
+      <CompactSection>
+        <div className="container mx-auto px-4 sm:px-6">
           <AnimatedSection
             animation="fadeUp"
-            delay={0.3}
+            spacing="none"
             once
-            className="mt-8 sm:mt-12 text-center"
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 p-1 shadow-2xl"
           >
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="px-8 py-6 text-base hover:scale-105 transition-transform duration-300"
-            >
-              <Link href="/products">View Demo Products →</Link>
-            </Button>
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 sm:p-10">
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500">
+                      <ShoppingBag className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <span className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 text-white text-sm font-bold shadow-lg">
+                        INTERACTIVE DEMO
+                      </span>
+                      <p className="text-sm text-blue-600 dark:text-blue-400 mt-1 font-medium">
+                        Experience the complete shopping flow
+                      </p>
+                    </div>
+                  </div>
+
+                  <h3 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                    🚀 Try Our Live Shopping Experience
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800/30 p-5 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20 flex items-center justify-center">
+                          <span className="text-green-700 dark:text-green-400 font-bold text-lg">
+                            1
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-lg text-gray-900 dark:text-white">
+                          Browse Products
+                        </h4>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">
+                        Explore our demo catalog with various categories and
+                        products
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800/30 p-5 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-800/20 flex items-center justify-center">
+                          <span className="text-blue-700 dark:text-blue-400 font-bold text-lg">
+                            2
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-lg text-gray-900 dark:text-white">
+                          Add to Cart
+                        </h4>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">
+                        Test adding items, adjusting quantities, and managing
+                        your cart
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800/30 p-5 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-100 to-purple-50 dark:from-purple-900/30 dark:to-purple-800/20 flex items-center justify-center">
+                          <span className="text-purple-700 dark:text-purple-400 font-bold text-lg">
+                            3
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-lg text-gray-900 dark:text-white">
+                          Complete Checkout
+                        </h4>
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">
+                        Experience payment, shipping, and order confirmation
+                        screens
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400">
+                    <ShieldCheck className="h-5 w-5" />
+                    <p className="text-sm font-medium">
+                      No real charges • Test payment methods • See real-time
+                      order updates
+                    </p>
+                  </div>
+                </div>
+
+                <div className="lg:w-1/3 flex flex-col items-center justify-center p-6 rounded-xl bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-800/20">
+                  <div className="text-center mb-6">
+                    <div className="inline-block p-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 mb-4">
+                      <svg
+                        className="w-8 h-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M14.752 11.168l-3.197-2.132A1 1 0 0010 10v4a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      Start Your Demo
+                    </h4>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
+                      See exactly how your future customers will shop
+                    </p>
+                  </div>
+
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-6 text-lg shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
+                  >
+                    <Link
+                      href="/products"
+                      className="flex items-center justify-center gap-3"
+                    >
+                      <Play className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                      Launch Interactive Demo
+                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+
+                  <div className="mt-6 text-center">
+                    <Link
+                      href="/demo-guide"
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center justify-center gap-2"
+                    >
+                      <HelpCircle className="h-4 w-4" />
+                      See how it works
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full -translate-y-20 translate-x-20 opacity-20 blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-cyan-400 to-blue-400 rounded-full translate-y-16 -translate-x-16 opacity-20 blur-3xl" />
           </AnimatedSection>
         </div>
       </CompactSection>

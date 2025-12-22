@@ -11,7 +11,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 
@@ -65,13 +64,13 @@ export function FloatingCartButton() {
 
       {/* Cart modal */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger>Open</DialogTrigger>
+        {/* REMOVED: <DialogTrigger>Open</DialogTrigger> */}
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Your Cart</DialogTitle>
             <DialogDescription>
               Review your items before checkout. Make sure everything looks good
-              before you hit “Pay”.
+              before you hit "Pay".
             </DialogDescription>
           </DialogHeader>
           <Cart />

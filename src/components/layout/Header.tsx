@@ -25,6 +25,7 @@ const navigation = [
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
   { name: "Pricing", href: "/pricing" },
+  { name: "Guide", href: "/demo-guide" },
 ];
 
 const adminNavigation = [
