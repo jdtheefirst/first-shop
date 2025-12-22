@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 
   // Social media example
   openGraph: {
-    title: "Finest Shop Example Store",
+    title: "Finest Shop | An Online Store Example",
     description: "A modern e-commerce shop demonstration",
     type: "website",
     images: ["/images/demo-store-preview.jpg"],

@@ -446,9 +446,22 @@ export default function ProductDetailPage({
 
           <TabsContent value="description" className="space-y-4">
             <Card>
-              <CardContent className="p-6">
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <CardContent>
+                <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h2: ({ node, ...props }) => (
+                        <h2 className="text-xl font-semibold mb-3" {...props} />
+                      ),
+                      h3: ({ node, ...props }) => (
+                        <h3 className="text-lg font-semibold mb-2" {...props} />
+                      ),
+                      ul: ({ node, ...props }) => (
+                        <ul className="list-disc pl-5 space-y-1" {...props} />
+                      ),
+                    }}
+                  >
                     {product.description}
                   </ReactMarkdown>
                 </div>
@@ -546,7 +559,7 @@ export default function ProductDetailPage({
             relatedProducts.map((relatedProduct) => (
               <Card
                 key={relatedProduct.id}
-                className="group hover:shadow-lg transition-all hover:-translate-y-1"
+                className="group hover:shadow-lg transition-all hover:-translate-y-1 pt-2"
               >
                 <Link href={`/products/${relatedProduct.slug}`}>
                   <div className="aspect-square relative overflow-hidden">

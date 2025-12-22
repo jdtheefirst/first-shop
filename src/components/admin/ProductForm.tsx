@@ -61,7 +61,7 @@ const productSchema = z.object({
   category: z.string().min(1, "Please select a category."),
   belt_level: z.string(),
   currency: z.string(),
-  tags: z.string().optional(),
+  tags: z.array(z.string()).optional().default([]),
   featured: z.boolean().optional().default(false),
   weight: z
     .preprocess((val) => {
@@ -117,7 +117,7 @@ export default function ProductForm({
       category: "",
       belt_level: "all",
       currency: "KES",
-      tags: "",
+      tags: [],
       featured: false,
       Weight: 0,
     },
@@ -153,9 +153,7 @@ export default function ProductForm({
             ? Number(values.originalPrice)
             : null,
         stock: Number(values.stock),
-        tags: values.tags
-          ? values.tags.split(",").map((tag) => tag.trim())
-          : [],
+        tags: values.tags || [],
         images: values.images || [],
       };
 
