@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   // Rate limiting
   const { success } = await secureRatelimit(request);
   if (!success) {
+    console.log("issue here");
     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
 

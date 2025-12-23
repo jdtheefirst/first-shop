@@ -8,6 +8,7 @@ import {
   useMemo,
   useCallback,
   ReactNode,
+  useRef,
 } from "react";
 import {
   User as SupabaseUser,
@@ -33,7 +34,7 @@ interface AuthContextType {
   deleteFileFromSupabase: (
     fileUrl: string,
     bucketName: string
-  ) => Promise<boolean>; // ✅ Also needed!
+  ) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,11 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [supabase] = useState(() => getSupabaseClient());
+  const initializedRef = useRef(false); // Prevent double initialization
 
   const fetchUserRole = useCallback(
     async (supabaseUser: SupabaseUser) => {
-      setLoading(true);
-
       try {
         const { data, error } = await supabase
           .from("users_profile")
@@ -54,25 +54,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .eq("id", supabaseUser.id)
           .maybeSingle();
 
-          if (error) {
-        console.error("Error fetching user role:", error.message);
-        
-        if (
-          error.code?.includes("AUTH") ||
-          error.message?.includes("Invalid") ||
-          error.status === 400
-        ) {
-          await supabase.auth.signOut();
+        if (error) {
+          console.error("Error fetching user role:", error.message);
+
+          if (
+            error.code?.includes("AUTH") ||
+            error.message?.includes("Invalid") ||
+            error.status === 400
+          ) {
+            await supabase.auth.signOut();
+          }
+          return;
         }
-        return;
-      }
 
         if (!data) {
           console.warn("No user found with that ID.");
           return;
         }
 
-        // Remove password fields and ensure type consistency
         const profileData: ProfileData = {
           id: data.id,
           email: data.email,
@@ -101,17 +100,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    // Prevent double initialization
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
     let mounted = true;
+    let unsubscribe: (() => void) | undefined;
 
     const initializeAuth = async () => {
+      console.log("🔄 Initializing auth...");
+
+      // CRITICAL FIX: Use getSession with refreshSession: false
       const {
         data: { session },
         error,
-      } = await supabase.auth.getSession();
+      } = await supabase.auth.getSession({
+        refreshSession: false, // This prevents automatic token refresh
+      });
 
       if (error) {
         console.error("Error getting session:", error.message);
-        setLoading(false);
+        if (mounted) setLoading(false);
         return;
       }
 
@@ -126,25 +135,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     initializeAuth();
 
+    // Set up auth state change listener
     const {
       data: { subscription },
-    }: {
-      data: { subscription: { unsubscribe: () => void } };
-    } = supabase.auth.onAuthStateChange((_event: string, session: Session) => {
-      if (!mounted) return;
+    } = supabase.auth.onAuthStateChange(
+      (_event: string, session: Session | null) => {
+        if (!mounted) return;
 
-      (async () => {
-        if (session?.user) {
-          await fetchUserRole(session.user);
-        } else {
-          setLoading(false);
-        }
-      })(); // wrapped in IIFE
-    });
+        (async () => {
+          if (session?.user) {
+            await fetchUserRole(session.user);
+          } else {
+            setProfile(null);
+            setLoading(false);
+          }
+        })();
+      }
+    );
+
+    unsubscribe = subscription?.unsubscribe;
 
     return () => {
+      console.log("🧹 Cleaning up auth listener");
       mounted = false;
-      subscription.unsubscribe();
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, [fetchUserRole, supabase]);
 
@@ -157,12 +173,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
     });
 
-    if (error) throw error;
+    if (error) {
+      return { error };
+    }
 
-    const { access_token, refresh_token } = data.session!;
-    await supabase.auth.setSession({ access_token, refresh_token });
+    // CRITICAL: Don't manually setSession - this causes token refresh
+    // The session is already set by signInWithPassword
+    // await supabase.auth.setSession({ access_token, refresh_token });
 
-    return { error };
+    return { error: null };
   };
 
   // Login with magic link
@@ -202,10 +221,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
-  /**
-   * Deletes a file from Supabase Storage using its public URL.
-   * Only works in the browser (requires cookie-based auth).
-   */
   const deleteFileFromSupabase = async (
     fileUrl: string | null,
     bucketName: string | null

@@ -13,6 +13,7 @@ export function getSupabaseClient() {
         cookieEncoding: "base64url",
         auth: {
           flowType: "pkce",
+          autoRefreshToken: false,
         },
       }
     );
