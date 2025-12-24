@@ -150,10 +150,10 @@ export default function DemoGuidePage() {
               </Badge>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Interactive Store Demo Guide
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl">
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl">
               Experience our complete e-commerce platform with real payments,
               full refunds, and admin dashboard access.
             </p>
@@ -161,14 +161,14 @@ export default function DemoGuidePage() {
 
           {/* Important Notice */}
           <Card className="mb-8 border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/20">
-            <CardContent className="p-6">
+            <CardContent>
               <div className="flex items-start gap-4">
                 <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="text-lg font-bold text-amber-800 dark:text-amber-300 mb-2">
+                  <h3 className="sm:text-lg font-bold text-amber-800 dark:text-amber-300 mb-2">
                     Important: This is a REAL Store with REAL Payments
                   </h3>
-                  <div className="space-y-2 text-amber-700 dark:text-amber-400">
+                  <div className="text-sm space-y-2 text-amber-700 dark:text-amber-400">
                     <p className="flex items-start gap-2">
                       <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
                       <span>
@@ -183,7 +183,7 @@ export default function DemoGuidePage() {
                     </p>
                     <p className="flex items-start gap-2">
                       <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                      <span>Maximum test amount: KES 500 (about $5)</span>
+                      <span>Maximum test amount: KES 500</span>
                     </p>
                   </div>
                 </div>
@@ -193,7 +193,7 @@ export default function DemoGuidePage() {
 
           {/* Demo Steps */}
           <div className="mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+            <h2 className="text-lg sm:text-3xl font-bold text-gray-900 dark:text-white mb-8">
               How to Test Our Platform
             </h2>
 
@@ -203,7 +203,7 @@ export default function DemoGuidePage() {
                   key={index}
                   className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 >
-                  <CardContent className="p-6">
+                  <CardContent>
                     <div className="flex items-start gap-4">
                       <div
                         className={`h-12 w-12 rounded-lg bg-gradient-to-r ${step.color} flex items-center justify-center text-white font-bold text-lg`}
@@ -211,11 +211,11 @@ export default function DemoGuidePage() {
                         {step.number}
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex sm:items-center gap-3 mb-2">
                           <step.icon
                             className={`h-5 w-5 bg-gradient-to-r ${step.color} bg-clip-text text-transparent`}
                           />
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                          <h3 className="sm:text-xl font-bold text-gray-900 dark:text-white">
                             {step.title}
                           </h3>
                         </div>
@@ -257,15 +257,15 @@ export default function DemoGuidePage() {
 
           {/* Refund Timeline */}
           <div className="mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+            <h2 className="text-lg sm:text-3xl font-bold text-gray-900 dark:text-white mb-8">
               Refund Process & Timeline
             </h2>
 
             <Card>
-              <CardContent className="p-6">
+              <CardContent>
                 <div className="flex items-center gap-3 mb-6">
                   <RefreshCw className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h3 className="sm:text-xl font-bold text-gray-900 dark:text-white">
                     Your Money is Always Safe
                   </h3>
                 </div>
@@ -292,8 +292,8 @@ export default function DemoGuidePage() {
                           </div>
                         </div>
 
-                        <div>
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                        <div className="pl-4">
+                          <h4 className="sm:text-lg font-bold text-gray-900 dark:text-white mb-1">
                             {detail.time}
                           </h4>
                           <p className="text-gray-600 dark:text-gray-300">
@@ -319,8 +319,8 @@ export default function DemoGuidePage() {
           <div className="mb-12">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                  Admin Dashboard Access
+                <h2 className="text-lg sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  Admin Access
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300">
                   See how you'll manage your actual store
@@ -343,7 +343,7 @@ export default function DemoGuidePage() {
                   key={index}
                   className="group hover:shadow-lg transition-all duration-300"
                 >
-                  <CardContent className="p-5">
+                  <CardContent>
                     <div className="flex flex-col items-center text-center">
                       <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <feature.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -363,9 +363,9 @@ export default function DemoGuidePage() {
 
           {/* Contact & Support */}
           <Card className="mb-8">
-            <CardContent className="p-8">
+            <CardContent>
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                <h2 className="text-lg sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
                   Need Help During Your Demo?
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
@@ -390,7 +390,7 @@ export default function DemoGuidePage() {
                   </p>
                 </div>
 
-                <div className="text-center p-6 rounded-xl border hover:shadow-lg transition-shadow">
+                <div className="text-center p-3 sm:p-6 rounded-xl border hover:shadow-lg transition-shadow">
                   <div className="h-12 w-12 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 flex items-center justify-center mx-auto mb-4">
                     <Phone className="h-6 w-6 text-green-600 dark:text-green-400" />
                   </div>
@@ -426,7 +426,7 @@ export default function DemoGuidePage() {
           {/* Final CTA */}
           <div className="text-center">
             <div className="max-w-2xl mx-auto mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              <h2 className="text-lg sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
                 Ready to Experience Real E-commerce?
               </h2>
               <p className="text-gray-600 dark:text-gray-300">

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       )
       .eq("featured", true)
       .order("created_at", { ascending: false })
-      .limit(8); // Limit to 8 featured products
+      .limit(10); // Limit to 8 featured products
 
     if (error) {
       console.error("Error fetching featured products:", error);
