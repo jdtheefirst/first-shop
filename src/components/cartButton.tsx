@@ -44,7 +44,7 @@ export function FloatingCartButton() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-8 right-4 z-50 flex items-center space-x-2 px-4 py-2 rounded-full shadow-lg hover:bg-primary/90"
+        className="fixed bottom-8 right-4 z-50 flex items-center space-x-2 px-4 py-2 rounded-full shadow-lg hover:bg-yellow-600 cursor-pointer"
       >
         <div className="relative">
           <ShoppingCart className="w-5 h-5" />

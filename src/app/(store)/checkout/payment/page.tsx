@@ -322,7 +322,7 @@ export default function PaymentPage() {
 
                     <Button
                       onClick={handleMPesaPayment}
-                      className="w-full h-14 text-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                      className="w-full h-14 sm:text-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
                       disabled={
                         paymentStatus === "processing" ||
                         phoneNumber.length !== 12
