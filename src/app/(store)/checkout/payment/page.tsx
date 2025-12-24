@@ -46,161 +46,73 @@ export default function PaymentPage() {
 
   if (!orderData) return null;
 
-  // Format phone number for display
-  const formatPhoneNumber = (phone: string) => {
-    if (phone.startsWith("254")) {
-      return `+${phone.slice(0, 3)} ${phone.slice(3, 6)} ${phone.slice(6)}`;
-    }
-    return phone;
-  };
-
   // Real M-Pesa payment with actual integration
   const handleMPesaPayment = async () => {
     setPaymentStatus("processing");
-    setErrorMessage("");
 
     try {
-      // Check authentication
       if (!profile) {
-        toast.info("Please log in to complete your payment");
-        return router.push(`/login?redirect=/checkout/payment`);
+        toast.info("Haven't logged in yet, redirecting to login...");
+        return router.push("/login");
       }
 
-      // Validate phone number
-      const cleanPhoneNumber = phoneNumber.replace(/\D/g, "");
-      if (
-        !cleanPhoneNumber ||
-        cleanPhoneNumber.length !== 12 ||
-        !cleanPhoneNumber.startsWith("254")
-      ) {
+      if (!phoneNumber) {
         setPaymentStatus("error");
-        setErrorMessage(
-          "Please enter a valid Kenyan phone number starting with 254"
-        );
-        toast.error("Enter a valid Kenyan phone number (e.g., 254712345678)");
+        setErrorMessage("Please enter your phone number.");
+        toast.error("Please enter your phone number.");
         return;
       }
 
       // Show processing state
       toast.info("Initiating M-Pesa STK Push...");
 
-      // Call real M-Pesa API with your live credentials
-      const res = await fetch("/api/checkout/mpesa/stk-push", {
+      const res = await fetch("/api/checkout/mpesa/initial", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_MPESA_API_KEY}`, // Your actual API key
-        },
-        body: JSON.stringify({
-          amount: orderData.totalAmount || orderData.total,
-          phoneNumber: cleanPhoneNumber,
-          accountReference: `ORDER-${Date.now()}`,
-          transactionDesc: `Payment for order #${orderData.orderId || "DEMO"}`,
-          callbackUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/api/checkout/mpesa/callback`,
-          orderData: {
-            orderId: orderData.orderId,
-            customerEmail: orderData.shipping?.email,
-            items: orderData.items,
-          },
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart: state.pendingOrder, phoneNumber }),
       });
 
       const data = await res.json();
 
-      if (!res.ok || data.error) {
-        setPaymentStatus("error");
-        const errorMsg = data.message || "Failed to initiate M-Pesa payment";
-        setErrorMessage(errorMsg);
-        toast.error(errorMsg);
-        console.error("M-Pesa API Error:", data);
-        return;
+      class MpesaError extends Error {
+        constructor(message: string, public code?: string) {
+          super(message);
+          this.name = "MpesaError";
+        }
       }
 
-      // Success - real M-Pesa request sent
+      if (!res.ok) {
+        throw new MpesaError(data.error, data.code);
+      }
+
+      // Simulate successful payment
       setPaymentStatus("success");
 
-      // Record transaction in your system
-      await fetch("/api/orders/record-transaction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId: orderData.orderId,
-          paymentMethod: "mpesa",
-          amount: orderData.totalAmount || orderData.total,
-          status: "pending",
-          transactionReference: data.CheckoutRequestID,
-          customerPhone: cleanPhoneNumber,
-          timestamp: new Date().toISOString(),
-        }),
-      });
-
+      // Received an STK push notification
       toast.success(
-        "M-Pesa STK Push sent! Check your phone to complete payment.",
-        {
-          duration: 5000,
-          action: {
-            label: "View Status",
-            onClick: () =>
-              router.push(`/orders/tracking?ref=${data.CheckoutRequestID}`),
-          },
-        }
+        "M-Pesa STK Push sent! Check your phone to complete payment."
       );
 
-      // Show success message and redirect
-      setTimeout(() => {
-        router.push(
-          `/checkout/success?orderId=${orderData.orderId}&transactionId=${data.CheckoutRequestID}`
-        );
-      }, 2000);
-    } catch (error) {
-      console.error("Payment processing error:", error);
-      setPaymentStatus("error");
-      setErrorMessage(
-        "There was an error processing your payment. Please try again or contact support."
-      );
-      toast.error(
-        "Payment processing failed. Please try again or contact support.",
-        {
-          duration: 5000,
-          action: {
-            label: "Contact Support",
-            onClick: () => router.push("/contact"),
-          },
-        }
-      );
-    }
-  };
+      const { orderId: confirmedOrderId, data: mpesaResponse } = data;
 
-  // Real PayPal payment
-  const handlePayPalPayment = async () => {
-    setPaymentStatus("processing");
-
-    try {
-      // Create PayPal order
-      const res = await fetch("/api/checkout/paypal/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: orderData.totalAmount || orderData.total,
-          currency: "USD",
-          orderId: orderData.orderId,
-          items: orderData.items,
-          customerEmail: orderData.shipping?.email,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || data.error) {
-        throw new Error(data.message || "Failed to create PayPal order");
+      if (mpesaResponse?.CustomerMessage) {
+        toast.info(mpesaResponse.CustomerMessage);
       }
 
-      // Redirect to PayPal for payment
-      window.location.href = data.approvalUrl;
+      router.push(`/checkout/success?orderId=${confirmedOrderId}`);
     } catch (error) {
-      console.error("PayPal error:", error);
+      console.error("Payment error:", error);
       setPaymentStatus("error");
-      toast.error("Failed to initiate PayPal payment");
+      setErrorMessage(
+        "There was an error processing your M-Pesa payment. Please try again."
+      );
+      toast.error("Failed. Please try again.", {
+        duration: 5000,
+        action: {
+          label: "Contact Support",
+          onClick: () => router.push("/contact"),
+        },
+      });
     }
   };
 
@@ -480,7 +392,9 @@ export default function PaymentPage() {
                     </div>
 
                     <Button
-                      onClick={handlePayPalPayment}
+                      onClick={() => {
+                        router.push("/checkout/processing/initial");
+                      }}
                       className="w-full h-14 text-lg bg-[#0070ba] hover:bg-[#003087]"
                       disabled={paymentStatus === "processing"}
                     >
