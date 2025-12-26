@@ -15,7 +15,7 @@ import {
   Session,
   AuthError,
 } from "@supabase/supabase-js";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { ProfileData } from "@/types/student";
 
 interface AuthContextType {
@@ -30,7 +30,11 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithTwitter: () => Promise<void>;
   signOut: () => Promise<void>;
-  supabase: ReturnType<typeof getSupabaseClient>;
+  supabase: typeof supabase;
+  debounce: <T extends (...args: any[]) => void>(
+    func: T,
+    wait: number
+  ) => (...args: Parameters<T>) => void;
   deleteFileFromSupabase: (
     fileUrl: string,
     bucketName: string
@@ -39,84 +43,97 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Add debounce utility function
+function debounce<T extends (...args: any[]) => void>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null;
+
+  return (...args: Parameters<T>) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+      func(...args);
+      timeout = null;
+    }, wait);
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [supabase] = useState(() => getSupabaseClient());
+  const supabaseRef = useRef(supabase);
   const initializedRef = useRef(false); // Prevent double initialization
 
-  const fetchUserRole = useCallback(
-    async (supabaseUser: SupabaseUser) => {
-      try {
-        const { data, error } = await supabase
-          .from("users_profile")
-          .select("*")
-          .eq("id", supabaseUser.id)
-          .maybeSingle();
+  const fetchUserRole = useCallback(async (supabaseUser: SupabaseUser) => {
+    try {
+      const { data, error } = await supabaseRef.current
+        .from("users_profile")
+        .select("*")
+        .eq("id", supabaseUser.id)
+        .maybeSingle();
 
-        if (error) {
-          console.error("Error fetching user role:", error.message);
+      if (error) {
+        console.error("Error fetching user role:", error.message);
 
-          if (
-            error.code?.includes("AUTH") ||
-            error.message?.includes("Invalid") ||
-            error.status === 400
-          ) {
-            await supabase.auth.signOut();
-          }
-          return;
+        if (
+          error.code?.includes("AUTH") ||
+          error.message?.includes("Invalid") ||
+          error.code === "400"
+        ) {
+          await supabaseRef.current.auth.signOut();
         }
-
-        if (!data) {
-          console.warn("No user found with that ID.");
-          return;
-        }
-
-        const profileData: ProfileData = {
-          id: data.id,
-          email: data.email,
-          full_name: data.full_name,
-          country_code: data.country_code,
-          county_code: data.county_code,
-          postal_address: data.postal_address,
-          phone_number: data.phone_number || "",
-          avatar_url: data.avatar_url,
-          language: data.language,
-          gender: data.gender,
-          admission_no: data.admission_no,
-          belt_level: data.belt_level,
-          role: data.role,
-          referred_by: data.referred_by,
-        };
-
-        setProfile(profileData);
-      } catch (err) {
-        console.error("Unexpected error in fetchUserRole:", err);
-      } finally {
-        setLoading(false);
+        return;
       }
-    },
-    [supabase]
-  );
+
+      if (!data) {
+        console.warn("No user found with that ID.");
+        return;
+      }
+
+      const profileData: ProfileData = {
+        id: data.id,
+        email: data.email,
+        full_name: data.full_name,
+        country_code: data.country_code,
+        county_code: data.county_code,
+        postal_address: data.postal_address,
+        phone_number: data.phone_number || "",
+        avatar_url: data.avatar_url,
+        language: data.language,
+        gender: data.gender,
+        admission_no: data.admission_no,
+        belt_level: data.belt_level,
+        role: data.role,
+        referred_by: data.referred_by,
+      };
+
+      setProfile(profileData);
+    } catch (err) {
+      console.error("Unexpected error in fetchUserRole:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    // Prevent double initialization
     if (initializedRef.current) return;
     initializedRef.current = true;
 
     let mounted = true;
-    let unsubscribe: (() => void) | undefined;
+    let authSubscription: { unsubscribe: () => void } | null = null;
 
-    const initializeAuth = async () => {
+    const initializeAuth = debounce(async () => {
       console.log("🔄 Initializing auth...");
 
-      // CRITICAL FIX: Use getSession with refreshSession: false
+      // Use the ref instance
       const {
         data: { session },
         error,
-      } = await supabase.auth.getSession({
-        refreshSession: false, // This prevents automatic token refresh
-      });
+      } = await supabaseRef.current.auth.getSession();
 
       if (error) {
         console.error("Error getting session:", error.message);
@@ -131,44 +148,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLoading(false);
         }
       }
-    };
+    }, 1000);
 
     initializeAuth();
 
-    // Set up auth state change listener
+    // Set up auth state change listener - only ONE
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (_event: string, session: Session | null) => {
+    } = supabaseRef.current.auth.onAuthStateChange(
+      async (event: Event, session: Session) => {
         if (!mounted) return;
 
-        (async () => {
-          if (session?.user) {
-            await fetchUserRole(session.user);
-          } else {
-            setProfile(null);
-            setLoading(false);
-          }
-        })();
+        console.log("Auth state changed:", event);
+
+        if (session?.user) {
+          await fetchUserRole(session.user);
+        } else {
+          setProfile(null);
+          setLoading(false);
+        }
       }
     );
 
-    unsubscribe = subscription?.unsubscribe;
+    authSubscription = subscription;
 
     return () => {
       console.log("🧹 Cleaning up auth listener");
       mounted = false;
-      if (unsubscribe) {
-        unsubscribe();
+      if (authSubscription) {
+        authSubscription.unsubscribe();
       }
+      initializedRef.current = false; // Reset for next mount
     };
-  }, [fetchUserRole, supabase]);
+  }, [fetchUserRole]); // Only fetchUserRole in dependencies
 
   const signIn = async (
     email: string,
     password: string
   ): Promise<{ error: AuthError | null }> => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseRef.current.auth.signInWithPassword({
       email,
       password,
     });
@@ -197,7 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithGoogle = async (): Promise<void> => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabaseRef.current.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
@@ -207,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithTwitter = async (): Promise<void> => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabaseRef.current.auth.signInWithOAuth({
       provider: "twitter",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
@@ -217,42 +235,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async (): Promise<void> => {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabaseRef.current.auth.signOut();
     if (error) throw error;
   };
 
-  const deleteFileFromSupabase = async (
-    fileUrl: string | null,
-    bucketName: string | null
-  ): Promise<boolean> => {
-    if (!fileUrl || !bucketName) {
-      console.warn("Missing URL or bucket name.");
-      return false;
-    }
-
-    try {
-      const prefix = "/storage/v1/object/public/";
-      const [_, path] = fileUrl.split(prefix);
-
-      if (!path) {
-        console.warn("Invalid Supabase URL format:", fileUrl);
+  // Wrap deleteFileFromSupabase in useCallback
+  const deleteFileFromSupabase = useCallback(
+    async (
+      fileUrl: string | null,
+      bucketName: string | null
+    ): Promise<boolean> => {
+      if (!fileUrl || !bucketName) {
+        console.warn("Missing URL or bucket name.");
         return false;
       }
 
-      const { error } = await supabase.storage.from(bucketName).remove([path]);
+      try {
+        const prefix = "/storage/v1/object/public/";
+        const [_, path] = fileUrl.split(prefix);
 
-      if (error) {
-        console.error("Supabase delete error:", error.message);
+        if (!path) {
+          console.warn("Invalid Supabase URL format:", fileUrl);
+          return false;
+        }
+
+        const { error } = await supabaseRef.current.storage
+          .from(bucketName)
+          .remove([path]);
+
+        if (error) {
+          console.error("Supabase delete error:", error.message);
+          return false;
+        }
+
+        console.log("Deleted from Supabase:", path);
+        return true;
+      } catch (err) {
+        console.error("Unexpected delete error:", err);
         return false;
       }
-
-      console.log("Deleted from Supabase:", path);
-      return true;
-    } catch (err) {
-      console.error("Unexpected delete error:", err);
-      return false;
-    }
-  };
+    },
+    []
+  ); // Empty deps since it uses supabaseRef
 
   const value = useMemo<AuthContextType>(() => {
     return {
@@ -266,6 +290,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       deleteFileFromSupabase,
       supabase,
+      debounce,
     };
   }, [
     profile,
