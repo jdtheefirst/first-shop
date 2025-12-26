@@ -510,7 +510,7 @@ export default function PaymentPage() {
                         </div>
                       </div>
                       <p className="font-medium">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        KES{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   ))}
@@ -523,7 +523,7 @@ export default function PaymentPage() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">
-                      $
+                      KES
                       {orderData.totalAmount
                         ? (
                             orderData.totalAmount -
@@ -537,7 +537,7 @@ export default function PaymentPage() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Shipping</span>
                       <span className="font-medium">
-                        ${orderData.shippingCost.toFixed(2)}
+                        KES{orderData.shippingCost.toFixed(2)}
                       </span>
                     </div>
                   )}
@@ -546,7 +546,8 @@ export default function PaymentPage() {
                     <div className="flex justify-between text-lg font-bold">
                       <span>Total</span>
                       <span>
-                        ${(orderData.totalAmount || orderData.total).toFixed(2)}
+                        KES
+                        {(orderData.totalAmount || orderData.total).toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -605,7 +606,7 @@ export default function PaymentPage() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Amount</span>
                   <span className="font-medium">
-                    ${(orderData.totalAmount || orderData.total).toFixed(2)}
+                    KES{(orderData.totalAmount || orderData.total).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">

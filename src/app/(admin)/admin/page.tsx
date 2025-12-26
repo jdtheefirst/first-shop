@@ -41,7 +41,7 @@ export default function AdminDashboard() {
       }
     };
     fecthData();
-  }, [supabase]);
+  }, []);
 
   return (
     <div className="px-2 py-6">
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
                 Total Sales
               </p>
               <h3 className="text-2xl font-bold mt-1">
-                ${stats.totalSales.toLocaleString()}
+                KES{stats.totalSales.toLocaleString()}
               </h3>
             </div>
             <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -218,7 +218,7 @@ export default function AdminDashboard() {
                         {format(new Date(order.date), "yyyy-MM-dd")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        ${order.total}
+                        KES{order.total}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <span

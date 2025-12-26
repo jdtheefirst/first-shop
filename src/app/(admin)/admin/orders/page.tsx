@@ -248,7 +248,7 @@ export default function AdminOrdersPage() {
                   <TableCell>
                     {format(new Date(order.date), "yyyy-MM-dd")}
                   </TableCell>
-                  <TableCell>${order.total.toFixed(2)}</TableCell>
+                  <TableCell>KES{order.total.toFixed(2)}</TableCell>
                   <TableCell>{order.items}</TableCell>
                   <TableCell>
                     <span

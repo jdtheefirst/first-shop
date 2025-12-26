@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
                 Total Sales
               </p>
               <h3 className="text-2xl font-bold mt-1">
-                ${stats.totalSales.toLocaleString()}
+                KES{stats.totalSales.toLocaleString()}
               </h3>
             </div>
             <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -213,11 +213,11 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip
-                  formatter={(value) => [`$${value}`, "Sales"]}
+                  formatter={(value) => [`KES${value}`, "Sales"]}
                   labelFormatter={(label) => `Month: ${label}`}
                 />
                 <Legend />
-                <Bar dataKey="sales" fill="#8884d8" name="Sales ($)" />
+                <Bar dataKey="sales" fill="#8884d8" name="Sales (KES)" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -299,35 +299,35 @@ export default function AnalyticsPage() {
                 <p className="font-medium">Premium Karate Gi</p>
                 <p className="text-sm text-muted-foreground">42 units sold</p>
               </div>
-              <p className="font-semibold">$3,779.58</p>
+              <p className="font-semibold">KES 3,779</p>
             </div>
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium">Competition Sparring Gear Set</p>
                 <p className="text-sm text-muted-foreground">38 units sold</p>
               </div>
-              <p className="font-semibold">$4,939.62</p>
+              <p className="font-semibold">KES 4,939</p>
             </div>
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium">Black Belt - Premium Cotton</p>
                 <p className="text-sm text-muted-foreground">35 units sold</p>
               </div>
-              <p className="font-semibold">$1,224.65</p>
+              <p className="font-semibold">KES 1,224</p>
             </div>
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium">Training Gloves</p>
                 <p className="text-sm text-muted-foreground">30 units sold</p>
               </div>
-              <p className="font-semibold">$1,499.70</p>
+              <p className="font-semibold">KES 1,499</p>
             </div>
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium">Focus Pads</p>
                 <p className="text-sm text-muted-foreground">28 units sold</p>
               </div>
-              <p className="font-semibold">$839.72</p>
+              <p className="font-semibold">KES 839</p>
             </div>
           </div>
         </div>
