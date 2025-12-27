@@ -58,7 +58,7 @@ export default function CustomersPage() {
 
   useEffect(() => {
     fetchCustomers();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, supabase]);
 
   const fetchCustomers = async () => {
     try {
@@ -178,12 +178,12 @@ export default function CustomersPage() {
 
       {/* Customers Table */}
       <Card className="border-none shadow-none">
-        <CardHeader className="p-0">
+        <CardHeader>
           <CardTitle>Customer List</CardTitle>
           <CardDescription>{totalCount} customers found</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
+        <CardContent className="p-2 sm:p-6">
+          <div className="rounded-md border px-0 pb-0">
             <div className="relative w-full overflow-auto">
               <table className="w-full caption-bottom text-sm">
                 <thead>

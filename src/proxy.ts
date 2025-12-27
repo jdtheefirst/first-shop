@@ -4,7 +4,7 @@ import { UAParser } from "ua-parser-js";
 import { supabaseAdmin } from "./lib/supabase/admin";
 import { createMiddlewareSupabaseClient } from "./lib/supabase/middleware";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // Skip certain file types

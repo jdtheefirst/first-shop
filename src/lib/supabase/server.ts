@@ -74,34 +74,3 @@ export async function createClient() {
 
   return client;
 }
-
-// For admin operations only (rarely used)
-export async function createAdminClient() {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY is required for admin operations"
-    );
-  }
-
-  const cookieStore = await cookies();
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!, // Service role for admin
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {
-          // Service role client doesn't need to set cookies
-        },
-      },
-      auth: {
-        autoRefreshToken: false, // CRITICAL: Disable auto-refresh
-        persistSession: true,
-        detectSessionInUrl: false,
-      },
-    }
-  );
-}
